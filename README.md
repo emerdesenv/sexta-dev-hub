@@ -129,15 +129,3 @@ docker compose logs nginx -f
 curl http://localhost:3000/api/health
 curl http://localhost:8080/api/health
 ```
-
-### Erro 500 no upload
-Nesta V4 já foi adicionada compatibilidade com `audio/x-m4a`, `audio/m4a` e arquivos cujo navegador envia `application/octet-stream`.
-
-## Próximos passos sugeridos
-- HTTPS automático com Certbot
-- recuperação de senha
-- auditoria de ações do professor
-- categorias fixas e trilhas
-- dashboard com métricas
-- armazenamento externo compatível com S3
-- CI/CD com GitHub Actions
