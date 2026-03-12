@@ -1,4 +1,4 @@
-# Sexta Dev Hub V4
+# Sexta Dev Hub
 
 Plataforma fullstack para microaulas em formato de podcast educacional, com área pública para alunos e área administrativa para professor.
 
@@ -29,15 +29,9 @@ Plataforma fullstack para microaulas em formato de podcast educacional, com áre
 - Healthcheck direto: `http://IP/health`
 - Healthcheck API: `http://IP/api/health`
 
-## Credenciais iniciais
-- usuário: `professor`
-- senha: `prof123`
-
-Troque essas credenciais antes de produção.
-
 ## Como rodar localmente com Docker
 ```bash
-cd sexta-dev-hub-v4
+cd sexta-dev-hub
 docker compose up --build
 ```
 
