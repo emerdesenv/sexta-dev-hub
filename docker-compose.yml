@@ -1,17 +1,19 @@
 services:
   mysql:
     image: mysql:8.4
+    env_file:
+      - .env
     environment:
-      MYSQL_ROOT_PASSWORD: root123
-      MYSQL_DATABASE: sextadev
-      MYSQL_USER: sextadev
-      MYSQL_PASSWORD: sextadev123
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot123"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 10s
       timeout: 5s
       retries: 15
@@ -20,10 +22,8 @@ services:
 
   backend:
     build: ./backend
-    env_file: ./backend/.env.example
-    environment:
-      DB_HOST: mysql
-      FRONTEND_URL: http://localhost:8080,http://localhost:5173
+    env_file:
+      - ./backend/.env
     volumes:
       - ./backend/uploads:/app/uploads
     depends_on:
@@ -38,7 +38,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: /api
+        VITE_API_URL: ${VITE_API_URL}
     depends_on:
       - backend
     restart: unless-stopped
@@ -46,7 +46,8 @@ services:
   nginx:
     image: nginx:1.27-alpine
     ports:
-      - "8080:80"
+      - "80:80"
+      - "443:443"
     volumes:
       - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
