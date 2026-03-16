@@ -1,6 +1,6 @@
 services:
   traefik:
-    image: traefik:v3.0
+    image: traefik:v2.11
     container_name: sexta_dev_traefik
     command:
       - --api.dashboard=true
@@ -25,6 +25,26 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik/letsencrypt:/letsencrypt
     restart: unless-stopped
+    labels:
+      - traefik.enable=true
+
+      # Dashboard protegido
+      - traefik.http.routers.traefik.rule=Host(`traefik.${DOMAIN}`)
+      - traefik.http.routers.traefik.entrypoints=websecure
+      - traefik.http.routers.traefik.tls=true
+      - traefik.http.routers.traefik.tls.certresolver=le
+      - traefik.http.routers.traefik.service=api@internal
+      - traefik.http.routers.traefik.middlewares=traefik-auth,secure-headers
+
+      # Usuário: admin / senha de exemplo; troque esse hash
+      - traefik.http.middlewares.traefik-auth.basicauth.users=admin:$$apr1$$H6uskkkW$$IgXLP6ewTrSuBkTrqE8wj/
+
+      # Headers de segurança globais
+      - traefik.http.middlewares.secure-headers.headers.browserXssFilter=true
+      - traefik.http.middlewares.secure-headers.headers.contentTypeNosniff=true
+      - traefik.http.middlewares.secure-headers.headers.frameDeny=true
+      - traefik.http.middlewares.secure-headers.headers.referrerPolicy=strict-origin-when-cross-origin
+      - traefik.http.middlewares.secure-headers.headers.customResponseHeaders.X-Forwarded-Proto=https
     networks:
       - sexta_dev_net
 
@@ -67,6 +87,7 @@ services:
       - traefik.http.routers.backend.entrypoints=websecure
       - traefik.http.routers.backend.tls=true
       - traefik.http.routers.backend.tls.certresolver=le
+      - traefik.http.routers.backend.middlewares=secure-headers
       - traefik.http.services.backend.loadbalancer.server.port=3000
     networks:
       - sexta_dev_net
@@ -83,17 +104,25 @@ services:
     restart: unless-stopped
     labels:
       - traefik.enable=true
-      - traefik.http.routers.frontend.rule=Host(`${DOMAIN}`) || Host(`www.${DOMAIN}`)
+
+      # Domínio principal
+      - traefik.http.routers.frontend.rule=Host(`${DOMAIN}`)
       - traefik.http.routers.frontend.entrypoints=websecure
       - traefik.http.routers.frontend.tls=true
       - traefik.http.routers.frontend.tls.certresolver=le
+      - traefik.http.routers.frontend.middlewares=secure-headers
       - traefik.http.services.frontend.loadbalancer.server.port=80
 
-      # redireciona www -> sem www
-      - traefik.http.middlewares.redirect-www.redirectregex.regex=^https://www\\.(.+)
-      - traefik.http.middlewares.redirect-www.redirectregex.replacement=https://$${1}
-      - traefik.http.middlewares.redirect-www.redirectregex.permanent=true
-      - traefik.http.routers.frontend.middlewares=redirect-www
+      # WWW -> domínio principal
+      - traefik.http.routers.frontend-www.rule=Host(`www.${DOMAIN}`)
+      - traefik.http.routers.frontend-www.entrypoints=websecure
+      - traefik.http.routers.frontend-www.tls=true
+      - traefik.http.routers.frontend-www.tls.certresolver=le
+      - traefik.http.routers.frontend-www.middlewares=redirect-to-root
+
+      - traefik.http.middlewares.redirect-to-root.redirectregex.regex=^https://www\\.${DOMAIN}/(.*)
+      - traefik.http.middlewares.redirect-to-root.redirectregex.replacement=https://${DOMAIN}/$${1}
+      - traefik.http.middlewares.redirect-to-root.redirectregex.permanent=true
     networks:
       - sexta_dev_net
 
