@@ -1,73 +1,241 @@
-# Sexta Dev Hub
+# 🚀 Sexta Dev Hub
 
-Projeto full stack desenvolvido para centralizar aplicações e experimentos do **Sexta Dev**, utilizando uma arquitetura moderna baseada em **Docker, Traefik, Vue.js, Node.js e MySQL**.
+O **Sexta Dev Hub** é um projeto full stack desenvolvido para
+centralizar aplicações, experimentos e ferramentas utilizadas no projeto
+**Sexta Dev**.
 
-A aplicação é composta por:
+A aplicação utiliza uma arquitetura moderna baseada em **containers
+Docker**, com **Traefik como reverse proxy**, permitindo gerenciamento
+automático de HTTPS e roteamento entre os serviços.
 
-- **Frontend:** Vue.js + Vite
-- **Backend:** Node.js + Express
-- **Banco de Dados:** MySQL
-- **Proxy reverso:** Traefik
-- **Infraestrutura:** Docker + Docker Compose
-- **HTTPS automático:** Let's Encrypt
+------------------------------------------------------------------------
 
----
+# 🧱 Tecnologias Utilizadas
 
-# Arquitetura da Aplicação
+O projeto é composto pelas seguintes tecnologias:
 
-A aplicação segue uma arquitetura baseada em containers:
+  Camada           Tecnologia
+  ---------------- -------------------------
+  Frontend         Vue.js + Vite
+  Backend          Node.js + Express
+  Banco de Dados   MySQL
+  Reverse Proxy    Traefik
+  Infraestrutura   Docker + Docker Compose
+  HTTPS            Let's Encrypt
 
-Internet
-↓
-Traefik (Reverse Proxy + SSL)
-↓
-├── Frontend (Vue + Nginx)
-└── Backend (Node.js + Express)
-↓
-MySQL
+------------------------------------------------------------------------
 
+# 🏗 Arquitetura da Aplicação
 
-O **Traefik** é responsável por:
+A aplicação segue uma arquitetura baseada em **containers isolados**,
+onde cada serviço possui sua responsabilidade específica.
 
-- gerenciamento automático de certificados SSL
-- redirecionamento HTTP → HTTPS
-- roteamento das requisições entre frontend e backend
+    Internet
+    ↓
+    Traefik (Reverse Proxy + SSL)
+    ↓
+    ├── Frontend (Vue + Nginx)
+    └── Backend (Node.js + Express)
+    ↓
+    MySQL
 
----
+### Função de cada serviço
 
-# Requisitos
+**Traefik** - gerenciamento automático de certificados SSL (Let's
+Encrypt) - redirecionamento HTTP → HTTPS - roteamento entre frontend e
+backend
+
+**Frontend** - aplicação Vue.js buildada com Vite - servida via Nginx em
+produção
+
+**Backend** - API REST construída com Node.js + Express - responsável
+pela lógica de negócio
+
+**MySQL** - banco de dados principal da aplicação - armazenamento
+persistente via volume Docker
+
+------------------------------------------------------------------------
+
+# 📦 Estrutura do Projeto
+
+    sexta-dev-hub
+    │
+    ├── backend
+    │   ├── src
+    │   ├── Dockerfile
+    │   └── package.json
+    │
+    ├── frontend
+    │   ├── src
+    │   ├── Dockerfile
+    │   ├── nginx.conf
+    │   └── package.json
+    │
+    ├── traefik
+    │   └── letsencrypt
+    │
+    ├── backup
+    │   └── backup.sh
+    │
+    ├── docker-compose.yml
+    ├── docker-compose.prod.yml
+    ├── docker-compose.dev.yml
+    └── README.md
+
+------------------------------------------------------------------------
+
+# ⚙️ Requisitos
 
 Antes de iniciar o projeto é necessário ter instalado:
 
-- Docker
-- Docker Compose
-- Git
+-   Docker
+-   Docker Compose
+-   Git
 
 Verifique se o Docker está funcionando:
 
-```bash
+``` bash
 docker -v
 docker compose version
----
+```
 
-# Para iniciar toda a infraestrutura:
+------------------------------------------------------------------------
 
-```bash
-docker compose up -d --build
+# 🧪 Ambiente de Desenvolvimento
 
-# Acesso à Aplicação
+Para iniciar o ambiente de desenvolvimento execute:
+
+``` bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+```
+
+Serviços disponíveis:
+
+  Serviço                      URL
+  ---------------------------- -----------------------
+  Frontend (Vite Dev Server)   http://localhost:5173
+  Backend API                  http://localhost:3000
+  MySQL                        localhost:3306
+
+### Características do ambiente de desenvolvimento
+
+-   Hot reload para frontend e backend
+-   Código montado via volumes Docker
+-   Sem Traefik
+-   Sem HTTPS
+-   Banco acessível localmente
+
+------------------------------------------------------------------------
+
+# 🚀 Ambiente de Produção
+
+Para iniciar o ambiente de produção execute:
+
+``` bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+```
+
+Esse comando irá:
+
+-   buildar as imagens do frontend e backend
+-   iniciar todos os containers
+-   configurar o Traefik
+-   emitir automaticamente certificados SSL
+
+------------------------------------------------------------------------
+
+# 🌐 Acesso à Aplicação
 
 Frontend:
 
-```bash
 https://momentodev.com
 
 API:
 
-```bash
-https://momentodev.com/api/health
+https://momentodev.com/api
 
 Healthcheck da API:
 
-```bash
 https://momentodev.com/health
+
+------------------------------------------------------------------------
+
+# 🛠 Comandos Úteis
+
+### Ver containers em execução
+
+``` bash
+docker ps
+```
+
+### Ver logs da aplicação
+
+``` bash
+docker compose logs -f
+```
+
+Logs de um serviço específico:
+
+``` bash
+docker compose logs -f backend
+```
+
+------------------------------------------------------------------------
+
+# 💾 Backup do Banco de Dados
+
+O projeto possui um container dedicado para **backup automático do
+MySQL**.
+
+Os backups são armazenados em:
+
+    /backup
+
+Para restaurar um backup manualmente:
+
+``` bash
+docker exec -i sexta_dev_mysql mysql -u root -p SEU_BANCO < backup.sql
+```
+
+------------------------------------------------------------------------
+
+# 🧪 Healthcheck da API
+
+A API possui um endpoint de verificação utilizado para monitoramento da
+aplicação:
+
+    /health
+
+Esse endpoint é utilizado para:
+
+-   verificar se a API está ativa
+-   validar se o container está saudável
+-   monitoramento automatizado
+
+------------------------------------------------------------------------
+
+# 🔐 Segurança
+
+A infraestrutura possui algumas práticas de segurança:
+
+-   HTTPS automático via Let's Encrypt
+-   MySQL acessível apenas via localhost na VPS
+-   containers isolados por rede Docker
+-   proxy reverso centralizado via Traefik
+
+------------------------------------------------------------------------
+
+# 📌 Observações
+
+Este projeto foi desenvolvido com foco em:
+
+-   arquitetura moderna baseada em containers
+-   separação clara entre frontend, backend e infraestrutura
+-   facilidade de deploy em ambientes cloud
+-   escalabilidade futura
+
+------------------------------------------------------------------------
+
+# 👨‍💻 Autor
+
+Projeto desenvolvido por **Emerson Amancio**.
