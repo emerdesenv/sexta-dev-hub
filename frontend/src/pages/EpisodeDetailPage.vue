@@ -13,6 +13,7 @@
                 <h1 style="margin:0;">{{ episode.title }}</h1>
                 <p style="margin:0; color:var(--muted); line-height:1.7;">{{ episode.summary }}</p>
                 <audio v-if="episode.audio_url" class="audio-player" controls :src="episode.audio_url"></audio>
+
                 <div style="display:flex; gap:12px; flex-wrap:wrap;">
                     <a v-if="episode.pdf_url" class="button" :href="episode.pdf_url" target="_blank">Abrir PDF</a>
                     <router-link class="button secondary" to="/">Voltar</router-link>
@@ -30,8 +31,8 @@ import api from '../services/api';
 const route = useRoute();
 const episode = ref(null);
 async function loadEpisode() {
-const { data } = await api.get(`/episodes/public/${route.params.slug}`);
-episode.value = data;
+    const { data } = await api.get(`/episodes/public/${route.params.slug}`);
+    episode.value = data;
 }
 onMounted(loadEpisode);
 </script>

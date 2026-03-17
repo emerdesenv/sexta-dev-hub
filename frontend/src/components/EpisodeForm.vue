@@ -40,13 +40,16 @@
 import { reactive, watch } from 'vue';
 const props = defineProps({ modelValue: Object, editing: Boolean });
 const emit = defineEmits(['submit', 'cancel']);
+
 const form = reactive({ title:'', category:'', year_target:1, duration_label:'', tags:'', is_published:false, summary:'', cover:null, audio:null, pdf:null });
+
 watch(() => props.modelValue, (value) => {
-Object.assign(form, { title:'', category:'', year_target:1, duration_label:'', tags:'', is_published:false, summary:'', cover:null, audio:null, pdf:null }, value || {});
-if (Array.isArray(value?.tags)) form.tags = value.tags.join(', ');
+    Object.assign(form, { title:'', category:'', year_target:1, duration_label:'', tags:'', is_published:false, summary:'', cover:null, audio:null, pdf:null }, value || {});
+    if (Array.isArray(value?.tags)) form.tags = value.tags.join(', ');
 }, { immediate: true });
 
 function setFile(event, key) { form[key] = event.target.files?.[0] || null; }
+
 function submitForm() {
     const payload = new FormData();
     Object.entries(form).forEach(([key, value]) => {

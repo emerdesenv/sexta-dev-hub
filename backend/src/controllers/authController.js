@@ -3,8 +3,8 @@ import { z } from 'zod';
 import { User } from '../models/index.js';
 
 const schema = z.object({
-username: z.string().min(3),
-password: z.string().min(4),
+    username: z.string().min(3),
+    password: z.string().min(4)
 });
 
 export async function login(req, res) {

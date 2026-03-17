@@ -11,7 +11,7 @@ connectDatabase()
 .then(ensureSeedAdmin)
 .then(() => {
     app.listen(port, () => {
-    console.log(`API rodando na porta ${port}`);
+        console.log(`API rodando na porta ${port}`);
     });
 })
 .catch((error) => {

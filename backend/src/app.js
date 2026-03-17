@@ -23,7 +23,7 @@ const corsOptions = {
         if (!origin) return callback(null, true);
 
         if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
+            return callback(null, true);
         }
 
         console.error(`❌ Origem não permitida pelo CORS: ${origin}`);
