@@ -8,8 +8,8 @@
           <h1>Login do professor</h1>
           <p style="color:var(--muted);">Apenas a área administrativa exige autenticação. A área do aluno segue aberta no endereço principal.</p>
         </div>
-        <label>Usuário <input v-model="form.username" required /></label>
-        <label>Senha <input type="password" v-model="form.password" required /></label>
+        <label>Usuário <input required /></label>
+        <label>Senha <input type="password" required /></label>
         <button class="button">Entrar</button>
         <div v-if="error" style="color:var(--danger);">{{ error }}</div>
       </form>
