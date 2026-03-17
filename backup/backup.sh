@@ -9,15 +9,19 @@ do
 
   echo "Iniciando backup em $FILE"
 
-  mysqldump \
+  if mysqldump \
+    --no-tablespaces \
     -h mysql \
     -u"${MYSQL_USER}" \
     -p"${MYSQL_PASSWORD}" \
     "${MYSQL_DATABASE}" > "$FILE"
-
-  echo "Backup concluído: $FILE"
-
-  find /db_backups -type f -name "*.sql" -mtime +7 -delete
+  then
+    echo "Backup concluído: $FILE"
+    find /db_backups -type f -name "*.sql" -mtime +7 -delete
+  else
+    echo "Erro ao gerar backup"
+    rm -f "$FILE"
+  fi
 
   sleep 86400
 done
