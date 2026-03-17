@@ -3,13 +3,10 @@ FROM node:20-bookworm-slim AS build
 WORKDIR /app
 
 ARG VITE_API_URL
-ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_API_URL=${VITE_API_URL}
 
 COPY package*.json ./
-
-RUN npm config set fund false \
-  && npm config set audit false \
-  && npm ci
+RUN npm ci
 
 COPY . .
 

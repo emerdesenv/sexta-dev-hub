@@ -1,33 +1,4 @@
 services:
-  traefik:
-    image: traefik:v2.11
-    container_name: sexta_dev_traefik
-    command:
-      - --api.dashboard=true
-      - --api.insecure=false
-      - --providers.docker=true
-      - --providers.docker.exposedbydefault=false
-      - --entrypoints.web.address=:80
-      - --entrypoints.websecure.address=:443
-      - --entrypoints.web.http.redirections.entrypoint.to=websecure
-      - --entrypoints.web.http.redirections.entrypoint.scheme=https
-      - --entrypoints.web.http.redirections.entrypoint.permanent=true
-      - --certificatesresolvers.le.acme.email=${SSL_EMAIL}
-      - --certificatesresolvers.le.acme.storage=/letsencrypt/acme.json
-      - --certificatesresolvers.le.acme.httpchallenge=true
-      - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
-      - --log.level=INFO
-      - --accesslog=true
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./traefik/letsencrypt:/letsencrypt
-    restart: unless-stopped
-    networks:
-      - sexta_dev_net
-
   mysql:
     image: mysql:8.4
     container_name: sexta_dev_mysql
@@ -38,8 +9,6 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    ports:
-    - "127.0.0.1:3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -53,7 +22,6 @@ services:
       - sexta_dev_net
 
   backend:
-    build: ./backend
     container_name: sexta_dev_backend
     env_file:
       - ./backend/.env
@@ -63,54 +31,13 @@ services:
       mysql:
         condition: service_healthy
     restart: unless-stopped
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.backend.rule=Host(`${DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/uploads`) || Path(`/health`))
-      - traefik.http.routers.backend.entrypoints=websecure
-      - traefik.http.routers.backend.tls=true
-      - traefik.http.routers.backend.tls.certresolver=le
-      - traefik.http.services.backend.loadbalancer.server.port=3000
     networks:
       - sexta_dev_net
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        VITE_API_URL: ${VITE_API_URL}
     container_name: sexta_dev_frontend
     depends_on:
       - backend
-    restart: unless-stopped
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.frontend.rule=Host(`${DOMAIN}`) || Host(`www.${DOMAIN}`)
-      - traefik.http.routers.frontend.entrypoints=websecure
-      - traefik.http.routers.frontend.tls=true
-      - traefik.http.routers.frontend.tls.certresolver=le
-      - traefik.http.services.frontend.loadbalancer.server.port=80
-
-      # redireciona www -> sem www
-      - traefik.http.middlewares.redirect-www.redirectregex.regex=^https://www\\.(.+)
-      - traefik.http.middlewares.redirect-www.redirectregex.replacement=https://$${1}
-      - traefik.http.middlewares.redirect-www.redirectregex.permanent=true
-      - traefik.http.routers.frontend.middlewares=redirect-www
-    networks:
-      - sexta_dev_net
-
-  db_backup:
-    image: mysql:8.4
-    container_name: sexta_dev_db_backup
-    env_file:
-      - ./.env
-    volumes:
-      - ./backup:/backup
-      - db_backups:/db_backups
-    entrypoint: ["/bin/sh", "/backup/backup.sh"]
-    depends_on:
-      mysql:
-        condition: service_healthy
     restart: unless-stopped
     networks:
       - sexta_dev_net

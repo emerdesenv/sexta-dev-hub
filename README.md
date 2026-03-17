@@ -65,7 +65,7 @@ https://momentodev.com
 API:
 
 ```bash
-https://momentodev.com/api
+https://momentodev.com/api/health
 
 Healthcheck da API:
 
