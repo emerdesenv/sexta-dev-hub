@@ -14,14 +14,14 @@ automático de HTTPS e roteamento entre os serviços.
 
 O projeto é composto pelas seguintes tecnologias:
 
-  Camada           Tecnologia
-  ---------------- -------------------------
-  Frontend         Vue.js + Vite
-  Backend          Node.js + Express
-  Banco de Dados   MySQL
-  Reverse Proxy    Traefik
-  Infraestrutura   Docker + Docker Compose
-  HTTPS            Let's Encrypt
+| Camada | Tecnologia |
+|------|------|
+| Frontend | Vue.js + Vite |
+| Backend | Node.js + Express |
+| Banco de Dados | MySQL |
+| Reverse Proxy | Traefik |
+| Infraestrutura | Docker + Docker Compose |
+| HTTPS | Let's Encrypt |
 
 ------------------------------------------------------------------------
 
@@ -152,7 +152,7 @@ https://momentodev.com
 
 API:
 
-https://momentodev.com/api
+https://momentodev.com/api/health
 
 Healthcheck da API:
 
