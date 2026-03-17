@@ -4,10 +4,11 @@ import { authRequired } from '../middleware/auth.js';
 import { upload } from '../services/upload.js';
 
 const router = Router();
+
 const multipart = upload.fields([
-  { name: 'cover', maxCount: 1 },
-  { name: 'audio', maxCount: 1 },
-  { name: 'pdf', maxCount: 1 }
+    { name: 'cover', maxCount: 1 },
+    { name: 'audio', maxCount: 1 },
+    { name: 'pdf', maxCount: 1 }
 ]);
 
 router.get('/public', listPublic);

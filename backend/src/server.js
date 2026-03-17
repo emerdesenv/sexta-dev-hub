@@ -8,13 +8,13 @@ dotenv.config();
 const port = Number(process.env.PORT || 3000);
 
 connectDatabase()
-  .then(ensureSeedAdmin)
-  .then(() => {
+.then(ensureSeedAdmin)
+.then(() => {
     app.listen(port, () => {
-      console.log(`API rodando na porta ${port}`);
+    console.log(`API rodando na porta ${port}`);
     });
-  })
-  .catch((error) => {
+})
+.catch((error) => {
     console.error('Falha ao iniciar aplicação:', error);
     process.exit(1);
-  });
+});

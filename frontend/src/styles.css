@@ -44,3 +44,7 @@ label { display: grid; gap: 8px; font-size: 14px; color: var(--muted); }
   .hero,.admin-layout,.filters { grid-template-columns:1fr; }
   .kpis { grid-template-columns:1fr; }
 }
+
+.center {
+  text-align: center !important;
+}
