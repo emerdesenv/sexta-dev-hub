@@ -14,14 +14,14 @@ const episodeSchema = z.object({
     tags: z.string().optional().default('')
 });
 
-function toPublicEpisode(episode, req) {
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+function toPublicEpisode(episode) {
     const json = episode.toJSON();
+
     return {
         ...json,
-        cover_url: json.cover_path ? `${baseUrl}/${json.cover_path}` : null,
-        audio_url: json.audio_path ? `${baseUrl}/${json.audio_path}` : null,
-        pdf_url: json.pdf_path ? `${baseUrl}/${json.pdf_path}` : null
+        cover_url: json.cover_path ? `/${json.cover_path.replace(/^\/+/, '')}` : null,
+        audio_url: json.audio_path ? `/${json.audio_path.replace(/^\/+/, '')}` : null,
+        pdf_url: json.pdf_path ? `/${json.pdf_path.replace(/^\/+/, '')}` : null
     };
 }
 
