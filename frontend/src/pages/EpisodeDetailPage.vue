@@ -13,12 +13,15 @@
 
                 <div v-else-if="episode" class="sd-card p-6 md:p-8">
                     <div class="md:grid md:grid-cols-[1.1fr_0.9fr] md:gap-8 md:items-start">
-                        <img
-                            v-if="episode.cover_url"
-                            :src="episode.cover_url"
-                            :alt="episode.title"
-                            class="w-full h-72 sm:h-80 md:h-[520px] object-cover rounded-2xl"
-                        />
+                        <div class="w-full h-72 sm:h-80 md:h-[520px] rounded-2xl bg-surface-2/40 border border-border/40 flex items-center justify-center overflow-hidden">
+                            <img
+                                v-if="episode.cover_url"
+                                :src="episode.cover_url"
+                                :alt="episode.title"
+                                class="w-full h-full object-contain"
+                            />
+                            <span v-else class="text-sm text-muted">Sem capa</span>
+                        </div>
 
                         <div class="mt-6 md:mt-0 flex flex-col gap-4">
                             <div class="flex flex-wrap gap-2">

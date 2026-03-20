@@ -1,0 +1,342 @@
+#### Ativar Architect ####
+
+Atue como o agente definido em /ai/agents/architect.md.
+
+Antes de responder, consulte:
+- /ai/README_AI.md
+- /ai/AI_CONTEXT.md
+- /ai/AI_RULES.md
+- /ai/ARCHITECTURE.md
+- /ai/PROJECT_MAP.md
+- /ai/CONSTRAINTS.md
+- /ai/DECISION_LOG.md
+- /ai/PERFORMANCE_GUIDELINES.md
+- /ai/SECURITY_BASELINE.md
+
+Analise esta demanda como arquiteto de software, respeitando a arquitetura do projeto, a escalabilidade e a separação de responsabilidades.
+
+Demanda:
+[COLE AQUI]
+
+#### Ativar Frontend Engineer ####
+
+Atue como o agente definido em /ai/agents/frontend-engineer.md.
+
+Antes de responder, consulte:
+- /ai/README_AI.md
+- /ai/AI_CONTEXT.md
+- /ai/AI_RULES.md
+- /ai/PROJECT_MAP.md
+- /ai/CODE_STYLE.md
+- /ai/DESIGN_SYSTEM.md
+- /ai/FIGMA_PROMPTS.md
+- /ai/CONSTRAINTS.md
+- /ai/DELIVERY_CHECKLIST.md
+- /ai/TESTING_GUIDELINES.md
+
+Implemente esta demanda como especialista em frontend, com foco em componentização, responsividade e aderência ao design system.
+
+Demanda:
+[COLE AQUI]
+
+#### Ativar Backend Engineer ####
+
+Atue como o agente definido em /ai/agents/backend-engineer.md.
+
+Antes de responder, consulte:
+- /ai/README_AI.md
+- /ai/AI_CONTEXT.md
+- /ai/AI_RULES.md
+- /ai/ARCHITECTURE.md
+- /ai/PROJECT_MAP.md
+- /ai/CODE_STYLE.md
+- /ai/CONSTRAINTS.md
+- /ai/SECURITY_BASELINE.md
+- /ai/PERFORMANCE_GUIDELINES.md
+- /ai/TESTING_GUIDELINES.md
+- /ai/DELIVERY_CHECKLIST.md
+
+Implemente esta demanda como especialista em backend, com foco em organização de camadas, segurança, performance e clareza da API.
+
+Demanda:
+[COLE AQUI]
+
+#### Ativar Code Reviewer ####
+
+Atue como o agente definido em /ai/agents/code-reviewer.md.
+
+Antes de responder, consulte:
+- /ai/README_AI.md
+- /ai/AI_RULES.md
+- /ai/CODE_STYLE.md
+- /ai/ARCHITECTURE.md
+- /ai/PROJECT_MAP.md
+- /ai/CONSTRAINTS.md
+- /ai/SECURITY_BASELINE.md
+- /ai/TESTING_GUIDELINES.md
+- /ai/DELIVERY_CHECKLIST.md
+
+Revise o código abaixo com foco em qualidade, aderência ao projeto, riscos técnicos e melhorias priorizadas.
+
+Código ou contexto:
+[COLE AQUI]
+
+#### Ativar Debugger ####
+
+Atue como o agente definido em /ai/agents/debugger.md.
+
+Antes de responder, consulte:
+- /ai/README_AI.md
+- /ai/AI_CONTEXT.md
+- /ai/PROJECT_MAP.md
+- /ai/DEBUG_PLAYBOOK.md
+- /ai/ARCHITECTURE.md
+- /ai/CONSTRAINTS.md
+- /ai/SECURITY_BASELINE.md
+- /ai/PERFORMANCE_GUIDELINES.md
+
+Analise o problema abaixo como especialista em diagnóstico. Identifique hipóteses, causa raiz mais provável, plano de correção e como validar.
+
+Problema:
+[COLE AQUI]
+
+#### Ativar Security Auditor ####
+
+Atue como o agente definido em /ai/agents/security-auditor.md.
+
+Antes de responder, consulte:
+- /ai/README_AI.md
+- /ai/AI_RULES.md
+- /ai/ARCHITECTURE.md
+- /ai/SECURITY_BASELINE.md
+- /ai/CONSTRAINTS.md
+- /ai/PROJECT_MAP.md
+- /ai/DELIVERY_CHECKLIST.md
+
+Audite esta demanda ou este código sob a ótica de segurança, classifique a severidade dos riscos e proponha correções práticas.
+
+Contexto:
+[COLE AQUI]
+
+#### Ativar Refactor Specialist ####
+
+Atue como o agente definido em /ai/agents/refactor-specialist.md.
+
+Antes de responder, consulte:
+- /ai/README_AI.md
+- /ai/AI_RULES.md
+- /ai/AI_REFACTOR_PLAN.md
+- /ai/CODE_STYLE.md
+- /ai/PROJECT_MAP.md
+- /ai/ARCHITECTURE.md
+- /ai/CONSTRAINTS.md
+- /ai/TESTING_GUIDELINES.md
+
+Refatore o código abaixo preservando comportamento funcional, reduzindo complexidade, melhorando legibilidade e removendo duplicação.
+
+Código ou contexto:
+[COLE AQUI]
+
+#### Ativar Test Engineer ####
+
+Atue como o agente definido em /ai/agents/test-engineer.md.
+
+Antes de responder, consulte:
+- /ai/README_AI.md
+- /ai/AI_RULES.md
+- /ai/TESTING_GUIDELINES.md
+- /ai/DELIVERY_CHECKLIST.md
+- /ai/PROJECT_MAP.md
+- /ai/ARCHITECTURE.md
+- /ai/CONSTRAINTS.md
+
+Defina os testes necessários para a demanda abaixo, incluindo casos críticos, bordas, regressão e smoke tests manuais.
+
+Demanda:
+[COLE AQUI]
+
+#### Ativar Product Designer ####
+
+Atue como o agente definido em /ai/agents/product-designer.md.
+
+Antes de responder, consulte:
+- /ai/README_AI.md
+- /ai/AI_CONTEXT.md
+- /ai/DESIGN_SYSTEM.md
+- /ai/FIGMA_PROMPTS.md
+- /ai/PROJECT_MAP.md
+- /ai/CODE_STYLE.md
+- /ai/DELIVERY_CHECKLIST.md
+
+Traduza esta necessidade em uma proposta de interface, estrutura de tela, componentização e regras de responsividade alinhadas ao design system.
+
+Demanda:
+[COLE AQUI]
+
+#### Rodar roteador de tarefa ####
+
+Use /ai/AI_TASK_ROUTER.md para classificar a tarefa abaixo.
+
+Depois:
+1. identifique o tipo principal da tarefa
+2. selecione os agentes adequados
+3. justifique a escolha
+4. proponha a ordem de atuação com base em /ai/AGENT_EXECUTION_FLOW.md
+
+Tarefa:
+[COLE AQUI]
+
+#### Rodar orquestrador completo ####
+
+Use:
+- /ai/AI_AGENT_ORCHESTRATOR.md
+- /ai/AI_TASK_ROUTER.md
+- /ai/AGENT_EXECUTION_FLOW.md
+
+Analise a tarefa abaixo, escolha os agentes corretos, explique a ordem de execução e entregue um plano consolidado de implementação.
+
+Tarefa:
+[COLE AQUI]
+
+#### Rodar fluxo completo de feature ####
+
+Atue como orquestrador usando:
+- /ai/AI_AGENT_ORCHESTRATOR.md
+- /ai/AI_TASK_ROUTER.md
+- /ai/AGENT_EXECUTION_FLOW.md
+
+Para esta nova funcionalidade:
+1. classifique a tarefa
+2. selecione os agentes
+3. execute o raciocínio em sequência como um time técnico
+4. entregue:
+   - visão arquitetural
+   - plano backend
+   - plano frontend
+   - pontos de segurança
+   - testes recomendados
+   - checklist final de entrega
+
+Funcionalidade:
+[COLE AQUI]
+
+#### Rodar fluxo completo de bug ####
+
+Atue como orquestrador usando:
+- /ai/AI_AGENT_ORCHESTRATOR.md
+- /ai/AI_TASK_ROUTER.md
+- /ai/AGENT_EXECUTION_FLOW.md
+
+Para o problema abaixo:
+1. classifique como bug ou outro tipo
+2. inicie pelo agente debugger
+3. siga a ordem adequada de agentes
+4. entregue:
+   - hipóteses
+   - causa raiz mais provável
+   - correção recomendada
+   - testes de validação
+   - riscos de regressão
+
+Problema:
+[COLE AQUI]
+
+#### Rodar fluxo completo de refatoração ####
+
+Atue como orquestrador usando:
+- /ai/AI_AGENT_ORCHESTRATOR.md
+- /ai/AI_TASK_ROUTER.md
+- /ai/AGENT_EXECUTION_FLOW.md
+
+Para a refatoração abaixo:
+1. classifique a tarefa
+2. use o refactor-specialist como agente principal
+3. inclua architect se houver impacto estrutural
+4. inclua test-engineer e code-reviewer ao final
+5. entregue um plano de refatoração seguro
+
+Refatoração desejada:
+[COLE AQUI]
+
+#### Rodar revisão final de entrega ####
+
+Use os agentes:
+- /ai/agents/code-reviewer.md
+- /ai/agents/security-auditor.md
+- /ai/agents/test-engineer.md
+
+Considere também:
+- /ai/DELIVERY_CHECKLIST.md
+- /ai/CODE_STYLE.md
+- /ai/SECURITY_BASELINE.md
+- /ai/TESTING_GUIDELINES.md
+
+Faça uma revisão final da entrega abaixo e retorne:
+1. problemas encontrados
+2. riscos
+3. melhorias recomendadas
+4. veredito final
+5. checklist de aprovação
+
+Entrega:
+[COLE AQUI]
+
+#### Teste 1 — criar endpoint ####
+
+Atue como /ai/agents/backend-engineer.md e implemente um endpoint para upload de PDF, seguindo ARCHITECTURE.md, PROJECT_MAP.md, SECURITY_BASELINE.md e CODE_STYLE.md.
+
+#### Teste 2 — revisar componente Vue ####
+
+Atue como /ai/agents/code-reviewer.md e revise este componente Vue com base em CODE_STYLE.md, DESIGN_SYSTEM.md e DELIVERY_CHECKLIST.md.
+
+#### Teste 3 — investigar erro ####
+
+Atue como /ai/agents/debugger.md e investigue por que o backend sobe no Docker, mas o Traefik retorna 502.
+
+#### Teste 4 — fluxo completo ####
+
+Use AI_TASK_ROUTER.md, AI_AGENT_ORCHESTRATOR.md e AGENT_EXECUTION_FLOW.md para planejar e coordenar a implementação de uma tela com upload de PDF e listagem de arquivos.
+
+#### Teste 5 — auditoria de segurança ####
+
+Atue como /ai/agents/security-auditor.md e audite o fluxo de upload de arquivos PDF, áudio e vídeo deste projeto.
+
+#### 4. Comando mestre ####
+
+Use a pasta /ai como base de contexto do projeto.
+
+Siga esta ordem:
+1. leia README_AI.md
+2. classifique a tarefa com AI_TASK_ROUTER.md
+3. orquestre os agentes com AI_AGENT_ORCHESTRATOR.md
+4. siga a ordem de AGENT_EXECUTION_FLOW.md
+5. respeite AI_RULES.md, CONSTRAINTS.md, ARCHITECTURE.md e PROJECT_MAP.md
+6. entregue uma resposta consolidada, técnica e pronta para execução
+
+Tarefa:
+[COLE AQUI]
+
+######################################## Orientações Finais ########################################
+
+1 - Ativar agente: 
+
+Atue como /ai/agents/frontend-engineer.md
+Conversar normalmente: Precisamos resolver o problema de imagem na página do episódio
+Tudo isso continua sendo tratado como frontend engineer.
+
+2 - Um padrão muito bom que recomendo. Quando mudar de assunto técnico, escreva algo assim:
+
+Mudando de contexto.
+Atue agora como /ai/agents/debugger.md
+
+3 - Outro truque muito bom. Se a conversa ficou longa, você pode resetar o contexto do agente:
+
+Reinicie a análise usando o agente:
+/ai/agents/frontend-engineer.md
+
+Considere os arquivos da pasta /ai como contexto do projeto.
+
+4 - Um truque que vai turbinar ainda mais seus testes
+
+Quando mandar mensagens normais, às vezes reforce o papel assim:
+Como frontend engineer do projeto, precisamos resolver isso:
