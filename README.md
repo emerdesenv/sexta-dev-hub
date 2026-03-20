@@ -124,8 +124,16 @@ As variáveis do frontend seguem o padrão `VITE_*`:
 
 - `VITE_API_URL`: base da API consumida pelo frontend (ex.: `/api`)
 - `VITE_GITHUB_URL`: URL pública do repositório para exibição no site (hero e footer)
+- `VITE_ENABLE_VLIBRAS`: habilita/desabilita plugin VLibras no frontend (`true`/`false`)
 
 Defina no `.env` da raiz e, em produção, também no build do frontend via `docker-compose.prod.yml`.
+
+### Acessibilidade
+
+O frontend possui integração com o **VLibras** para ampliar acessibilidade em Libras.
+
+- integração global no app (SPA), com proteção contra inicialização duplicada
+- habilitação por variável de ambiente (`VITE_ENABLE_VLIBRAS`)
 
 ### Características do ambiente de desenvolvimento
 
