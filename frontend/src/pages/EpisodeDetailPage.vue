@@ -48,7 +48,7 @@
 
                             <div class="flex flex-wrap gap-3 pt-2">
                                 <button
-                                    v-if="episode.pdf_url && enablePdfPreview"
+                                    v-if="episode.pdf_url && enablePdfPreview && isDesktop"
                                     type="button"
                                     class="sd-button sd-button-primary"
                                     @click="showPdfPreview = !showPdfPreview"
@@ -82,7 +82,7 @@
                         </div>
                     </div>
 
-                    <Suspense v-if="episode.pdf_url && enablePdfPreview && showPdfPreview">
+                    <Suspense v-if="episode.pdf_url && enablePdfPreview && isDesktop && showPdfPreview">
                         <template #default>
                             <PdfPreview :src="episode.pdf_url" />
                         </template>
@@ -110,7 +110,7 @@
 </template>
 
 <script setup>
-import { defineAsyncComponent, onMounted, ref } from 'vue';
+import { defineAsyncComponent, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import PublicHeader from '../components/PublicHeader.vue';
 import api from '../services/api';
@@ -125,6 +125,14 @@ const error = ref('');
 const enablePdfPreview = String(import.meta.env.VITE_ENABLE_PDF_PREVIEW || 'true').toLowerCase() === 'true';
 const showPdfPreview = ref(false);
 const pdfDownloadName = ref('episodio.pdf');
+const isDesktop = ref(false);
+let desktopMediaQuery = null;
+
+function syncDesktopState() {
+    if (!desktopMediaQuery) return;
+    isDesktop.value = desktopMediaQuery.matches;
+    if (!isDesktop.value) showPdfPreview.value = false;
+}
 async function loadEpisode() {
     loading.value = true;
     error.value = '';
@@ -145,4 +153,16 @@ async function loadEpisode() {
     }
 }
 onMounted(loadEpisode);
+onMounted(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    desktopMediaQuery = window.matchMedia('(min-width: 1024px)');
+    syncDesktopState();
+    desktopMediaQuery.addEventListener('change', syncDesktopState);
+});
+
+onBeforeUnmount(() => {
+    if (desktopMediaQuery) {
+        desktopMediaQuery.removeEventListener('change', syncDesktopState);
+    }
+});
 </script>
