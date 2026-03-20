@@ -8,7 +8,7 @@
                 <span class="badge" v-if="episode.duration_label">{{ episode.duration_label }}</span>
             </div>
             <h3 style="margin:0;">{{ episode.title }}</h3>
-            <p style="margin:0; color:var(--muted); line-height:1.5;">{{ episode.summary }}</p>
+            <p style="margin:0; color:var(--muted); line-height:1.5; min-height: 20rem;">{{ episode.summary }}</p>
             <router-link class="button" :to="`/episodio/${episode.slug}`">Abrir episódio</router-link>
         </div>
     </article>
