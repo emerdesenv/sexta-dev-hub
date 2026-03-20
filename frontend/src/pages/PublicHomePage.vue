@@ -1,7 +1,7 @@
 <template>
     <div class="min-h-screen flex flex-col">
         <PublicHeader />
-        <PageContainer class="pt-6">
+        <PageContainer class="pt-8 md:pt-10">
             <section class="sd-card p-7 md:grid md:grid-cols-[1.35fr_0.9fr] md:items-center md:gap-6">
                 <div>
                     <Badge tone="primary">Conteúdo aberto para alunos</Badge>
@@ -38,7 +38,7 @@
                 </div>
             </section>
 
-            <section id="episodios" class="mt-8">
+            <section id="episodios" class="mt-10">
                 <div class="flex flex-col md:flex-row md:items-end gap-4">
                     <label class="flex-1">
                         <span class="sd-label">Ano</span>
@@ -78,7 +78,7 @@
                 Carregando episódios...
             </div>
 
-            <div v-else-if="episodes.length" class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div v-else-if="episodes.length" class="mt-10 grid gap-6 md:gap-7 sm:grid-cols-2 lg:grid-cols-3">
                 <EpisodeCard v-for="episode in episodes" :key="episode.id" :episode="episode" />
             </div>
 

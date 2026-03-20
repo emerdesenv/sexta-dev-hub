@@ -1,5 +1,5 @@
 <template>
-  <footer class="mt-auto pb-10">
+  <footer class="mt-auto pt-8 pb-10 bg-surface/30">
     <div class="sd-container">
       <div
         class="border-t border-border/40 pt-6 text-muted text-sm flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between"

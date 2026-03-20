@@ -1,5 +1,5 @@
 <template>
-    <Card class="overflow-hidden h-full flex flex-col">
+    <Card class="overflow-hidden h-full flex flex-col episode-card">
         <div class="w-full h-44 sm:h-48 bg-surface-2/40 border-b border-border/40 flex items-center justify-center">
             <img
                 v-if="episode.cover_url"
@@ -42,3 +42,11 @@ import Badge from './ui/Badge.vue';
 
 defineProps({ episode: Object });
 </script>
+
+<style scoped>
+.episode-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.3);
+    border-color: rgba(147, 197, 253, 0.35);
+}
+</style>
