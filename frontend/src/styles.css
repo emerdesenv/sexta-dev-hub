@@ -31,8 +31,6 @@ label { display: grid; gap: 8px; font-size: 14px; color: var(--muted); }
 .kpi { padding:16px; }
 .filters { display:grid; grid-template-columns: 1fr 1fr auto; gap:12px; margin: 24px 0; }
 .episode-grid { display:grid; grid-template-columns: repeat(auto-fill,minmax(280px,1fr)); gap: 18px; }
-.episode-card img { width:100%; height:180px; object-fit:cover; border-radius: 16px 16px 0 0; }
-.episode-card .content { padding: 16px; display:grid; gap:10px; }
 .badge { display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; background:#0d1730; border:1px solid var(--border); color: var(--muted); font-size: 12px; }
 .admin-layout { display:grid; grid-template-columns: 300px 1fr; gap: 24px; padding-top: 24px; }
 .sidebar { padding:20px; position: sticky; top: 90px; height: fit-content; }
@@ -47,4 +45,31 @@ label { display: grid; gap: 8px; font-size: 14px; color: var(--muted); }
 
 .center {
   text-align: center !important;
+}
+
+.episode-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.episode-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 16px 16px 0 0;
+}
+
+.episode-card .content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.episode-card .button {
+  margin-top: auto;
+  width: 100%;
+  text-align: center;
 }
