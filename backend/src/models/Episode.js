@@ -3,6 +3,7 @@ import { sequelize } from '../config/database.js';
 
 export const Episode = sequelize.define('episode', {
     id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    ordering: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
     title: { type: DataTypes.STRING(160), allowNull: false },
     slug: { type: DataTypes.STRING(180), allowNull: false, unique: true },
     summary: { type: DataTypes.TEXT, allowNull: false },

@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { Episode } from '../models/index.js';
 
 const episodeSchema = z.object({
+    ordering: z.coerce.number().int().min(0).optional().default(0),
     title: z.string().min(3),
     summary: z.string().min(10),
     year_target: z.coerce.number().int().min(1).max(3),
@@ -29,12 +30,23 @@ export async function listPublic(req, res) {
     const where = { is_published: true };
     if (req.query.year) where.year_target = Number(req.query.year);
     if (req.query.category) where.category = req.query.category;
-    const episodes = await Episode.findAll({ where, order: [['created_at', 'DESC']] });
+    const episodes = await Episode.findAll({
+        where,
+        order: [
+            ['ordering', 'ASC'],
+            ['created_at', 'DESC'],
+        ],
+    });
     return res.json(episodes.map(ep => toPublicEpisode(ep, req)));
 }
 
 export async function listAdmin(req, res) {
-    const episodes = await Episode.findAll({ order: [['created_at', 'DESC']] });
+    const episodes = await Episode.findAll({
+        order: [
+            ['ordering', 'ASC'],
+            ['created_at', 'DESC'],
+        ],
+    });
     return res.json(episodes.map(ep => toPublicEpisode(ep, req)));
 }
 
