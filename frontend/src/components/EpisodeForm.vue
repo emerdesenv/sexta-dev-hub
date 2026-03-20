@@ -1,43 +1,99 @@
 <template>
-    <form class="card" style="padding:20px; display:grid; gap:14px;" @submit.prevent="submitForm">
-        <h2 style="margin:0;">{{ editing ? 'Editar episódio' : 'Novo episódio' }}</h2>
-        <div class="grid" style="grid-template-columns:1fr 1fr;">
-            <label>Título <input v-model="form.title" required /></label>
-            <label>Categoria <input v-model="form.category" required /></label>
-            <label>Ano alvo
-                <select v-model="form.year_target">
-                <option :value="1">1º ano</option>
-                <option :value="2">2º ano</option>
-                <option :value="3">3º ano</option>
+    <form class="sd-card p-6 flex flex-col gap-5" @submit.prevent="submitForm">
+        <h2 class="text-xl font-bold">
+            {{ editing ? 'Editar episódio' : 'Novo episódio' }}
+        </h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <label class="flex flex-col gap-2">
+                <span class="sd-label">Título</span>
+                <input class="sd-input" v-model="form.title" required />
+            </label>
+
+            <label class="flex flex-col gap-2">
+                <span class="sd-label">Categoria</span>
+                <input class="sd-input" v-model="form.category" required />
+            </label>
+
+            <label class="flex flex-col gap-2">
+                <span class="sd-label">Ano alvo</span>
+                <select class="sd-input" v-model="form.year_target">
+                    <option :value="1">1º ano</option>
+                    <option :value="2">2º ano</option>
+                    <option :value="3">3º ano</option>
                 </select>
             </label>
 
-            <label>Duração (ex: 05:20) <input v-model="form.duration_label" /></label>
-            <label>Tags (separadas por vírgula) <input v-model="form.tags" /></label>
-            <label>Status
-                <select v-model="form.is_published">
-                <option :value="true">Publicado</option>
-                <option :value="false">Rascunho</option>
+            <label class="flex flex-col gap-2">
+                <span class="sd-label">Duração (ex: 05:20)</span>
+                <input class="sd-input" v-model="form.duration_label" />
+            </label>
+
+            <label class="flex flex-col gap-2">
+                <span class="sd-label">Tags (separadas por vírgula)</span>
+                <input class="sd-input" v-model="form.tags" />
+            </label>
+
+            <label class="flex flex-col gap-2">
+                <span class="sd-label">Status</span>
+                <select class="sd-input" v-model="form.is_published">
+                    <option :value="true">Publicado</option>
+                    <option :value="false">Rascunho</option>
                 </select>
             </label>
         </div>
 
-        <label>Resumo <textarea rows="5" v-model="form.summary" required /></label>
-        <div class="grid" style="grid-template-columns:1fr 1fr 1fr;">
-            <label>Capa <input type="file" accept="image/*" @change="setFile($event, 'cover')" /></label>
-            <label>Áudio <input type="file" accept="audio/*" @change="setFile($event, 'audio')" /></label>
-            <label>PDF <input type="file" accept="application/pdf" @change="setFile($event, 'pdf')" /></label>
+        <label class="flex flex-col gap-2">
+            <span class="sd-label">Resumo</span>
+            <textarea class="sd-input" rows="5" v-model="form.summary" required />
+        </label>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <label class="flex flex-col gap-2">
+                <span class="sd-label">Capa</span>
+                <input
+                    type="file"
+                    accept="image/*"
+                    class="block w-full text-sm text-muted file:mr-4 file:rounded-xl file:border file:border-border/90 file:bg-surface file:px-4 file:py-2 file:text-text hover:file:bg-surface-2"
+                    @change="setFile($event, 'cover')"
+                />
+            </label>
+            <label class="flex flex-col gap-2">
+                <span class="sd-label">Áudio</span>
+                <input
+                    type="file"
+                    accept="audio/*"
+                    class="block w-full text-sm text-muted file:mr-4 file:rounded-xl file:border file:border-border/90 file:bg-surface file:px-4 file:py-2 file:text-text hover:file:bg-surface-2"
+                    @change="setFile($event, 'audio')"
+                />
+            </label>
+            <label class="flex flex-col gap-2">
+                <span class="sd-label">PDF</span>
+                <input
+                    type="file"
+                    accept="application/pdf"
+                    class="block w-full text-sm text-muted file:mr-4 file:rounded-xl file:border file:border-border/90 file:bg-surface file:px-4 file:py-2 file:text-text hover:file:bg-surface-2"
+                    @change="setFile($event, 'pdf')"
+                />
+            </label>
         </div>
 
-        <div style="display:flex; gap:12px; justify-content:flex-end;">
-            <button type="button" class="button secondary" @click="$emit('cancel')">Cancelar</button>
-            <button type="submit" class="button">Salvar</button>
+        <div class="flex gap-3 justify-end">
+            <Button variant="secondary" type="button" class="px-3 py-2 text-sm" @click="$emit('cancel')">
+                Cancelar
+            </Button>
+            <Button variant="primary" type="submit" class="px-3 py-2 text-sm">
+                Salvar
+            </Button>
         </div>
     </form>
 </template>
 
 <script setup>
 import { reactive, watch } from 'vue';
+
+import Button from './ui/Button.vue';
+
 const props = defineProps({ modelValue: Object, editing: Boolean });
 const emit = defineEmits(['submit', 'cancel']);
 
