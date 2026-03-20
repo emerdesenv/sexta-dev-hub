@@ -46,12 +46,7 @@ let getDocumentFn = null;
 async function ensurePdfJs() {
   if (getDocumentFn) return;
 
-  const [{ getDocument, GlobalWorkerOptions }, workerModule] = await Promise.all([
-    import('pdfjs-dist'),
-    import('pdfjs-dist/build/pdf.worker.min.mjs?url'),
-  ]);
-
-  GlobalWorkerOptions.workerSrc = workerModule.default;
+  const [{ getDocument }] = await Promise.all([import('pdfjs-dist')]);
   getDocumentFn = getDocument;
 }
 
@@ -62,7 +57,7 @@ async function renderPdf() {
 
   try {
     await ensurePdfJs();
-    const task = getDocumentFn({ url: props.src });
+    const task = getDocumentFn({ url: props.src, disableWorker: true });
     const pdf = await task.promise;
     const page = await pdf.getPage(1);
 
