@@ -22,6 +22,7 @@ O projeto é composto pelas seguintes tecnologias:
 | Reverse Proxy | Traefik |
 | Infraestrutura | Docker + Docker Compose |
 | HTTPS | Let's Encrypt |
+| Colaboração com IA | Agentes especializados (orquestração em `ai/`) |
 
 ------------------------------------------------------------------------
 
@@ -116,6 +117,15 @@ Serviços disponíveis:
   Frontend (Vite Dev Server)   http://localhost:5173
   Backend API                  http://localhost:3000
   MySQL                        localhost:3306
+
+### Variáveis de ambiente (frontend)
+
+As variáveis do frontend seguem o padrão `VITE_*`:
+
+- `VITE_API_URL`: base da API consumida pelo frontend (ex.: `/api`)
+- `VITE_GITHUB_URL`: URL pública do repositório para exibição no site (hero e footer)
+
+Defina no `.env` da raiz e, em produção, também no build do frontend via `docker-compose.prod.yml`.
 
 ### Características do ambiente de desenvolvimento
 
@@ -227,6 +237,32 @@ Este projeto foi desenvolvido com foco em:
 -   separação clara entre frontend, backend e infraestrutura
 -   facilidade de deploy em ambientes cloud
 -   escalabilidade futura
+
+------------------------------------------------------------------------
+
+# 🤖 Uso de Agentes de IA no Projeto
+
+O projeto foi estruturado para uso de IA com **papéis especializados** e **orquestração por tipo de tarefa**.
+
+Documentos principais:
+
+- `ai/AI_AGENT_ORCHESTRATOR.md`: define quando usar múltiplos agentes, ordem de atuação e consolidação final
+- `ai/AGENT_ROLES.md`: define responsabilidades de cada papel (UI, frontend architecture, backend, security, code review etc.)
+- `ai/ARCHITECTURE.md`: referência obrigatória para decisões técnicas e limites arquiteturais
+
+Exemplo de comando no Cursor:
+
+```text
+Act as the Product Designer agent and improve hover states, spacing and visual hierarchy on the homepage.
+```
+
+Fluxo recomendado:
+
+1. identificar tipo da tarefa
+2. selecionar agentes necessários (sem excesso)
+3. implementar por especialidade
+4. validar com revisão e testes
+5. consolidar entrega final
 
 ------------------------------------------------------------------------
 

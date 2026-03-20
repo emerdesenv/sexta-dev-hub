@@ -19,6 +19,15 @@
                         <a href="#episodios" class="sd-button sd-button-primary">
                             Explorar episódios
                         </a>
+                        <a
+                            v-if="githubUrl"
+                            :href="githubUrl"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="sd-button sd-button-secondary"
+                        >
+                            Ver no GitHub
+                        </a>
                     </div>
                 </div>
 
@@ -103,6 +112,7 @@ const episodes = ref([]);
 const loading = ref(false);
 const error = ref('');
 const filters = reactive({ year: '', category: '' });
+const githubUrl = import.meta.env.VITE_GITHUB_URL || '';
 
 async function loadEpisodes() {
     const params = {};
