@@ -1,12 +1,16 @@
 <template>
-    <Card class="overflow-hidden h-full">
-        <img
-            v-if="episode.cover_url"
-            :src="episode.cover_url"
-            :alt="episode.title"
-            class="w-full h-44 sm:h-48 object-cover"
-        />
-        <div class="p-5 flex flex-col gap-3">
+    <Card class="overflow-hidden h-full flex flex-col">
+        <div class="w-full h-44 sm:h-48 bg-surface-2/40 border-b border-border/40 flex items-center justify-center">
+            <img
+                v-if="episode.cover_url"
+                :src="episode.cover_url"
+                :alt="episode.title"
+                class="w-full h-full object-contain"
+            />
+            <span v-else class="text-sm text-muted">Sem capa</span>
+        </div>
+
+        <div class="p-5 flex flex-col gap-3 flex-1">
             <div class="flex flex-wrap gap-2">
                 <Badge>{{ episode.year_target }}º ano</Badge>
                 <Badge>{{ episode.category }}</Badge>
