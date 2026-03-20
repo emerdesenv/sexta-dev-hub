@@ -125,6 +125,7 @@ As variáveis do frontend seguem o padrão `VITE_*`:
 - `VITE_API_URL`: base da API consumida pelo frontend (ex.: `/api`)
 - `VITE_GITHUB_URL`: URL pública do repositório para exibição no site (hero e footer)
 - `VITE_ENABLE_VLIBRAS`: habilita/desabilita plugin VLibras no frontend (`true`/`false`)
+- `VITE_ENABLE_PDF_PREVIEW`: habilita/desabilita pré-visualização de PDF no detalhe do episódio (`true`/`false`)
 
 Defina no `.env` da raiz e, em produção, também no build do frontend via `docker-compose.prod.yml`.
 
