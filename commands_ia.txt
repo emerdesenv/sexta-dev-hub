@@ -1,19 +1,58 @@
+#############################
+# BASE DE COMANDOS PARA IA #
+#############################
+
+Objetivo:
+Este arquivo serve como atalho de prompts para orientar a IA com contexto consistente, papéis claros e respostas acionáveis.
+
+Regra de ouro:
+Sempre que possível, use caminhos reais da pasta /ai e peça saída estruturada (plano, checklist, riscos, validação).
+
+========================================
+1) COMANDO MESTRE (recomendado para quase tudo)
+========================================
+
+Use a pasta /ai como base de contexto do projeto.
+
+Siga esta ordem:
+1. leia /ai/README_AI.md
+2. leia /ai/context/AI_CONTEXT.md
+3. classifique a tarefa com /ai/workflows/AI_TASK_ROUTER.md
+4. orquestre os agentes com /ai/workflows/AI_AGENT_ORCHESTRATOR.md
+5. siga a ordem de /ai/workflows/AGENT_EXECUTION_FLOW.md
+6. respeite /ai/governance/AI_RULES.md, /ai/governance/CONSTRAINTS.md, /ai/context/ARCHITECTURE.md e /ai/context/PROJECT_MAP.md
+7. entregue resposta consolidada, técnica e pronta para execução
+
+Formato da resposta:
+- entendimento da tarefa
+- plano de execução
+- riscos e mitigacoes
+- validacao (testes/checklist)
+- proximo passo recomendado
+
+Tarefa:
+[COLE AQUI]
+
+========================================
+2) COMANDOS POR PAPEL (uso direto)
+========================================
+
 #### Ativar Architect ####
 
 Atue como o agente definido em /ai/agents/architect.md.
 
 Antes de responder, consulte:
 - /ai/README_AI.md
-- /ai/AI_CONTEXT.md
-- /ai/AI_RULES.md
-- /ai/ARCHITECTURE.md
-- /ai/PROJECT_MAP.md
-- /ai/CONSTRAINTS.md
-- /ai/DECISION_LOG.md
-- /ai/PERFORMANCE_GUIDELINES.md
-- /ai/SECURITY_BASELINE.md
+- /ai/context/AI_CONTEXT.md
+- /ai/governance/AI_RULES.md
+- /ai/context/ARCHITECTURE.md
+- /ai/context/PROJECT_MAP.md
+- /ai/governance/CONSTRAINTS.md
+- /ai/context/DECISION_LOG.md
+- /ai/engineering/PERFORMANCE_GUIDELINES.md
+- /ai/engineering/SECURITY_BASELINE.md
 
-Analise esta demanda como arquiteto de software, respeitando a arquitetura do projeto, a escalabilidade e a separação de responsabilidades.
+Analise esta demanda como arquiteto de software, respeitando arquitetura, escalabilidade e separacao de responsabilidades.
 
 Demanda:
 [COLE AQUI]
@@ -24,17 +63,17 @@ Atue como o agente definido em /ai/agents/frontend-engineer.md.
 
 Antes de responder, consulte:
 - /ai/README_AI.md
-- /ai/AI_CONTEXT.md
-- /ai/AI_RULES.md
-- /ai/PROJECT_MAP.md
-- /ai/CODE_STYLE.md
-- /ai/DESIGN_SYSTEM.md
-- /ai/FIGMA_PROMPTS.md
-- /ai/CONSTRAINTS.md
-- /ai/DELIVERY_CHECKLIST.md
-- /ai/TESTING_GUIDELINES.md
+- /ai/context/AI_CONTEXT.md
+- /ai/governance/AI_RULES.md
+- /ai/context/PROJECT_MAP.md
+- /ai/governance/CODE_STYLE.md
+- /ai/design/DESIGN_SYSTEM.md
+- /ai/prompts/FIGMA_PROMPTS.md
+- /ai/governance/CONSTRAINTS.md
+- /ai/governance/DELIVERY_CHECKLIST.md
+- /ai/engineering/TESTING_GUIDELINES.md
 
-Implemente esta demanda como especialista em frontend, com foco em componentização, responsividade e aderência ao design system.
+Implemente esta demanda como especialista em frontend, com foco em componentizacao, responsividade e aderencia ao design system.
 
 Demanda:
 [COLE AQUI]
@@ -45,18 +84,18 @@ Atue como o agente definido em /ai/agents/backend-engineer.md.
 
 Antes de responder, consulte:
 - /ai/README_AI.md
-- /ai/AI_CONTEXT.md
-- /ai/AI_RULES.md
-- /ai/ARCHITECTURE.md
-- /ai/PROJECT_MAP.md
-- /ai/CODE_STYLE.md
-- /ai/CONSTRAINTS.md
-- /ai/SECURITY_BASELINE.md
-- /ai/PERFORMANCE_GUIDELINES.md
-- /ai/TESTING_GUIDELINES.md
-- /ai/DELIVERY_CHECKLIST.md
+- /ai/context/AI_CONTEXT.md
+- /ai/governance/AI_RULES.md
+- /ai/context/ARCHITECTURE.md
+- /ai/context/PROJECT_MAP.md
+- /ai/governance/CODE_STYLE.md
+- /ai/governance/CONSTRAINTS.md
+- /ai/engineering/SECURITY_BASELINE.md
+- /ai/engineering/PERFORMANCE_GUIDELINES.md
+- /ai/engineering/TESTING_GUIDELINES.md
+- /ai/governance/DELIVERY_CHECKLIST.md
 
-Implemente esta demanda como especialista em backend, com foco em organização de camadas, segurança, performance e clareza da API.
+Implemente esta demanda como especialista em backend, com foco em organizacao de camadas, seguranca, performance e clareza da API.
 
 Demanda:
 [COLE AQUI]
@@ -67,18 +106,18 @@ Atue como o agente definido em /ai/agents/code-reviewer.md.
 
 Antes de responder, consulte:
 - /ai/README_AI.md
-- /ai/AI_RULES.md
-- /ai/CODE_STYLE.md
-- /ai/ARCHITECTURE.md
-- /ai/PROJECT_MAP.md
-- /ai/CONSTRAINTS.md
-- /ai/SECURITY_BASELINE.md
-- /ai/TESTING_GUIDELINES.md
-- /ai/DELIVERY_CHECKLIST.md
+- /ai/governance/AI_RULES.md
+- /ai/governance/CODE_STYLE.md
+- /ai/context/ARCHITECTURE.md
+- /ai/context/PROJECT_MAP.md
+- /ai/governance/CONSTRAINTS.md
+- /ai/engineering/SECURITY_BASELINE.md
+- /ai/engineering/TESTING_GUIDELINES.md
+- /ai/governance/DELIVERY_CHECKLIST.md
 
-Revise o código abaixo com foco em qualidade, aderência ao projeto, riscos técnicos e melhorias priorizadas.
+Revise o codigo abaixo com foco em qualidade, aderencia ao projeto, riscos tecnicos e melhorias priorizadas.
 
-Código ou contexto:
+Codigo ou contexto:
 [COLE AQUI]
 
 #### Ativar Debugger ####
@@ -87,15 +126,20 @@ Atue como o agente definido em /ai/agents/debugger.md.
 
 Antes de responder, consulte:
 - /ai/README_AI.md
-- /ai/AI_CONTEXT.md
-- /ai/PROJECT_MAP.md
-- /ai/DEBUG_PLAYBOOK.md
-- /ai/ARCHITECTURE.md
-- /ai/CONSTRAINTS.md
-- /ai/SECURITY_BASELINE.md
-- /ai/PERFORMANCE_GUIDELINES.md
+- /ai/context/AI_CONTEXT.md
+- /ai/context/PROJECT_MAP.md
+- /ai/engineering/DEBUG_PLAYBOOK.md
+- /ai/context/ARCHITECTURE.md
+- /ai/governance/CONSTRAINTS.md
+- /ai/engineering/SECURITY_BASELINE.md
+- /ai/engineering/PERFORMANCE_GUIDELINES.md
 
-Analise o problema abaixo como especialista em diagnóstico. Identifique hipóteses, causa raiz mais provável, plano de correção e como validar.
+Analise o problema abaixo como especialista em diagnostico.
+Retorne:
+- hipoteses
+- causa raiz mais provavel
+- plano de correcao
+- como validar
 
 Problema:
 [COLE AQUI]
@@ -106,14 +150,14 @@ Atue como o agente definido em /ai/agents/security-auditor.md.
 
 Antes de responder, consulte:
 - /ai/README_AI.md
-- /ai/AI_RULES.md
-- /ai/ARCHITECTURE.md
-- /ai/SECURITY_BASELINE.md
-- /ai/CONSTRAINTS.md
-- /ai/PROJECT_MAP.md
-- /ai/DELIVERY_CHECKLIST.md
+- /ai/governance/AI_RULES.md
+- /ai/context/ARCHITECTURE.md
+- /ai/engineering/SECURITY_BASELINE.md
+- /ai/governance/CONSTRAINTS.md
+- /ai/context/PROJECT_MAP.md
+- /ai/governance/DELIVERY_CHECKLIST.md
 
-Audite esta demanda ou este código sob a ótica de segurança, classifique a severidade dos riscos e proponha correções práticas.
+Audite esta demanda ou este codigo sob a otica de seguranca, classifique severidade dos riscos e proponha correcoes praticas.
 
 Contexto:
 [COLE AQUI]
@@ -124,17 +168,17 @@ Atue como o agente definido em /ai/agents/refactor-specialist.md.
 
 Antes de responder, consulte:
 - /ai/README_AI.md
-- /ai/AI_RULES.md
-- /ai/AI_REFACTOR_PLAN.md
-- /ai/CODE_STYLE.md
-- /ai/PROJECT_MAP.md
-- /ai/ARCHITECTURE.md
-- /ai/CONSTRAINTS.md
-- /ai/TESTING_GUIDELINES.md
+- /ai/governance/AI_RULES.md
+- /ai/playbooks/AI_REFACTOR_GUIDE.md
+- /ai/governance/CODE_STYLE.md
+- /ai/context/PROJECT_MAP.md
+- /ai/context/ARCHITECTURE.md
+- /ai/governance/CONSTRAINTS.md
+- /ai/engineering/TESTING_GUIDELINES.md
 
-Refatore o código abaixo preservando comportamento funcional, reduzindo complexidade, melhorando legibilidade e removendo duplicação.
+Refatore o codigo abaixo preservando comportamento funcional, reduzindo complexidade, melhorando legibilidade e removendo duplicacao.
 
-Código ou contexto:
+Codigo ou contexto:
 [COLE AQUI]
 
 #### Ativar Test Engineer ####
@@ -143,14 +187,14 @@ Atue como o agente definido em /ai/agents/test-engineer.md.
 
 Antes de responder, consulte:
 - /ai/README_AI.md
-- /ai/AI_RULES.md
-- /ai/TESTING_GUIDELINES.md
-- /ai/DELIVERY_CHECKLIST.md
-- /ai/PROJECT_MAP.md
-- /ai/ARCHITECTURE.md
-- /ai/CONSTRAINTS.md
+- /ai/governance/AI_RULES.md
+- /ai/engineering/TESTING_GUIDELINES.md
+- /ai/governance/DELIVERY_CHECKLIST.md
+- /ai/context/PROJECT_MAP.md
+- /ai/context/ARCHITECTURE.md
+- /ai/governance/CONSTRAINTS.md
 
-Defina os testes necessários para a demanda abaixo, incluindo casos críticos, bordas, regressão e smoke tests manuais.
+Defina os testes necessarios para a demanda abaixo, incluindo casos criticos, bordas, regressao e smoke tests manuais.
 
 Demanda:
 [COLE AQUI]
@@ -161,27 +205,31 @@ Atue como o agente definido em /ai/agents/product-designer.md.
 
 Antes de responder, consulte:
 - /ai/README_AI.md
-- /ai/AI_CONTEXT.md
-- /ai/DESIGN_SYSTEM.md
-- /ai/FIGMA_PROMPTS.md
-- /ai/PROJECT_MAP.md
-- /ai/CODE_STYLE.md
-- /ai/DELIVERY_CHECKLIST.md
+- /ai/context/AI_CONTEXT.md
+- /ai/design/DESIGN_SYSTEM.md
+- /ai/prompts/FIGMA_PROMPTS.md
+- /ai/context/PROJECT_MAP.md
+- /ai/governance/CODE_STYLE.md
+- /ai/governance/DELIVERY_CHECKLIST.md
 
-Traduza esta necessidade em uma proposta de interface, estrutura de tela, componentização e regras de responsividade alinhadas ao design system.
+Traduza esta necessidade em proposta de interface, estrutura de tela, componentizacao e regras de responsividade alinhadas ao design system.
 
 Demanda:
 [COLE AQUI]
 
+========================================
+3) COMANDOS DE ORQUESTRACAO (multidisciplinar)
+========================================
+
 #### Rodar roteador de tarefa ####
 
-Use /ai/AI_TASK_ROUTER.md para classificar a tarefa abaixo.
+Use /ai/workflows/AI_TASK_ROUTER.md para classificar a tarefa abaixo.
 
 Depois:
 1. identifique o tipo principal da tarefa
 2. selecione os agentes adequados
 3. justifique a escolha
-4. proponha a ordem de atuação com base em /ai/AGENT_EXECUTION_FLOW.md
+4. proponha ordem de atuacao com base em /ai/workflows/AGENT_EXECUTION_FLOW.md
 
 Tarefa:
 [COLE AQUI]
@@ -189,11 +237,11 @@ Tarefa:
 #### Rodar orquestrador completo ####
 
 Use:
-- /ai/AI_AGENT_ORCHESTRATOR.md
-- /ai/AI_TASK_ROUTER.md
-- /ai/AGENT_EXECUTION_FLOW.md
+- /ai/workflows/AI_AGENT_ORCHESTRATOR.md
+- /ai/workflows/AI_TASK_ROUTER.md
+- /ai/workflows/AGENT_EXECUTION_FLOW.md
 
-Analise a tarefa abaixo, escolha os agentes corretos, explique a ordem de execução e entregue um plano consolidado de implementação.
+Analise a tarefa abaixo, escolha os agentes corretos, explique ordem de execucao e entregue plano consolidado de implementacao.
 
 Tarefa:
 [COLE AQUI]
@@ -201,21 +249,17 @@ Tarefa:
 #### Rodar fluxo completo de feature ####
 
 Atue como orquestrador usando:
-- /ai/AI_AGENT_ORCHESTRATOR.md
-- /ai/AI_TASK_ROUTER.md
-- /ai/AGENT_EXECUTION_FLOW.md
+- /ai/workflows/AI_AGENT_ORCHESTRATOR.md
+- /ai/workflows/AI_TASK_ROUTER.md
+- /ai/workflows/AGENT_EXECUTION_FLOW.md
 
-Para esta nova funcionalidade:
-1. classifique a tarefa
-2. selecione os agentes
-3. execute o raciocínio em sequência como um time técnico
-4. entregue:
-   - visão arquitetural
-   - plano backend
-   - plano frontend
-   - pontos de segurança
-   - testes recomendados
-   - checklist final de entrega
+Para esta nova funcionalidade, entregue:
+- visao arquitetural
+- plano backend
+- plano frontend
+- pontos de seguranca
+- testes recomendados
+- checklist final de entrega
 
 Funcionalidade:
 [COLE AQUI]
@@ -223,120 +267,84 @@ Funcionalidade:
 #### Rodar fluxo completo de bug ####
 
 Atue como orquestrador usando:
-- /ai/AI_AGENT_ORCHESTRATOR.md
-- /ai/AI_TASK_ROUTER.md
-- /ai/AGENT_EXECUTION_FLOW.md
+- /ai/workflows/AI_AGENT_ORCHESTRATOR.md
+- /ai/workflows/AI_TASK_ROUTER.md
+- /ai/workflows/AGENT_EXECUTION_FLOW.md
 
 Para o problema abaixo:
 1. classifique como bug ou outro tipo
 2. inicie pelo agente debugger
 3. siga a ordem adequada de agentes
-4. entregue:
-   - hipóteses
-   - causa raiz mais provável
-   - correção recomendada
-   - testes de validação
-   - riscos de regressão
+4. entregue hipoteses, causa raiz, correcao recomendada, testes de validacao e riscos de regressao
 
 Problema:
 [COLE AQUI]
 
-#### Rodar fluxo completo de refatoração ####
+#### Rodar fluxo completo de refatoracao ####
 
 Atue como orquestrador usando:
-- /ai/AI_AGENT_ORCHESTRATOR.md
-- /ai/AI_TASK_ROUTER.md
-- /ai/AGENT_EXECUTION_FLOW.md
+- /ai/workflows/AI_AGENT_ORCHESTRATOR.md
+- /ai/workflows/AI_TASK_ROUTER.md
+- /ai/workflows/AGENT_EXECUTION_FLOW.md
 
-Para a refatoração abaixo:
+Para a refatoracao abaixo:
 1. classifique a tarefa
-2. use o refactor-specialist como agente principal
+2. use refactor-specialist como agente principal
 3. inclua architect se houver impacto estrutural
 4. inclua test-engineer e code-reviewer ao final
-5. entregue um plano de refatoração seguro
+5. entregue um plano de refatoracao seguro
 
-Refatoração desejada:
+Refatoracao desejada:
 [COLE AQUI]
 
-#### Rodar revisão final de entrega ####
+#### Rodar revisao final de entrega ####
 
 Use os agentes:
 - /ai/agents/code-reviewer.md
 - /ai/agents/security-auditor.md
 - /ai/agents/test-engineer.md
 
-Considere também:
-- /ai/DELIVERY_CHECKLIST.md
-- /ai/CODE_STYLE.md
-- /ai/SECURITY_BASELINE.md
-- /ai/TESTING_GUIDELINES.md
+Considere tambem:
+- /ai/governance/DELIVERY_CHECKLIST.md
+- /ai/governance/CODE_STYLE.md
+- /ai/engineering/SECURITY_BASELINE.md
+- /ai/engineering/TESTING_GUIDELINES.md
 
-Faça uma revisão final da entrega abaixo e retorne:
+Faca revisao final da entrega e retorne:
 1. problemas encontrados
 2. riscos
 3. melhorias recomendadas
 4. veredito final
-5. checklist de aprovação
+5. checklist de aprovacao
 
 Entrega:
 [COLE AQUI]
 
-#### Teste 1 — criar endpoint ####
+========================================
+4) MELHOR USO NO DIA A DIA
+========================================
 
-Atue como /ai/agents/backend-engineer.md e implemente um endpoint para upload de PDF, seguindo ARCHITECTURE.md, PROJECT_MAP.md, SECURITY_BASELINE.md e CODE_STYLE.md.
+1. Quando mudar de assunto tecnico, declare claramente:
+"Mudando de contexto. Atue agora como /ai/agents/debugger.md"
 
-#### Teste 2 — revisar componente Vue ####
+2. Quando a conversa ficar longa, reset de contexto:
+"Reinicie a analise usando /ai/agents/frontend-engineer.md e considere /ai como contexto do projeto."
 
-Atue como /ai/agents/code-reviewer.md e revise este componente Vue com base em CODE_STYLE.md, DESIGN_SYSTEM.md e DELIVERY_CHECKLIST.md.
+3. Sempre inclua o tipo de saida esperado:
+"Entregue em formato de checklist + plano de acao + testes de validacao."
 
-#### Teste 3 — investigar erro ####
+4. Para evitar respostas vagas, adicione restricoes:
+- stack/tecnologia
+- arquivos impactados
+- criterios de aceite
+- prazo/prioridade
 
-Atue como /ai/agents/debugger.md e investigue por que o backend sobe no Docker, mas o Traefik retorna 502.
+5. Para manter este arquivo atualizado:
+- revisar mensalmente caminhos da pasta /ai
+- remover comandos duplicados
+- substituir referencias de arquivos renomeados
+- incluir novos playbooks/workflows quando surgirem
 
-#### Teste 4 — fluxo completo ####
-
-Use AI_TASK_ROUTER.md, AI_AGENT_ORCHESTRATOR.md e AGENT_EXECUTION_FLOW.md para planejar e coordenar a implementação de uma tela com upload de PDF e listagem de arquivos.
-
-#### Teste 5 — auditoria de segurança ####
-
-Atue como /ai/agents/security-auditor.md e audite o fluxo de upload de arquivos PDF, áudio e vídeo deste projeto.
-
-#### 4. Comando mestre ####
-
-Use a pasta /ai como base de contexto do projeto.
-
-Siga esta ordem:
-1. leia README_AI.md
-2. classifique a tarefa com AI_TASK_ROUTER.md
-3. orquestre os agentes com AI_AGENT_ORCHESTRATOR.md
-4. siga a ordem de AGENT_EXECUTION_FLOW.md
-5. respeite AI_RULES.md, CONSTRAINTS.md, ARCHITECTURE.md e PROJECT_MAP.md
-6. entregue uma resposta consolidada, técnica e pronta para execução
-
-Tarefa:
-[COLE AQUI]
-
-######################################## Orientações Finais ########################################
-
-1 - Ativar agente: 
-
-Atue como /ai/agents/frontend-engineer.md
-Conversar normalmente: Precisamos resolver o problema de imagem na página do episódio
-Tudo isso continua sendo tratado como frontend engineer.
-
-2 - Um padrão muito bom que recomendo. Quando mudar de assunto técnico, escreva algo assim:
-
-Mudando de contexto.
-Atue agora como /ai/agents/debugger.md
-
-3 - Outro truque muito bom. Se a conversa ficou longa, você pode resetar o contexto do agente:
-
-Reinicie a análise usando o agente:
-/ai/agents/frontend-engineer.md
-
-Considere os arquivos da pasta /ai como contexto do projeto.
-
-4 - Um truque que vai turbinar ainda mais seus testes
-
-Quando mandar mensagens normais, às vezes reforce o papel assim:
-Como frontend engineer do projeto, precisamos resolver isso:
+########################################
+# FIM
+########################################
