@@ -28,6 +28,64 @@
                     </aside>
 
                     <section class="grid gap-6">
+                        <div class="sd-card p-6">
+                            <div class="flex justify-between items-center gap-3 flex-wrap">
+                                <h2 class="text-xl font-bold">Métricas de gamificação</h2>
+                                <button
+                                    class="sd-button sd-button-secondary px-3 py-2 text-sm"
+                                    type="button"
+                                    :disabled="loadingMetrics"
+                                    @click="loadMetrics"
+                                >
+                                    {{ loadingMetrics ? 'Atualizando...' : 'Atualizar métricas' }}
+                                </button>
+                            </div>
+
+                            <div v-if="metricsError" class="sd-error mt-4">
+                                {{ metricsError }}
+                            </div>
+
+                            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mt-4">
+                                <div class="rounded-xl border border-border/60 bg-surface/40 p-4">
+                                    <div class="text-sm text-muted">Usuários ativos</div>
+                                    <strong class="text-2xl font-bold">{{ metrics.totals.usersWithProfile }}</strong>
+                                </div>
+                                <div class="rounded-xl border border-border/60 bg-surface/40 p-4">
+                                    <div class="text-sm text-muted">Episódios concluídos</div>
+                                    <strong class="text-2xl font-bold">{{ metrics.totals.completedEpisodes }}</strong>
+                                </div>
+                                <div class="rounded-xl border border-border/60 bg-surface/40 p-4">
+                                    <div class="text-sm text-muted">Missões resgatadas</div>
+                                    <strong class="text-2xl font-bold">{{ metrics.totals.missionClaims }}</strong>
+                                </div>
+                                <div class="rounded-xl border border-border/60 bg-surface/40 p-4">
+                                    <div class="text-sm text-muted">Recompensas trocadas</div>
+                                    <strong class="text-2xl font-bold">{{ metrics.totals.rewardsRedeemed }}</strong>
+                                </div>
+                            </div>
+
+                            <div class="mt-5">
+                                <h3 class="font-semibold">Eventos recentes</h3>
+                                <div class="space-y-2 mt-2" v-if="metrics.recentEvents.length">
+                                    <div
+                                        v-for="event in metrics.recentEvents"
+                                        :key="event.id"
+                                        class="rounded-lg border border-border/50 bg-surface/30 p-3 flex justify-between gap-4 flex-wrap"
+                                    >
+                                        <span class="text-sm">
+                                            <b>{{ event.username }}</b> • {{ event.type }}
+                                        </span>
+                                        <span class="text-xs text-muted">
+                                            XP {{ event.xpDelta >= 0 ? '+' : '' }}{{ event.xpDelta }} • Moedas {{ event.coinsDelta >= 0 ? '+' : '' }}{{ event.coinsDelta }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div v-else class="sd-notice mt-2">
+                                    Sem eventos de gamificação ainda.
+                                </div>
+                            </div>
+                        </div>
+
                         <EpisodeForm
                             v-if="showForm"
                             :editing="editing"
@@ -132,6 +190,17 @@ const loadingEpisodes = ref(false);
 const episodesError = ref('');
 const actionError = ref('');
 const isMutating = ref(false);
+const loadingMetrics = ref(false);
+const metricsError = ref('');
+const metrics = ref({
+    totals: {
+        usersWithProfile: 0,
+        completedEpisodes: 0,
+        missionClaims: 0,
+        rewardsRedeemed: 0
+    },
+    recentEvents: []
+});
 
 async function loadEpisodes() {
     loadingEpisodes.value = true;
@@ -145,6 +214,19 @@ async function loadEpisodes() {
         episodesError.value = e?.response?.data?.message || 'Não foi possível carregar os episódios.';
     } finally {
         loadingEpisodes.value = false;
+    }
+}
+
+async function loadMetrics() {
+    loadingMetrics.value = true;
+    metricsError.value = '';
+    try {
+        const { data } = await api.get('/gamification/admin/metrics');
+        metrics.value = data;
+    } catch (e) {
+        metricsError.value = e?.response?.data?.message || 'Não foi possível carregar métricas de gamificação.';
+    } finally {
+        loadingMetrics.value = false;
     }
 }
 
@@ -207,5 +289,7 @@ async function removeEpisode(id) {
     }
 }
 
-onMounted(loadEpisodes);
+onMounted(async () => {
+    await Promise.all([loadEpisodes(), loadMetrics()]);
+});
 </script>

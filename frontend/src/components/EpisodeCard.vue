@@ -12,6 +12,7 @@
 
         <div class="p-5 flex flex-col gap-3 flex-1">
             <div class="flex flex-wrap gap-2">
+                <Badge tone="primary">+{{ episode.xp_reward || 40 }} XP</Badge>
                 <Badge>{{ episode.year_target }}º ano</Badge>
                 <Badge>{{ episode.category }}</Badge>
                 <Badge v-if="episode.duration_label">{{ episode.duration_label }}</Badge>
@@ -27,20 +28,76 @@
             </p>
 
             <router-link
+                v-if="auth.isAuthenticated"
                 class="sd-button sd-button-primary mt-auto px-4 py-2 text-sm"
                 :to="`/episodio/${episode.slug}`"
             >
                 Abrir episódio
             </router-link>
+            <button
+                v-else
+                class="sd-button sd-button-primary mt-auto px-4 py-2 text-sm"
+                type="button"
+                @click="showLoginPrompt = true"
+            >
+                🔒 Abrir episódio
+            </button>
         </div>
+
     </Card>
+
+    <Teleport to="body">
+        <div
+            v-if="showLoginPrompt"
+            class="episode-gate-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Acesso do episódio"
+            @click.self="closeLoginPrompt"
+        >
+            <div class="episode-gate-modal" @click.stop>
+                <div class="text-lg font-bold">Conteúdo para aluno logado</div>
+                <p class="text-sm text-muted mt-2">
+                    Entre como aluno para acompanhar progresso, ganhar XP e desbloquear recompensas.
+                </p>
+                <div class="flex gap-2 mt-4">
+                    <button class="sd-button sd-button-primary w-full" type="button" @click="goToStudentAuth">
+                        Entrar / Criar conta
+                    </button>
+                    <button
+                        class="sd-button sd-button-secondary w-full"
+                        type="button"
+                        @click="closeLoginPrompt"
+                    >
+                        Continuar visitante
+                    </button>
+                </div>
+            </div>
+        </div>
+    </Teleport>
 </template>
 
 <script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import Card from './ui/Card.vue';
 import Badge from './ui/Badge.vue';
+import { useAuthStore } from '../stores/auth';
 
 defineProps({ episode: Object });
+
+const auth = useAuthStore();
+const router = useRouter();
+const showLoginPrompt = ref(false);
+
+function goToStudentAuth() {
+    closeLoginPrompt();
+    router.push('/aluno');
+}
+
+function closeLoginPrompt() {
+    showLoginPrompt.value = false;
+}
 </script>
 
 <style scoped>
@@ -48,5 +105,26 @@ defineProps({ episode: Object });
     transform: translateY(-3px);
     box-shadow: 0 18px 36px rgba(0, 0, 0, 0.3);
     border-color: rgba(147, 197, 253, 0.35);
+}
+
+.episode-gate-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(3, 8, 20, 0.72);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    z-index: 80;
+}
+
+.episode-gate-modal {
+    width: 100%;
+    max-width: 420px;
+    border-radius: 14px;
+    border: 1px solid rgba(47, 61, 102, 0.9);
+    background: #111a2f;
+    padding: 18px;
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.38);
 }
 </style>

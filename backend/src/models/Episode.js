@@ -10,6 +10,7 @@ export const Episode = sequelize.define('episode', {
     year_target: { type: DataTypes.INTEGER, allowNull: false },
     category: { type: DataTypes.STRING(80), allowNull: false },
     is_published: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+    early_access_only: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     cover_path: { type: DataTypes.STRING(255) },
     audio_path: { type: DataTypes.STRING(255) },
     pdf_path: { type: DataTypes.STRING(255) },

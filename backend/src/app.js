@@ -6,6 +6,7 @@ import rateLimit from 'express-rate-limit';
 import path from 'path';
 import authRoutes from './routes/authRoutes.js';
 import episodeRoutes from './routes/episodeRoutes.js';
+import gamificationRoutes from './routes/gamificationRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
@@ -63,6 +64,7 @@ app.get('/api/health', (req, res) => res.status(200).json({ status: 'ok' }));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/episodes', episodeRoutes);
+app.use('/api/gamification', gamificationRoutes);
 
 app.use(errorHandler);
 

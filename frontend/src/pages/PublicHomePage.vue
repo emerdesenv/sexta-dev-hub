@@ -5,6 +5,13 @@
             <section class="sd-card p-7 md:grid md:grid-cols-[1.35fr_0.9fr] md:items-center md:gap-6">
                 <div>
                     <Badge tone="primary">Conteúdo aberto para alunos</Badge>
+                    <Badge
+                        v-if="auth.isAuthenticated && auth.user?.role === 'student'"
+                        :tone="streakShieldCount > 0 ? 'audio' : 'neutral'"
+                        class="ml-2"
+                    >
+                        Escudo de streak: {{ streakShieldCount }}
+                    </Badge>
                     <h1 class="mt-4 text-4xl sm:text-5xl font-extrabold leading-tight">
                         Microaulas de ADS
                     </h1>
@@ -107,12 +114,15 @@ import api from '../services/api';
 import PageContainer from '../components/layout/PageContainer.vue';
 import Badge from '../components/ui/Badge.vue';
 import Footer from '../components/layout/Footer.vue';
+import { useAuthStore } from '../stores/auth';
 
 const episodes = ref([]);
 const loading = ref(false);
 const error = ref('');
 const filters = reactive({ year: '', category: '' });
 const githubUrl = import.meta.env.VITE_GITHUB_URL || '';
+const streakShieldCount = ref(0);
+const auth = useAuthStore();
 
 async function loadEpisodes() {
     const params = {};
@@ -133,5 +143,21 @@ async function loadEpisodes() {
     }
 }
 
-onMounted(loadEpisodes);
+async function loadStudentPerks() {
+    if (!auth.isAuthenticated || auth.user?.role !== 'student') {
+        streakShieldCount.value = 0;
+        return;
+    }
+
+    try {
+        const { data } = await api.get('/gamification/me');
+        streakShieldCount.value = Number(data?.profile?.streakShieldCount || 0);
+    } catch {
+        streakShieldCount.value = 0;
+    }
+}
+
+onMounted(async () => {
+    await Promise.all([loadEpisodes(), loadStudentPerks()]);
+});
 </script>

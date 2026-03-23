@@ -25,6 +25,7 @@
 
                         <div class="mt-6 md:mt-0 flex flex-col gap-4">
                             <div class="flex flex-wrap gap-2">
+                                <Badge tone="primary">+{{ episode.xp_reward || 40 }} XP</Badge>
                                 <Badge>{{ episode.year_target }}º ano</Badge>
                                 <Badge>{{ episode.category }}</Badge>
                                 <Badge v-if="episode.duration_label">{{ episode.duration_label }}</Badge>
@@ -53,7 +54,7 @@
                                     class="sd-button sd-button-primary"
                                     @click="showPdfPreview = !showPdfPreview"
                                 >
-                                    {{ showPdfPreview ? 'Ocultar pre-visualizacao' : 'Ver PDF aqui' }}
+                                    {{ showPdfPreview ? 'Ocultar pré-visualização' : 'Ver PDF aqui' }}
                                 </button>
                                 <a
                                     v-if="episode.pdf_url"
@@ -78,6 +79,18 @@
                                 >
                                     Voltar
                                 </router-link>
+                                <button
+                                    v-if="auth.isAuthenticated"
+                                    class="sd-button sd-button-primary"
+                                    :disabled="completing"
+                                    type="button"
+                                    @click="markCompleted"
+                                >
+                                    {{ completing ? 'Registrando...' : 'Marcar como concluído' }}
+                                </button>
+                            </div>
+                            <div v-if="completionMessage" class="sd-notice mt-3">
+                                {{ completionMessage }}
                             </div>
                         </div>
                     </div>
@@ -117,8 +130,10 @@ import api from '../services/api';
 import PageContainer from '../components/layout/PageContainer.vue';
 import Badge from '../components/ui/Badge.vue';
 import Footer from '../components/layout/Footer.vue';
+import { useAuthStore } from '../stores/auth';
 const PdfPreview = defineAsyncComponent(() => import('../components/PdfPreview.vue'));
 const route = useRoute();
+const auth = useAuthStore();
 const episode = ref(null);
 const loading = ref(false);
 const error = ref('');
@@ -127,6 +142,8 @@ const showPdfPreview = ref(false);
 const pdfDownloadName = ref('episodio.pdf');
 const isDesktop = ref(false);
 let desktopMediaQuery = null;
+const completing = ref(false);
+const completionMessage = ref('');
 
 function syncDesktopState() {
     if (!desktopMediaQuery) return;
@@ -150,6 +167,25 @@ async function loadEpisode() {
         error.value = e?.response?.data?.message || 'Não foi possível carregar o episódio.';
     } finally {
         loading.value = false;
+    }
+}
+
+async function markCompleted() {
+    if (!episode.value?.id || completing.value) return;
+    completing.value = true;
+    completionMessage.value = '';
+
+    try {
+        const { data } = await api.post(`/gamification/episodes/${episode.value.id}/complete`);
+        if (data.alreadyCompleted) {
+            completionMessage.value = 'Esse episódio já estava contabilizado na sua jornada.';
+        } else {
+            completionMessage.value = `Progresso salvo: +${data.awarded.xp} XP e +${data.awarded.coins} moedas.`;
+        }
+    } catch (e) {
+        completionMessage.value = e?.response?.data?.message || 'Não foi possível registrar a conclusão.';
+    } finally {
+        completing.value = false;
     }
 }
 onMounted(loadEpisode);

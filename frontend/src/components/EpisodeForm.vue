@@ -43,6 +43,11 @@
             </label>
         </div>
 
+        <label class="flex items-center gap-3 text-sm text-muted">
+            <input type="checkbox" v-model="form.early_access_only" />
+            Disponível apenas para quem resgatou acesso antecipado
+        </label>
+
         <label class="flex flex-col gap-2">
             <span class="sd-label">Resumo</span>
             <textarea class="sd-input" rows="5" v-model="form.summary" required />
@@ -97,10 +102,10 @@ import Button from './ui/Button.vue';
 const props = defineProps({ modelValue: Object, editing: Boolean });
 const emit = defineEmits(['submit', 'cancel']);
 
-const form = reactive({ title:'', category:'', year_target:1, duration_label:'', tags:'', is_published:false, summary:'', cover:null, audio:null, pdf:null });
+const form = reactive({ title:'', category:'', year_target:1, duration_label:'', tags:'', is_published:false, early_access_only:false, summary:'', cover:null, audio:null, pdf:null });
 
 watch(() => props.modelValue, (value) => {
-    Object.assign(form, { title:'', category:'', year_target:1, duration_label:'', tags:'', is_published:false, summary:'', cover:null, audio:null, pdf:null }, value || {});
+    Object.assign(form, { title:'', category:'', year_target:1, duration_label:'', tags:'', is_published:false, early_access_only:false, summary:'', cover:null, audio:null, pdf:null }, value || {});
     if (Array.isArray(value?.tags)) form.tags = value.tags.join(', ');
 }, { immediate: true });
 

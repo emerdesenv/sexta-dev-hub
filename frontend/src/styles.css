@@ -12,6 +12,18 @@
     --danger: #ff7b7b;
 }
 
+body[data-theme='neon'] {
+    --bg: #08031a;
+    --surface: #140b2c;
+    --surface-2: #211146;
+    --border: #5f3dd1;
+    --primary: #b026ff;
+    --primary-2: #00e0ff;
+    --text: #f4ebff;
+    --muted: #cfb8ff;
+    --danger: #ff6ea8;
+}
+
 * {
     box-sizing: border-box;
 }
@@ -22,6 +34,10 @@ body {
         Helvetica, sans-serif;
     background: linear-gradient(180deg, #07101c, #0b1220 20%, #0f1630);
     color: var(--text);
+}
+
+body[data-theme='neon'] {
+    background: radial-gradient(circle at top, #200b45, #0d0722 40%, #08031a);
 }
 
 a {
@@ -77,6 +93,13 @@ a {
     border-color: rgba(147, 197, 253, 0.2);
     background: rgba(147, 197, 253, 0.1);
     color: #dbeafe;
+}
+
+.sd-badge-pro {
+    border-color: rgba(245, 158, 11, 0.45);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.28), rgba(217, 119, 6, 0.22));
+    color: #fde68a;
+    box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.15) inset;
 }
 
 .sd-button {

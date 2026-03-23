@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import slugify from 'slugify';
 import { z } from 'zod';
-import { Episode } from '../models/index.js';
+import { Episode, UserGamification } from '../models/index.js';
 
 const episodeSchema = z.object({
     ordering: z.coerce.number().int().min(0).optional().default(0),
@@ -11,6 +11,7 @@ const episodeSchema = z.object({
     year_target: z.coerce.number().int().min(1).max(3),
     category: z.string().min(2),
     is_published: z.coerce.boolean().optional().default(false),
+    early_access_only: z.coerce.boolean().optional().default(false),
     duration_label: z.string().max(40).optional().or(z.literal('')),
     tags: z.string().optional().default('')
 });
@@ -20,6 +21,7 @@ function toPublicEpisode(episode) {
 
     return {
         ...json,
+        xp_reward: 40,
         cover_url: json.cover_path ? `/${json.cover_path.replace(/^\/+/, '')}` : null,
         audio_url: json.audio_path ? `/${json.audio_path.replace(/^\/+/, '')}` : null,
         pdf_url: json.pdf_path ? `/${json.pdf_path.replace(/^\/+/, '')}` : null
@@ -28,6 +30,17 @@ function toPublicEpisode(episode) {
 
 export async function listPublic(req, res) {
     const where = { is_published: true };
+    let hasEarlyAccess = false;
+
+    if (req.user?.id) {
+        const profile = await UserGamification.findOne({ where: { user_id: req.user.id } });
+        hasEarlyAccess = Boolean(profile?.early_access_enabled);
+    }
+
+    if (!hasEarlyAccess) {
+        where.early_access_only = false;
+    }
+
     if (req.query.year) where.year_target = Number(req.query.year);
     if (req.query.category) where.category = req.query.category;
     const episodes = await Episode.findAll({
@@ -51,7 +64,14 @@ export async function listAdmin(req, res) {
 }
 
 export async function getPublicBySlug(req, res) {
-    const episode = await Episode.findOne({ where: { slug: req.params.slug, is_published: true } });
+    const where = { slug: req.params.slug, is_published: true };
+    if (req.user?.id) {
+        const profile = await UserGamification.findOne({ where: { user_id: req.user.id } });
+        if (!profile?.early_access_enabled) where.early_access_only = false;
+    } else {
+        where.early_access_only = false;
+    }
+    const episode = await Episode.findOne({ where });
     if (!episode) return res.status(404).json({ message: 'Episódio não encontrado.' });
     return res.json(toPublicEpisode(episode, req));
 }

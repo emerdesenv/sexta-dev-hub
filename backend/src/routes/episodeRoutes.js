@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { createEpisode, deleteEpisode, getPublicBySlug, listAdmin, listPublic, updateEpisode } from '../controllers/episodeController.js';
-import { authRequired } from '../middleware/auth.js';
+import { authRequired, optionalAuth } from '../middleware/auth.js';
 import { upload } from '../services/upload.js';
 
 const router = Router();
@@ -11,8 +11,8 @@ const multipart = upload.fields([
     { name: 'pdf', maxCount: 1 }
 ]);
 
-router.get('/public', listPublic);
-router.get('/public/:slug', getPublicBySlug);
+router.get('/public', optionalAuth, listPublic);
+router.get('/public/:slug', optionalAuth, getPublicBySlug);
 router.get('/', authRequired, listAdmin);
 router.post('/', authRequired, multipart, createEpisode);
 router.put('/:id', authRequired, multipart, updateEpisode);
