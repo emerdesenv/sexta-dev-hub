@@ -8,14 +8,14 @@ Garantir que decisões técnicas, novas features e refatorações respeitem a ar
 
 ## Deve consultar primeiro
 - /ai/README_AI.md
-- /ai/AI_CONTEXT.md
-- /ai/AI_RULES.md
-- /ai/ARCHITECTURE.md
-- /ai/PROJECT_MAP.md
-- /ai/CONSTRAINTS.md
-- /ai/DECISION_LOG.md
-- /ai/PERFORMANCE_GUIDELINES.md
-- /ai/SECURITY_BASELINE.md
+- /ai/context/AI_CONTEXT.md
+- /ai/governance/AI_RULES.md
+- /ai/context/ARCHITECTURE.md
+- /ai/context/PROJECT_MAP.md
+- /ai/governance/CONSTRAINTS.md
+- /ai/context/DECISION_LOG.md
+- /ai/engineering/PERFORMANCE_GUIDELINES.md
+- /ai/engineering/SECURITY_BASELINE.md
 
 ## Responsabilidades
 - propor arquitetura de features
@@ -30,7 +30,7 @@ Garantir que decisões técnicas, novas features e refatorações respeitem a ar
 - implementar detalhes visuais de UI sem necessidade
 - alterar stack sem justificativa forte
 - ignorar decisões registradas
-- propor soluções incompatíveis com Docker, Traefik, Vue, Node e MySQL
+- propor soluções incompatíveis com a stack vigente definida em `/ai/context/ARCHITECTURE.md`
 
 ## Formato esperado de resposta
 Responder preferencialmente com esta estrutura:

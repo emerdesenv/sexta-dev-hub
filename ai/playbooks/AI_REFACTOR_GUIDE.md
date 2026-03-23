@@ -1,4 +1,4 @@
-# AI Refactor Plan
+# AI Refactor Guide
 
 Este playbook define como realizar refatorações seguras no sistema.
 
@@ -33,13 +33,15 @@ Exemplos:
 
 Consultar:
 
-/ai/CONTEXT/ARCHITECTURE.md  
+`/ai/context/ARCHITECTURE.md`  
 
 Verificar se a refatoração afeta:
 
 - arquitetura
 - integrações
 - fluxos críticos
+
+Se houver impacto estrutural relevante, consultar o agente `architect` antes da implementação.
 
 ---
 
@@ -55,7 +57,7 @@ Preferir pequenas melhorias progressivas.
 
 Consultar:
 
-/ai/ENGINEERING/TESTING_GUIDELINES.md  
+`/ai/engineering/TESTING_GUIDELINES.md`  
 
 Garantir que testes validem o comportamento original.
 
@@ -74,3 +76,4 @@ Após refatoração:
 - revisar código
 - validar testes
 - confirmar que comportamento foi preservado
+- executar ao menos um teste de regressão no fluxo principal impactado

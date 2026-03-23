@@ -26,8 +26,8 @@ Perguntas importantes:
 
 Consultar:
 
-/ai/CONTEXT/ARCHITECTURE.md  
-/ai/CONTEXT/PROJECT_MAP.md  
+`/ai/context/ARCHITECTURE.md`  
+`/ai/context/PROJECT_MAP.md`  
 
 Verificar:
 
@@ -55,7 +55,7 @@ Evitar misturar responsabilidades.
 
 Consultar:
 
-/ai/ENGINEERING/SECURITY_BASELINE.md  
+`/ai/engineering/SECURITY_BASELINE.md`  
 
 Verificar:
 
@@ -70,7 +70,7 @@ Verificar:
 
 Consultar:
 
-/ai/ENGINEERING/TESTING_GUIDELINES.md  
+`/ai/engineering/TESTING_GUIDELINES.md`  
 
 Definir:
 
@@ -84,11 +84,12 @@ Definir:
 
 Sequência recomendada:
 
-1 architect  
-2 backend-engineer  
-3 frontend-engineer  
-4 test-engineer  
-5 code-reviewer  
+1. architect  
+2. backend-engineer  
+3. frontend-engineer  
+4. security-auditor (quando houver auth, upload, inputs externos ou dados sensíveis)  
+5. test-engineer  
+6. code-reviewer  
 
 ---
 
@@ -100,3 +101,4 @@ Uma feature é considerada pronta quando:
 - segue padrões do projeto
 - possui testes adequados
 - passa por revisão de código
+- registra riscos residuais e plano de validação do fluxo principal

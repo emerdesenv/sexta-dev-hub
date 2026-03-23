@@ -16,6 +16,11 @@ O objetivo é manter consistência de arquitetura, legibilidade e segurança no 
 4. Não modificar contratos de API ou regras de negócio sem solicitação explícita.
 5. Alterações devem ser **incrementais e controladas**.
 
+Classificação de obrigatoriedade:
+
+- **Obrigatório:** deve ser seguido em toda alteração.
+- **Recomendado:** seguir quando aplicável ao escopo.
+
 ---
 
 # Regras de Código
@@ -147,6 +152,12 @@ Sempre considerar:
 * validação de entrada
 * tratamento de erros
 * proteção contra injeções
+
+Critérios verificáveis:
+
+- nenhuma credencial hardcoded em código/documentação
+- toda entrada externa validada no backend
+- tratamento explícito de erro para fluxos críticos
 
 ---
 

@@ -6,16 +6,16 @@ O objetivo é garantir que respostas sejam baseadas nas regras, arquitetura e pa
 
 ---
 
-# 1. Carregar contexto do projeto
+## 1. Carregar contexto do projeto
 
 Antes de responder qualquer tarefa, a IA deve considerar os seguintes arquivos como contexto prioritário:
 
 ## Contexto do projeto
 
-/ai/CONTEXT/AI_CONTEXT.md  
-/ai/CONTEXT/ARCHITECTURE.md  
-/ai/CONTEXT/PROJECT_MAP.md  
-/ai/CONTEXT/DECISION_LOG.md  
+`/ai/context/AI_CONTEXT.md`  
+`/ai/context/ARCHITECTURE.md`  
+`/ai/context/PROJECT_MAP.md`  
+`/ai/context/DECISION_LOG.md`  
 
 Esses arquivos descrevem:
 
@@ -28,10 +28,10 @@ Esses arquivos descrevem:
 
 ## Governança e padrões
 
-/ai/GOVERNANCE/AI_RULES.md  
-/ai/GOVERNANCE/CODE_STYLE.md  
-/ai/GOVERNANCE/CONSTRAINTS.md  
-/ai/GOVERNANCE/DELIVERY_CHECKLIST.md  
+`/ai/governance/AI_RULES.md`  
+`/ai/governance/CODE_STYLE.md`  
+`/ai/governance/CONSTRAINTS.md`  
+`/ai/governance/DELIVERY_CHECKLIST.md`  
 
 Esses arquivos definem:
 
@@ -44,10 +44,10 @@ Esses arquivos definem:
 
 ## Engenharia
 
-/ai/ENGINEERING/SECURITY_BASELINE.md  
-/ai/ENGINEERING/TESTING_GUIDELINES.md  
-/ai/ENGINEERING/PERFORMANCE_GUIDELINES.md  
-/ai/ENGINEERING/DEBUG_PLAYBOOK.md  
+`/ai/engineering/SECURITY_BASELINE.md`  
+`/ai/engineering/TESTING_GUIDELINES.md`  
+`/ai/engineering/PERFORMANCE_GUIDELINES.md`  
+`/ai/engineering/DEBUG_PLAYBOOK.md`  
 
 Esses arquivos definem boas práticas relacionadas a:
 
@@ -58,13 +58,13 @@ Esses arquivos definem boas práticas relacionadas a:
 
 ---
 
-# 2. Utilizar workflows de agentes
+## 2. Utilizar workflows de agentes
 
 Quando a tarefa envolver múltiplas áreas do sistema, utilizar os seguintes documentos:
 
-/ai/WORKFLOWS/AI_TASK_ROUTER.md  
-/ai/WORKFLOWS/AI_AGENT_ORCHESTRATOR.md  
-/ai/WORKFLOWS/AGENT_EXECUTION_FLOW.md  
+`/ai/workflows/AI_TASK_ROUTER.md`  
+`/ai/workflows/AI_AGENT_ORCHESTRATOR.md`  
+`/ai/workflows/AGENT_EXECUTION_FLOW.md`  
 
 Esses arquivos ajudam a:
 
@@ -74,11 +74,11 @@ Esses arquivos ajudam a:
 
 ---
 
-# 3. Utilizar agentes especializados
+## 3. Utilizar agentes especializados
 
 Agentes disponíveis:
 
-/ai/AGENTS
+`/ai/agents`
 
 Principais agentes:
 
@@ -100,11 +100,11 @@ Cada agente possui:
 
 ---
 
-# 4. Utilizar playbooks quando necessário
+## 4. Utilizar playbooks quando necessário
 
 Para tarefas comuns de engenharia, consultar:
 
-/ai/PLAYBOOKS
+`/ai/playbooks`
 
 Playbooks disponíveis:
 
@@ -112,7 +112,7 @@ AI_FEATURE_DESIGN.md
 AI_BUG_INVESTIGATION.md  
 AI_PR_REVIEW.md  
 AI_PROJECT_BOOTSTRAP.md  
-AI_REFACTOR_PLAN.md  
+AI_REFACTOR_GUIDE.md  
 
 Eles fornecem processos padronizados para:
 
@@ -124,11 +124,11 @@ Eles fornecem processos padronizados para:
 
 ---
 
-# 5. Utilizar biblioteca de prompts
+## 5. Utilizar biblioteca de prompts
 
 Prompts reutilizáveis estão em:
 
-/ai/PROMPTS
+`/ai/prompts`
 
 Arquivos:
 
@@ -140,7 +140,7 @@ Esses arquivos ajudam a padronizar solicitações feitas à IA.
 
 ---
 
-# 6. Princípios de resposta
+## 6. Princípios de resposta
 
 Ao responder tarefas relacionadas ao projeto, a IA deve:
 
@@ -152,7 +152,7 @@ Ao responder tarefas relacionadas ao projeto, a IA deve:
 
 ---
 
-# 7. Estrutura recomendada de resposta
+## 7. Estrutura recomendada de resposta
 
 Quando apropriado, a resposta deve incluir:
 
@@ -165,7 +165,7 @@ Quando apropriado, a resposta deve incluir:
 
 ---
 
-# 8. Regra principal
+## 8. Regra principal
 
 Nunca responder ignorando os arquivos do framework.
 

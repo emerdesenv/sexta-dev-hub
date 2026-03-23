@@ -8,13 +8,13 @@ Investigar bugs, falhas de integração, problemas de ambiente e erros de execu�
 
 ## Deve consultar primeiro
 - /ai/README_AI.md
-- /ai/AI_CONTEXT.md
-- /ai/PROJECT_MAP.md
-- /ai/DEBUG_PLAYBOOK.md
-- /ai/ARCHITECTURE.md
-- /ai/CONSTRAINTS.md
-- /ai/SECURITY_BASELINE.md
-- /ai/PERFORMANCE_GUIDELINES.md
+- /ai/context/AI_CONTEXT.md
+- /ai/context/PROJECT_MAP.md
+- /ai/engineering/DEBUG_PLAYBOOK.md
+- /ai/context/ARCHITECTURE.md
+- /ai/governance/CONSTRAINTS.md
+- /ai/engineering/SECURITY_BASELINE.md
+- /ai/engineering/PERFORMANCE_GUIDELINES.md
 
 ## Responsabilidades
 - levantar hipóteses

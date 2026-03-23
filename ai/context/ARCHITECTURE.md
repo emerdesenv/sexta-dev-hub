@@ -11,9 +11,9 @@ Seu objetivo é ajudar desenvolvedores e ferramentas de Inteligência Artificial
 
 Este documento deve ser utilizado em conjunto com:
 
-/ai/CONTEXT/AI_CONTEXT.md  
-/ai/CONTEXT/PROJECT_MAP.md  
-/ai/CONTEXT/DECISION_LOG.md  
+`/ai/context/AI_CONTEXT.md`  
+`/ai/context/PROJECT_MAP.md`  
+`/ai/context/DECISION_LOG.md`  
 
 ---
 
@@ -307,7 +307,7 @@ Práticas mínimas recomendadas:
 
 Mais detalhes podem ser encontrados em:
 
-/ai/ENGINEERING/SECURITY_BASELINE.md
+`/ai/engineering/SECURITY_BASELINE.md`
 
 ---
 

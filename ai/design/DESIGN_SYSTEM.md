@@ -6,6 +6,10 @@ Este documento define o sistema de design do projeto **Sexta Dev Hub** para orie
 
 Ele deve ser utilizado por desenvolvedores e agentes de IA ao criar, alterar ou refatorar componentes do frontend.
 
+## Quando usar
+
+Usar sempre que houver tarefa de UI/UX, criação de componentes ou tradução de layouts do Figma para código.
+
 ---
 
 # Identidade do Produto

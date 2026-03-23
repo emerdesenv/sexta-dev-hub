@@ -19,11 +19,11 @@ O objetivo é padronizar o uso de IA no desenvolvimento para:
 
 Ao trabalhar com IA no Cursor, sempre considerar os seguintes arquivos:
 
-* AI_CONTEXT.md
-* AI_RULES.md
-* PROJECT_MAP.md
-* DESIGN_SYSTEM.md
-* AI_REFACTOR_PLAN.md
+* `/ai/context/AI_CONTEXT.md`
+* `/ai/governance/AI_RULES.md`
+* `/ai/context/PROJECT_MAP.md`
+* `/ai/design/DESIGN_SYSTEM.md`
+* `/ai/playbooks/AI_REFACTOR_GUIDE.md`
 
 Esses documentos contêm o contexto necessário para a IA compreender o projeto.
 
@@ -35,8 +35,8 @@ Utilizar quando abrir o projeto pela primeira vez ou ao iniciar uma refatoraçã
 
 Prompt:
 
-@AI_CONTEXT.md
-@PROJECT_MAP.md
+@/ai/context/AI_CONTEXT.md
+@/ai/context/PROJECT_MAP.md
 
 Analyze the architecture of this project and explain:
 
@@ -52,8 +52,8 @@ Analyze the architecture of this project and explain:
 
 Prompt:
 
-@PROJECT_MAP.md
-@AI_CONTEXT.md
+@/ai/context/PROJECT_MAP.md
+@/ai/context/AI_CONTEXT.md
 
 Analyze the frontend structure and list:
 
@@ -72,8 +72,8 @@ Utilizar para gerar componentes reutilizáveis.
 
 Prompt:
 
-@DESIGN_SYSTEM.md
-@AI_RULES.md
+@/ai/design/DESIGN_SYSTEM.md
+@/ai/governance/AI_RULES.md
 
 Create a reusable Vue component for this project.
 
@@ -94,10 +94,10 @@ Utilizar ao melhorar layout de páginas existentes.
 
 Prompt:
 
-@AI_CONTEXT.md
-@AI_RULES.md
-@DESIGN_SYSTEM.md
-@AI_REFACTOR_PLAN.md
+@/ai/context/AI_CONTEXT.md
+@/ai/governance/AI_RULES.md
+@/ai/design/DESIGN_SYSTEM.md
+@/ai/playbooks/AI_REFACTOR_GUIDE.md
 
 Refactor this UI while preserving existing logic and API integrations.
 
@@ -118,8 +118,8 @@ Utilizar após gerar interface no Figma.
 
 Prompt:
 
-@DESIGN_SYSTEM.md
-@AI_RULES.md
+@/ai/design/DESIGN_SYSTEM.md
+@/ai/governance/AI_RULES.md
 
 Implement a Vue component based on this layout.
 
@@ -138,9 +138,9 @@ Explain the component structure before generating code.
 
 Prompt:
 
-@AI_CONTEXT.md
-@DESIGN_SYSTEM.md
-@AI_RULES.md
+@/ai/context/AI_CONTEXT.md
+@/ai/design/DESIGN_SYSTEM.md
+@/ai/governance/AI_RULES.md
 
 Create a new Vue page for this project.
 
@@ -161,7 +161,7 @@ Utilizar antes de commits importantes.
 
 Prompt:
 
-@AI_RULES.md
+@/ai/governance/AI_RULES.md
 
 Review this code and check:
 
@@ -179,7 +179,7 @@ Provide improvement suggestions.
 
 Prompt:
 
-@AI_RULES.md
+@/ai/governance/AI_RULES.md
 
 Refactor this code to improve:
 
@@ -195,9 +195,9 @@ Do not change behavior.
 
 Prompt:
 
-@AI_CONTEXT.md
-@AI_RULES.md
-@PROJECT_MAP.md
+@/ai/context/AI_CONTEXT.md
+@/ai/governance/AI_RULES.md
+@/ai/context/PROJECT_MAP.md
 
 Create a new backend endpoint following the existing architecture.
 
@@ -217,7 +217,7 @@ Utilizar antes de grandes refatorações.
 
 Prompt:
 
-@PROJECT_MAP.md
+@/ai/context/PROJECT_MAP.md
 
 Analyze how modifying this file may impact:
 
@@ -265,6 +265,12 @@ Provide recommendations before deployment.
 4. Revisar código
 5. Testar localmente
 6. Commit e deploy
+
+Integração com o framework:
+
+1. Classificar tarefa com `/ai/workflows/AI_TASK_ROUTER.md`
+2. Selecionar agentes com `/ai/workflows/AI_AGENT_ORCHESTRATOR.md`
+3. Executar com `/ai/workflows/AGENT_EXECUTION_FLOW.md`
 
 ---
 

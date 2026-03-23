@@ -1,41 +1,59 @@
-# PROJECT_MAP.md
+# Project Map
 
-## Visão Geral do Projeto
+## Propósito deste Documento
 
-O **Sexta Dev Hub** é uma plataforma educacional utilizada para centralizar conteúdos técnicos semanais em diferentes formatos de mídia.
+Este documento descreve a **estrutura do repositório do projeto**.
 
-A aplicação permite disponibilizar materiais como:
+Seu objetivo é ajudar desenvolvedores e ferramentas de Inteligência
+Artificial a entender:
 
-* PDF (leituras rápidas)
-* Áudio (versões narradas dos conteúdos)
-* Vídeo (explicações e aulas)
+-   onde cada parte do sistema está localizada
+-   qual a responsabilidade de cada diretório
+-   como o projeto está organizado
 
-O sistema é dividido em duas partes principais:
+Este documento deve ser utilizado em conjunto com:
 
-* **Frontend** → interface do usuário
-* **Backend** → API responsável pela lógica e dados
+`/ai/context/AI_CONTEXT.md`  
+`/ai/context/ARCHITECTURE.md`  
+`/ai/AI_SYSTEM_MAP.md`
 
 ---
 
-# Arquitetura Geral
+# Visão Geral do Projeto
 
-```text
-Frontend (Vue.js)
-      ↓
-Backend API (Node.js + Express)
-      ↓
-Banco de Dados (MySQL)
-```
+O **Sexta Dev Hub** é uma plataforma educacional utilizada para
+centralizar conteúdos técnicos semanais em diferentes formatos de mídia.
+
+A aplicação permite disponibilizar materiais como:
+
+- PDF (leituras rápidas)
+- Áudio (versões narradas dos conteúdos)
+- Vídeo (explicações e aulas)
+
+O sistema é dividido em duas partes principais:
+
+- Frontend: interface do usuário
+- Backend: API responsável pela lógica e dados
+
+---
+
+# Arquitetura Simplificada
+
+Fluxo principal da aplicação:
+
+Frontend (Vue.js) -> Backend API (Node.js + Express) -> Banco de Dados (MySQL)
 
 Infraestrutura:
 
-```
-Docker
-Docker Compose
-Traefik (reverse proxy)
-HTTPS (Let's Encrypt)
-VM cloud
-```
+- Docker
+- Docker Compose
+- Traefik (reverse proxy)
+- HTTPS (Let's Encrypt)
+- VM cloud
+
+Mais detalhes podem ser encontrados em:
+
+`/ai/context/ARCHITECTURE.md`
 
 ---
 
@@ -43,95 +61,103 @@ VM cloud
 
 Estrutura geral do projeto:
 
-```
-sexta-dev-hub/
-├ frontend/
-├ backend/
-├ docker/
-├ AI_CONTEXT.md
-├ AI_RULES.md
-├ AI_REFACTOR_PLAN.md
-├ PROJECT_MAP.md
-└ README.md
-```
+    sexta-dev-hub/
+    │
+    ├ frontend/
+    ├ backend/
+    ├ traefik/
+    ├ backup/
+    │
+    ├ ai/
+    │   ├ context/
+    │   ├ governance/
+    │   ├ engineering/
+    │   ├ prompts/
+    │   ├ workflows/
+    │   ├ playbooks/
+    │   ├ agents/
+    │   ├ docs/
+    │   │
+    │   ├ AI_OPERATING_SYSTEM.md
+    │   ├ AI_SYSTEM_MAP.md
+    │   ├ ACTIVATE_PROJECT_CONTEXT.md
+    │   └ README_AI.md
+    │
+    └ README.md
+
+Cada diretório possui responsabilidades específicas.
 
 ---
 
 # Frontend
 
-Tecnologias:
+Localização:
 
-* Vue.js
-* Vite
-* JavaScript
+    frontend/
+
+Tecnologias utilizadas:
+
+- Vue.js
+- Vite
+- JavaScript
 
 Responsável por:
 
-* interface do usuário
-* navegação
-* renderização de conteúdos
-* comunicação com API backend
+-   interface do usuário
+-   navegação da aplicação
+-   renderização de conteúdos
+-   comunicação com API backend
 
 Estrutura típica:
 
-```
-frontend/
-src/
-components/
-pages/
-router/
-services/
-assets/
-```
+    frontend/
+    src/
+    components/
+    pages/
+    router/
+    services/
+    assets/
 
 ---
 
-# Componentes
+# Components
 
 Localização:
 
-```
-src/components
-```
+    frontend/src/components
 
 Responsáveis por:
 
-* elementos reutilizáveis da interface
-* cards de conteúdo
-* elementos de layout
-* componentes visuais
+-   elementos reutilizáveis da interface
+-   cards de conteúdo
+-   elementos de layout
+-   componentes visuais
 
-Exemplos de componentes:
+Exemplos:
 
-```
-Header
-Footer
-EpisodeCard
-ContentList
-Badge
-Button
-```
+- Header
+- Footer
+- EpisodeCard
+- ContentList
+- Badge
+- Button
 
 ---
 
-# Páginas
+# Pages
 
 Localização:
 
-```
-src/pages
-```
+    frontend/src/pages
 
 Cada página corresponde a uma rota da aplicação.
 
-Exemplos de páginas:
+Exemplos:
 
-```
-Home
-ContentList
-ContentDetail
-Dashboard
-```
+- Home
+- ContentList
+- ContentDetail
+- Dashboard
 
 ---
 
@@ -139,15 +165,13 @@ Dashboard
 
 Localização:
 
-```
-src/router
-```
+    frontend/src/router
 
 Responsável por:
 
-* definição das rotas
-* navegação entre páginas
-* controle de acesso
+-   definição das rotas
+-   navegação entre páginas
+-   controle de acesso
 
 ---
 
@@ -155,47 +179,46 @@ Responsável por:
 
 Localização:
 
-```
-src/services
-```
+    frontend/src/services
 
 Responsável por:
 
-* comunicação com API backend
-* chamadas HTTP
-* tratamento de dados retornados
+-   comunicação com API backend
+-   chamadas HTTP
+-   tratamento de respostas da API
 
 Exemplo:
 
-```
 contentService.js
-```
 
 ---
 
 # Backend
 
+Localização:
+
+    backend/
+
 Tecnologias:
 
-* Node.js
-* Express
+- Node.js
+- Express
 
 Responsável por:
 
-* lógica de negócio
-* gerenciamento de conteúdos
-* autenticação (se existir)
-* integração com banco de dados
+-   lógica de negócio
+-   gerenciamento de conteúdos
+-   autenticação (se implementada)
+-   integração com banco de dados
 
 Estrutura típica:
 
-```
-backend/
-controllers/
-services/
-routes/
-middlewares/
-```
+    backend/
+    controllers/
+    services/
+    routes/
+    middlewares/
+    repositories/
 
 ---
 
@@ -203,10 +226,10 @@ middlewares/
 
 Responsáveis por:
 
-* receber requisições HTTP
-* validar dados
-* chamar serviços
-* retornar respostas da API
+-   receber requisições HTTP
+-   validar dados
+-   chamar serviços
+-   retornar respostas da API
 
 ---
 
@@ -214,9 +237,9 @@ Responsáveis por:
 
 Responsáveis por:
 
-* regras de negócio
-* manipulação de dados
-* integração com banco
+-   regras de negócio
+-   manipulação de dados
+-   integração com banco
 
 ---
 
@@ -224,45 +247,41 @@ Responsáveis por:
 
 Responsáveis por:
 
-* definir endpoints da API
-* mapear requisições para controllers
+-   definir endpoints da API
+-   mapear requisições para controllers
 
 ---
 
 # Banco de Dados
 
-Banco principal:
+Banco principal utilizado:
 
-```
 MySQL
-```
 
-Armazena:
+Responsável por armazenar:
 
-* conteúdos
-* metadados
-* informações de publicação
-* links ou arquivos de mídia
+-   conteúdos
+-   metadados
+-   informações de publicação
+-   referências de mídia
 
 ---
 
 # Tipos de Conteúdo
 
-O sistema trabalha com três categorias principais:
+O sistema trabalha com três categorias principais de conteúdo:
 
-```
-PDF
-Áudio
-Vídeo
-```
+- PDF
+- Áudio
+- Vídeo
 
 Cada conteúdo pode possuir:
 
-* título
-* descrição
-* tipo de mídia
-* data de publicação
-* arquivo ou link
+-   título
+-   descrição
+-   tipo de mídia
+-   data de publicação
+-   arquivo ou link associado
 
 ---
 
@@ -270,20 +289,16 @@ Cada conteúdo pode possuir:
 
 A aplicação roda em containers Docker.
 
-Componentes principais da infraestrutura:
+Componentes principais:
 
-```
-Docker
-Docker Compose
-Traefik (reverse proxy)
-HTTPS via Let's Encrypt
-```
+- Docker
+- Docker Compose
+- Traefik (reverse proxy)
+- HTTPS via Let's Encrypt
 
 Hospedagem:
 
-```
 VM cloud (ex: Hetzner)
-```
 
 ---
 
@@ -291,48 +306,35 @@ VM cloud (ex: Hetzner)
 
 Fluxo típico de uso da aplicação:
 
-```
-Usuário acessa frontend
-        ↓
-Frontend chama API
-        ↓
-Backend processa requisição
-        ↓
-Banco retorna dados
-        ↓
-Frontend renderiza conteúdo
-```
+Usuário acessa frontend -> Frontend chama API -> Backend processa requisição -> Banco retorna dados -> Frontend renderiza conteúdo
 
 ---
 
 # Integração com IA
 
-Este projeto utiliza arquivos de contexto para orientar agentes de IA.
+Este projeto utiliza um **AI Engineering Framework** localizado na pasta
+`/ai`.
 
-Arquivos utilizados:
+Esse framework fornece:
 
-```
-AI_CONTEXT.md
-AI_RULES.md
-AI_REFACTOR_PLAN.md
-PROJECT_MAP.md
-```
+-   contexto do projeto
+-   regras de engenharia
+-   workflows de agentes
+-   playbooks de desenvolvimento
+-   prompts reutilizáveis
 
-Esses arquivos ajudam ferramentas como Cursor e agentes MCP a compreender melhor o projeto.
+Ele permite que ferramentas de IA compreendam melhor o sistema e
+auxiliem no desenvolvimento.
 
 ---
 
-# Objetivo Atual do Projeto
+# Possíveis Atividades no Projeto
 
-O objetivo atual é realizar uma **refatoração visual do frontend**, melhorando:
+Durante o ciclo de desenvolvimento, tarefas comuns incluem:
 
-* layout
-* experiência do usuário
-* organização de componentes
-* responsividade
-
-Sem alterar:
-
-* lógica de negócio
-* contratos de API
-* estrutura principal do backend.
+-   melhorias de interface
+-   criação de novos conteúdos
+-   manutenção do backend
+-   refatoração de componentes
+-   melhorias de performance
+-   evolução arquitetural

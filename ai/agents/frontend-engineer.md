@@ -8,15 +8,15 @@ Implementar interfaces, componentes e fluxos de usuário seguindo o design syste
 
 ## Deve consultar primeiro
 - /ai/README_AI.md
-- /ai/AI_CONTEXT.md
-- /ai/AI_RULES.md
-- /ai/PROJECT_MAP.md
-- /ai/CODE_STYLE.md
-- /ai/DESIGN_SYSTEM.md
-- /ai/FIGMA_PROMPTS.md
-- /ai/CONSTRAINTS.md
-- /ai/DELIVERY_CHECKLIST.md
-- /ai/TESTING_GUIDELINES.md
+- /ai/context/AI_CONTEXT.md
+- /ai/governance/AI_RULES.md
+- /ai/context/PROJECT_MAP.md
+- /ai/governance/CODE_STYLE.md
+- /ai/design/DESIGN_SYSTEM.md
+- /ai/prompts/FIGMA_PROMPTS.md
+- /ai/governance/CONSTRAINTS.md
+- /ai/governance/DELIVERY_CHECKLIST.md
+- /ai/engineering/TESTING_GUIDELINES.md
 
 ## Responsabilidades
 - criar componentes Vue reutilizáveis

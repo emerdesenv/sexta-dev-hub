@@ -4,6 +4,10 @@ Este playbook define o processo padrão para investigar e corrigir bugs.
 
 O foco é encontrar a causa raiz antes de implementar qualquer correção.
 
+## Quando usar
+
+Usar quando houver erro, falha funcional, comportamento inesperado ou regressão.
+
 ---
 
 # 1. Identificar o sintoma
@@ -36,7 +40,7 @@ Registrar:
 
 Consultar:
 
-/ai/ENGINEERING/DEBUG_PLAYBOOK.md  
+`/ai/engineering/DEBUG_PLAYBOOK.md`  
 
 Esse documento contém estratégias para investigação técnica.
 
@@ -76,7 +80,7 @@ A correção deve:
 
 Consultar:
 
-/ai/ENGINEERING/TESTING_GUIDELINES.md  
+`/ai/engineering/TESTING_GUIDELINES.md`  
 
 Verificar:
 
@@ -92,3 +96,19 @@ Após a correção:
 
 - realizar code review
 - validar impacto arquitetural
+
+---
+
+## Critérios de conclusão
+
+- causa raiz identificada e documentada
+- correção validada no cenário original
+- regressão principal verificada
+
+---
+
+## Referências
+
+- `/ai/engineering/DEBUG_PLAYBOOK.md`
+- `/ai/engineering/TESTING_GUIDELINES.md`
+- `/ai/docs/DOCUMENT_TEMPLATES.md`

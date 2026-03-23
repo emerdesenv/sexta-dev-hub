@@ -255,9 +255,9 @@ O projeto foi estruturado para uso de IA com **papéis especializados** e **orqu
 
 Documentos principais:
 
-- `ai/AI_AGENT_ORCHESTRATOR.md`: define quando usar múltiplos agentes, ordem de atuação e consolidação final
-- `ai/AGENT_ROLES.md`: define responsabilidades de cada papel (UI, frontend architecture, backend, security, code review etc.)
-- `ai/ARCHITECTURE.md`: referência obrigatória para decisões técnicas e limites arquiteturais
+- `ai/workflows/AI_AGENT_ORCHESTRATOR.md`: define quando usar múltiplos agentes, ordem de atuação e consolidação final
+- `ai/agents/README.md`: índice de agentes e responsabilidades de cada papel
+- `ai/context/ARCHITECTURE.md`: referência obrigatória para decisões técnicas e limites arquiteturais
 
 Exemplo de comando no Cursor:
 

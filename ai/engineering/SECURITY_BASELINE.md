@@ -35,6 +35,7 @@ Regras:
 - validar MIME type
 - limitar tamanho
 - armazenar fora da aplicação
+- aplicar whitelist explícita de tipos aceitos
 
 ---
 
@@ -68,3 +69,9 @@ secret manager
 Atualizar regularmente.
 
 Evitar pacotes abandonados.
+
+Controles mínimos adicionais:
+
+- registrar logs de eventos de segurança relevantes
+- aplicar rate limit em endpoints sensíveis quando aplicável
+- revisar permissões de acesso para evitar exposição indevida de dados

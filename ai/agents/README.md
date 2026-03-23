@@ -1,5 +1,6 @@
 # AGENTS README
 
+## Objetivo
 Esta pasta contém agentes especializados para uso com IA no projeto.
 
 Cada agente possui:
@@ -24,5 +25,10 @@ Cada agente possui:
 ## Regra geral
 Antes de responder, o agente deve consultar os arquivos listados em sua seção "Deve consultar primeiro".
 
-## Objetivo
-Melhorar a qualidade das respostas da IA especializando contexto, foco e tomada de decisão.
+## Quando usar
+Usar quando a tarefa exigir especialização por papel técnico (arquitetura, backend, frontend, segurança, testes, revisão, debug, refatoração ou design).
+
+## Referências
+- `/ai/workflows/AI_TASK_ROUTER.md`
+- `/ai/workflows/AI_AGENT_ORCHESTRATOR.md`
+- `/ai/docs/DOCUMENT_TEMPLATES.md`

@@ -30,7 +30,7 @@ Define como agentes trabalham juntos.
 PLAYBOOKS  
 Guias para tarefas comuns de engenharia.
 
-AGENTS  
+agents  
 Papéis especializados da IA.
 
 ---
@@ -63,7 +63,7 @@ Isso instrui a IA a consultar os arquivos principais do framework.
 
 Os agentes estão localizados em:
 
-/ai/AGENTS
+`/ai/agents`
 
 Cada agente representa um papel técnico específico.
 
@@ -83,7 +83,7 @@ Exemplos:
 
 Exemplo:
 
-Atue como `/ai/AGENTS/backend-engineer.md`.
+Atue como `/ai/agents/backend-engineer.md`.
 
 Isso fará com que a IA responda considerando o papel de especialista em backend.
 
@@ -95,7 +95,7 @@ Para tarefas mais complexas, utilize o router.
 
 Exemplo:
 
-Use `/ai/WORKFLOWS/AI_TASK_ROUTER.md` para classificar esta tarefa.
+Use `/ai/workflows/AI_TASK_ROUTER.md` para classificar esta tarefa.
 
 Isso ajuda a identificar quais agentes devem participar.
 
@@ -107,7 +107,7 @@ Para tarefas multidisciplinares, utilize o orquestrador.
 
 Exemplo:
 
-Use `/ai/WORKFLOWS/AI_AGENT_ORCHESTRATOR.md`.
+Use `/ai/workflows/AI_AGENT_ORCHESTRATOR.md`.
 
 Ele coordena vários agentes em sequência.
 

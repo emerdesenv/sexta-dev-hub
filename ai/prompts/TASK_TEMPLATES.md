@@ -6,6 +6,10 @@ O objetivo é garantir que humanos e IA descrevam tarefas com clareza suficiente
 
 Sempre que uma nova tarefa for criada, ela deve seguir um dos templates abaixo.
 
+## Quando usar
+
+Usar ao abrir uma nova task para execução por humanos ou por IA.
+
 ---
 
 # 1. TEMPLATE — NOVA FUNCIONALIDADE
@@ -141,10 +145,17 @@ Link do Figma ou design.
 ## Requisitos de UI
 - responsivo
 - acessível
-- consistente com DESIGN_SYSTEM.md
+- consistente com `/ai/design/DESIGN_SYSTEM.md`
 
 ## Critérios de Aceite
 
 - [ ] layout fiel ao design
 - [ ] responsivo
 - [ ] sem quebra de layout
+
+---
+
+## Referências
+
+- `/ai/prompts/PROMPT_PATTERNS.md`
+- `/ai/docs/DOCUMENT_TEMPLATES.md`

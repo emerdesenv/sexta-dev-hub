@@ -27,7 +27,7 @@ Isso permite que a Inteligência Artificial e os desenvolvedores sigam um fluxo 
 
 Arquivo:
 
-/ai/PLAYBOOKS/AI_FEATURE_DESIGN.md
+`/ai/playbooks/AI_FEATURE_DESIGN.md`
 
 Usar quando:
 
@@ -54,7 +54,7 @@ code-reviewer
 
 Arquivo:
 
-/ai/PLAYBOOKS/AI_BUG_INVESTIGATION.md
+`/ai/playbooks/AI_BUG_INVESTIGATION.md`
 
 Usar quando:
 
@@ -81,7 +81,7 @@ code-reviewer
 
 Arquivo:
 
-/ai/PLAYBOOKS/AI_PR_REVIEW.md
+`/ai/playbooks/AI_PR_REVIEW.md`
 
 Usar quando:
 
@@ -105,7 +105,7 @@ test-engineer
 
 Arquivo:
 
-/ai/PLAYBOOKS/AI_PROJECT_BOOTSTRAP.md
+`/ai/playbooks/AI_PROJECT_BOOTSTRAP.md`
 
 Usar quando:
 
@@ -125,11 +125,11 @@ frontend-engineer
 
 ---
 
-## Refactor Plan
+## Refactor Guide
 
 Arquivo:
 
-/ai/PLAYBOOKS/AI_REFACTOR_PLAN.md
+`/ai/playbooks/AI_REFACTOR_GUIDE.md`
 
 Usar quando:
 
@@ -158,7 +158,19 @@ Criar algo novo → Feature Design
 Investigar erro → Bug Investigation  
 Revisar código → PR Review  
 Criar projeto → Project Bootstrap  
-Melhorar código existente → Refactor Plan  
+Melhorar código existente → Refactor Guide  
+
+Mapeamento tipo -> playbook:
+
+- Feature -> `AI_FEATURE_DESIGN.md`
+- Bug -> `AI_BUG_INVESTIGATION.md`
+- PR Review -> `AI_PR_REVIEW.md`
+- Bootstrap -> `AI_PROJECT_BOOTSTRAP.md`
+- Refactor -> `AI_REFACTOR_GUIDE.md`
+
+Fallback para tipos sem playbook dedicado (segurança, performance, UI/UX, testes):
+
+- usar `AI_TASK_ROUTER.md` + `AI_AGENT_ORCHESTRATOR.md` + `AGENT_EXECUTION_FLOW.md`
 
 ---
 
@@ -166,16 +178,16 @@ Melhorar código existente → Refactor Plan
 
 Os playbooks funcionam em conjunto com:
 
-/ai/WORKFLOWS/AI_TASK_ROUTER.md  
-/ai/WORKFLOWS/AI_AGENT_ORCHESTRATOR.md  
-/ai/WORKFLOWS/AGENT_EXECUTION_FLOW.md  
+`/ai/workflows/AI_TASK_ROUTER.md`  
+`/ai/workflows/AI_AGENT_ORCHESTRATOR.md`  
+`/ai/workflows/AGENT_EXECUTION_FLOW.md`  
 
 Fluxo recomendado:
 
-1 Classificar tarefa com AI_TASK_ROUTER  
-2 Selecionar playbook apropriado  
-3 Executar fluxo com AI_AGENT_ORCHESTRATOR  
-4 Utilizar agentes especializados  
+1. Classificar tarefa com `AI_TASK_ROUTER`  
+2. Selecionar playbook apropriado  
+3. Executar fluxo com `AI_AGENT_ORCHESTRATOR`  
+4. Utilizar agentes especializados  
 
 ---
 

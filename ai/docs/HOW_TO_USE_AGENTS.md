@@ -136,7 +136,7 @@ Usar quando:
 
 # Exemplo de uso
 
-Atue como `/ai/AGENTS/backend-engineer.md`.
+Atue como `/ai/agents/backend-engineer.md`.
 
 Implemente um endpoint para upload de arquivos seguindo as regras do projeto.
 

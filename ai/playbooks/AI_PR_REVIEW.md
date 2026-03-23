@@ -20,8 +20,8 @@ Antes de revisar o código, identificar:
 
 Consultar:
 
-/ai/CONTEXT/ARCHITECTURE.md  
-/ai/CONTEXT/PROJECT_MAP.md  
+`/ai/context/ARCHITECTURE.md`  
+`/ai/context/PROJECT_MAP.md`  
 
 Verificar:
 
@@ -34,7 +34,7 @@ Verificar:
 
 Consultar:
 
-/ai/GOVERNANCE/CODE_STYLE.md  
+`/ai/governance/CODE_STYLE.md`  
 
 Verificar:
 
@@ -49,7 +49,7 @@ Verificar:
 
 Consultar:
 
-/ai/ENGINEERING/SECURITY_BASELINE.md  
+`/ai/engineering/SECURITY_BASELINE.md`  
 
 Verificar:
 
@@ -63,7 +63,7 @@ Verificar:
 
 Consultar:
 
-/ai/ENGINEERING/TESTING_GUIDELINES.md  
+`/ai/engineering/TESTING_GUIDELINES.md`  
 
 Verificar:
 
@@ -77,7 +77,7 @@ Verificar:
 
 Consultar:
 
-/ai/ENGINEERING/PERFORMANCE_GUIDELINES.md  
+`/ai/engineering/PERFORMANCE_GUIDELINES.md`  
 
 Verificar:
 
@@ -95,3 +95,10 @@ A revisão deve produzir:
 - riscos identificados
 - sugestões de melhoria
 - veredito final
+
+Formato mínimo do resultado:
+
+- severidade por item: Alta, Média ou Baixa
+- evidência: arquivo/trecho afetado e motivo técnico
+- decisão final: Aprovar, Aprovar com ressalvas ou Bloquear
+- plano de ação para itens de severidade Alta

@@ -4,6 +4,15 @@ Este arquivo contém padrões de prompts reutilizáveis para trabalhar com IA no
 
 O objetivo é acelerar tarefas comuns mantendo qualidade e consistência.
 
+Template base recomendado:
+
+- Contexto: `<contexto>`
+- Tarefa: `<tarefa>`
+- Restrições: `<restricoes>`
+- Critérios de aceite: `<criterios_aceite>`
+- Validação/Testes: `<validacao>`
+- Saída esperada: `<saida_esperada>`
+
 ---
 
 # Criar Nova Feature
@@ -12,11 +21,11 @@ Contexto:
 Explique o problema que precisa ser resolvido.
 
 Tarefa:
-Implemente uma nova funcionalidade seguindo a arquitetura definida em ARCHITECTURE.md.
+Implemente uma nova funcionalidade seguindo a arquitetura definida em `/ai/context/ARCHITECTURE.md`.
 
 Requisitos:
-- seguir PROJECT_MAP.md
-- respeitar DESIGN_SYSTEM.md
+- seguir `/ai/context/PROJECT_MAP.md`
+- respeitar `/ai/design/DESIGN_SYSTEM.md`
 - criar código modular
 - evitar duplicação
 
@@ -53,7 +62,7 @@ Requisitos:
 
 - responsivo
 - acessível
-- consistente com DESIGN_SYSTEM.md
+- consistente com `/ai/design/DESIGN_SYSTEM.md`
 - props bem definidas
 
 ---

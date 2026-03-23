@@ -14,11 +14,11 @@ Passos:
 
 1. Usar o router
 
-Use `/ai/WORKFLOWS/AI_TASK_ROUTER.md`.
+Use `/ai/workflows/AI_TASK_ROUTER.md`.
 
 2. Planejar com o orquestrador
 
-Use `/ai/WORKFLOWS/AI_AGENT_ORCHESTRATOR.md`.
+Use `/ai/workflows/AI_AGENT_ORCHESTRATOR.md`.
 
 3. Definir arquitetura
 
@@ -44,6 +44,12 @@ Agente: test-engineer
 
 Agente: code-reviewer
 
+Critério de pronto:
+
+- fluxo principal funcionando
+- riscos de segurança analisados
+- validação de testes registrada
+
 ---
 
 # Exemplo 2: Investigar bug
@@ -56,7 +62,7 @@ Fluxo:
 
 1. Ativar debugger
 
-Atue como `/ai/AGENTS/debugger.md`.
+Atue como `/ai/agents/debugger.md`.
 
 2. Identificar causa raiz
 
@@ -65,6 +71,12 @@ Atue como `/ai/AGENTS/debugger.md`.
 4. Validar com test-engineer
 
 5. Revisar com code-reviewer
+
+Critério de pronto:
+
+- causa raiz identificada
+- correção validada no cenário original
+- regressão principal verificada
 
 ---
 
@@ -83,6 +95,12 @@ Fluxo:
 3. Criar testes
 
 4. Revisar código
+
+Critério de pronto:
+
+- comportamento preservado
+- melhorias estruturais confirmadas
+- testes de regressão executados
 
 ---
 

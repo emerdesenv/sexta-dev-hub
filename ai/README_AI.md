@@ -16,7 +16,7 @@ O objetivo é permitir que ferramentas como Cursor, Copilot ou outros agentes en
 
 ## Contexto do Projeto
 
-AI_CONTEXT.md
+`/ai/context/AI_CONTEXT.md`
 
 Contém:
 - visão geral
@@ -28,7 +28,7 @@ Contém:
 
 ## Regras para IA
 
-AI_RULES.md
+`/ai/governance/AI_RULES.md`
 
 Define como a IA deve se comportar ao modificar o projeto.
 
@@ -43,7 +43,7 @@ Inclui:
 
 ## Arquitetura
 
-ARCHITECTURE.md
+`/ai/context/ARCHITECTURE.md`
 
 Documenta:
 
@@ -56,7 +56,7 @@ Documenta:
 
 ## Mapeamento do Projeto
 
-PROJECT_MAP.md
+`/ai/context/PROJECT_MAP.md`
 
 Descreve:
 
@@ -68,7 +68,7 @@ Descreve:
 
 ## Design System
 
-DESIGN_SYSTEM.md
+`/ai/design/DESIGN_SYSTEM.md`
 
 Define padrões visuais:
 
@@ -81,7 +81,7 @@ Define padrões visuais:
 
 ## Integração com Figma
 
-FIGMA_PROMPTS.md
+`/ai/prompts/FIGMA_PROMPTS.md`
 
 Prompts que ajudam a IA a transformar designs em código.
 
@@ -89,7 +89,7 @@ Prompts que ajudam a IA a transformar designs em código.
 
 ## Workflows de Desenvolvimento
 
-CURSOR_WORKFLOWS.md
+`/ai/workflows/CURSOR_WORKFLOWS.md`
 
 Fluxos recomendados para trabalhar com IA no Cursor.
 
@@ -104,7 +104,7 @@ Exemplo:
 
 ## Papéis de Agentes
 
-AGENT_ROLES.md
+`/ai/agents/README.md`
 
 Define especializações da IA:
 
@@ -118,15 +118,21 @@ Define especializações da IA:
 
 ## Templates de Tarefas
 
-TASK_TEMPLATES.md
+`/ai/prompts/TASK_TEMPLATES.md`
 
 Modelos padronizados para criação de tarefas.
+
+## Templates de Documentação
+
+`/ai/docs/DOCUMENT_TEMPLATES.md`
+
+Padrão único de seções para contexto, governança, workflows, playbooks, agentes e prompts.
 
 ---
 
 ## Plano de Refatoração
 
-AI_REFACTOR_PLAN.md
+`/ai/playbooks/AI_REFACTOR_GUIDE.md`
 
 Guia para melhorias estruturais do projeto.
 
@@ -136,11 +142,11 @@ Guia para melhorias estruturais do projeto.
 
 Antes de gerar ou alterar código, a IA deve:
 
-1️⃣ Ler AI_CONTEXT.md  
-2️⃣ Ler AI_RULES.md  
-3️⃣ Entender PROJECT_MAP.md  
-4️⃣ Seguir padrões definidos em DESIGN_SYSTEM.md  
-5️⃣ Respeitar decisões arquiteturais em ARCHITECTURE.md  
+1. Ler `/ai/context/AI_CONTEXT.md`  
+2. Ler `/ai/governance/AI_RULES.md`  
+3. Entender `/ai/context/PROJECT_MAP.md`  
+4. Seguir padrões definidos em `/ai/design/DESIGN_SYSTEM.md`  
+5. Respeitar decisões arquiteturais em `/ai/context/ARCHITECTURE.md`  
 
 ---
 

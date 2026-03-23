@@ -62,6 +62,12 @@ Usar múltiplos agentes quando a tarefa envolver:
 - mudanças de UI + backend
 - refatoração com risco de regressão
 
+Regra objetiva:
+
+- se 2 ou mais camadas forem impactadas, usar múltiplos agentes
+- se houver risco de segurança, incluir `security-auditor`
+- se houver risco de regressão, incluir `test-engineer`
+
 ---
 
 # Quando usar apenas um agente
@@ -166,9 +172,9 @@ A orquestração deve buscar:
 
 O orquestrador nunca deve ignorar:
 
-- AI_RULES.md
-- CONSTRAINTS.md
-- ARCHITECTURE.md
-- PROJECT_MAP.md
+- `/ai/governance/AI_RULES.md`
+- `/ai/governance/CONSTRAINTS.md`
+- `/ai/context/ARCHITECTURE.md`
+- `/ai/context/PROJECT_MAP.md`
 
 Esses documentos têm precedência sobre preferências ad hoc de implementação.

@@ -12,6 +12,10 @@ Antes de iniciar qualquer execução, a IA deve identificar o tipo principal da 
 
 Com base nisso, deve selecionar o agente mais adequado ou um conjunto de agentes.
 
+# Quando usar
+
+Usar no início de qualquer tarefa para classificar o tipo principal antes da execução.
+
 ---
 
 # Tipos de Tarefa
@@ -188,6 +192,25 @@ Ao classificar uma tarefa, a IA deve informar:
 2. agentes recomendados
 3. justificativa curta
 4. ordem sugerida
+
+---
+
+# Critérios de conclusão
+
+Classificação concluída quando:
+
+- tipo principal da tarefa está explícito
+- agentes recomendados foram justificados
+- ordem sugerida está definida
+- riscos relevantes (segurança/regressão/arquitetura) foram considerados
+
+---
+
+# Referências
+
+- `/ai/workflows/AI_AGENT_ORCHESTRATOR.md`
+- `/ai/workflows/AGENT_EXECUTION_FLOW.md`
+- `/ai/docs/DOCUMENT_TEMPLATES.md`
 
 ---
 

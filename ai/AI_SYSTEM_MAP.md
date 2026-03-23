@@ -4,22 +4,15 @@ Este documento descreve a estrutura completa do AI Engineering Framework present
 
 O objetivo é ajudar desenvolvedores e ferramentas de Inteligência Artificial a entender rapidamente como o sistema de documentação e agentes está organizado.
 
+## Papel deste documento
+Este arquivo é o mapa navegacional do framework (estrutura e links).
+Para princípios e modelo operacional, consultar `AI_OPERATING_SYSTEM.md`.
+
 ---
 
 # Visão Geral
 
-A pasta `/ai` contém todos os arquivos responsáveis por orientar o comportamento da IA no projeto.
-
-Ela define:
-
-- contexto do sistema
-- padrões de engenharia
-- workflows de desenvolvimento
-- agentes especializados
-- playbooks operacionais
-- prompts reutilizáveis
-
-Esse conjunto forma o **AI Engineering Framework**.
+Este documento existe para mostrar **onde está cada parte** do framework em `/ai` e qual a função de cada área.
 
 ---
 
@@ -40,11 +33,11 @@ Cada área possui uma responsabilidade específica.
 
 ---
 
-# CONTEXT
+# Context
 
 Localização:
 
-/ai/CONTEXT
+`/ai/context`
 
 Contém informações estruturais do projeto.
 
@@ -64,11 +57,11 @@ Responsabilidade:
 
 ---
 
-# GOVERNANCE
+# Governance
 
 Localização:
 
-/ai/GOVERNANCE
+`/ai/governance`
 
 Define regras obrigatórias do projeto.
 
@@ -88,11 +81,11 @@ Responsabilidade:
 
 ---
 
-# ENGINEERING
+# Engineering
 
 Localização:
 
-/ai/ENGINEERING
+`/ai/engineering`
 
 Define boas práticas operacionais de engenharia.
 
@@ -112,11 +105,11 @@ Responsabilidade:
 
 ---
 
-# PROMPTS
+# Prompts
 
 Localização:
 
-/ai/PROMPTS
+`/ai/prompts`
 
 Biblioteca de prompts reutilizáveis.
 
@@ -134,11 +127,11 @@ Responsabilidade:
 
 ---
 
-# WORKFLOWS
+# Workflows
 
 Localização:
 
-/ai/WORKFLOWS
+`/ai/workflows`
 
 Define como agentes trabalham juntos.
 
@@ -158,11 +151,11 @@ Responsabilidade:
 
 ---
 
-# PLAYBOOKS
+# Playbooks
 
 Localização:
 
-/ai/PLAYBOOKS
+`/ai/playbooks`
 
 Guia de processos de engenharia.
 
@@ -173,7 +166,7 @@ AI_FEATURE_DESIGN.md
 AI_BUG_INVESTIGATION.md  
 AI_PR_REVIEW.md  
 AI_PROJECT_BOOTSTRAP.md  
-AI_REFACTOR_PLAN.md  
+AI_REFACTOR_GUIDE.md  
 
 Responsabilidade:
 
@@ -183,11 +176,11 @@ Responsabilidade:
 
 ---
 
-# AGENTS
+# Agents
 
 Localização:
 
-/ai/AGENTS
+`/ai/agents`
 
 Define agentes especializados da IA.
 
@@ -211,11 +204,11 @@ Responsabilidade:
 
 ---
 
-# DOCS
+# Docs
 
 Localização:
 
-/ai/DOCS
+`/ai/docs`
 
 Documentação de uso do framework.
 
@@ -255,63 +248,48 @@ Este documento.
 
 Ao trabalhar com IA no projeto, o fluxo ideal é:
 
-1 Ativar contexto do projeto
+1. Ativar contexto do projeto
 
 Consultar:
 
-ACTIVATE_PROJECT_CONTEXT.md
+`ACTIVATE_PROJECT_CONTEXT.md`
 
 ---
 
-2 Classificar tarefa
+2. Classificar tarefa
 
 Consultar:
 
-WORKFLOWS/AI_TASK_ROUTER.md
+`/ai/workflows/AI_TASK_ROUTER.md`
 
 ---
 
-3 Escolher playbook
+3. Escolher playbook
 
 Consultar:
 
-PLAYBOOKS/PLAYBOOK_INDEX.md
+`/ai/playbooks/PLAYBOOK_INDEX.md`
 
 ---
 
-4 Selecionar agentes
+4. Selecionar agentes
 
 Consultar:
 
-WORKFLOWS/AI_AGENT_ORCHESTRATOR.md
+`/ai/workflows/AI_AGENT_ORCHESTRATOR.md`
 
 ---
 
-5 Executar tarefa
+5. Executar tarefa
 
 Seguindo:
 
-WORKFLOWS/AGENT_EXECUTION_FLOW.md
+`/ai/workflows/AGENT_EXECUTION_FLOW.md`
 
 ---
 
-# Objetivo do AI Engineering Framework
+# Referências
 
-Este framework existe para:
-
-- melhorar qualidade de código
-- padronizar decisões técnicas
-- reduzir respostas genéricas da IA
-- facilitar onboarding de desenvolvedores
-- simular colaboração de um time de engenharia
-
----
-
-# Benefícios
-
-Utilizar esse framework permite:
-
-- respostas mais consistentes da IA
-- maior controle sobre arquitetura
-- melhor organização do projeto
-- maior produtividade no desenvolvimento
+- `/ai/AI_OPERATING_SYSTEM.md` (conceitos e princípios)
+- `/ai/ACTIVATE_PROJECT_CONTEXT.md` (ativação de contexto)
+- `/ai/docs/DOCUMENT_TEMPLATES.md` (padrão editorial)

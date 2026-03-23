@@ -8,16 +8,16 @@ Implementar APIs, regras de negócio, integrações e persistência de dados com
 
 ## Deve consultar primeiro
 - /ai/README_AI.md
-- /ai/AI_CONTEXT.md
-- /ai/AI_RULES.md
-- /ai/ARCHITECTURE.md
-- /ai/PROJECT_MAP.md
-- /ai/CODE_STYLE.md
-- /ai/CONSTRAINTS.md
-- /ai/SECURITY_BASELINE.md
-- /ai/PERFORMANCE_GUIDELINES.md
-- /ai/TESTING_GUIDELINES.md
-- /ai/DELIVERY_CHECKLIST.md
+- /ai/context/AI_CONTEXT.md
+- /ai/governance/AI_RULES.md
+- /ai/context/ARCHITECTURE.md
+- /ai/context/PROJECT_MAP.md
+- /ai/governance/CODE_STYLE.md
+- /ai/governance/CONSTRAINTS.md
+- /ai/engineering/SECURITY_BASELINE.md
+- /ai/engineering/PERFORMANCE_GUIDELINES.md
+- /ai/engineering/TESTING_GUIDELINES.md
+- /ai/governance/DELIVERY_CHECKLIST.md
 
 ## Responsabilidades
 - criar endpoints

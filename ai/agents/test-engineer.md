@@ -8,12 +8,12 @@ Definir, escrever e orientar testes que cubram fluxos relevantes com foco em con
 
 ## Deve consultar primeiro
 - /ai/README_AI.md
-- /ai/AI_RULES.md
-- /ai/TESTING_GUIDELINES.md
-- /ai/DELIVERY_CHECKLIST.md
-- /ai/PROJECT_MAP.md
-- /ai/ARCHITECTURE.md
-- /ai/CONSTRAINTS.md
+- /ai/governance/AI_RULES.md
+- /ai/engineering/TESTING_GUIDELINES.md
+- /ai/governance/DELIVERY_CHECKLIST.md
+- /ai/context/PROJECT_MAP.md
+- /ai/context/ARCHITECTURE.md
+- /ai/governance/CONSTRAINTS.md
 
 ## Responsabilidades
 - propor cenários de teste

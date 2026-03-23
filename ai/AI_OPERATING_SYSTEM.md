@@ -6,6 +6,10 @@ O AI Operating System é um conjunto estruturado de documentos que orienta o com
 
 Ele funciona como uma camada de governança e contexto que permite que ferramentas de IA atuem de forma consistente, previsível e alinhada à arquitetura do projeto.
 
+## Fonte de verdade
+Este é o documento conceitual canônico do framework (princípios, objetivos e modelo operacional).
+Para navegação por arquivos e localização de artefatos, consultar `AI_SYSTEM_MAP.md`.
+
 ---
 
 # O que é o AI Operating System
@@ -36,13 +40,13 @@ O objetivo do AI Operating System é:
 
 ---
 
-# Componentes principais
+# Componentes principais (visão conceitual)
 
 ## Contexto
 
 Localização:
 
-/ai/CONTEXT
+`/ai/context`
 
 Responsável por explicar o sistema.
 
@@ -59,7 +63,7 @@ DECISION_LOG.md
 
 Localização:
 
-/ai/GOVERNANCE
+`/ai/governance`
 
 Define regras obrigatórias do projeto.
 
@@ -76,7 +80,7 @@ DELIVERY_CHECKLIST.md
 
 Localização:
 
-/ai/ENGINEERING
+`/ai/engineering`
 
 Define práticas técnicas recomendadas.
 
@@ -93,7 +97,7 @@ DEBUG_PLAYBOOK.md
 
 Localização:
 
-/ai/PROMPTS
+`/ai/prompts`
 
 Biblioteca de prompts reutilizáveis.
 
@@ -109,7 +113,7 @@ FIGMA_PROMPTS.md
 
 Localização:
 
-/ai/WORKFLOWS
+`/ai/workflows`
 
 Define como tarefas devem ser executadas.
 
@@ -118,6 +122,7 @@ Inclui:
 AI_TASK_ROUTER.md  
 AI_AGENT_ORCHESTRATOR.md  
 AGENT_EXECUTION_FLOW.md  
+CURSOR_WORKFLOWS.md  
 
 ---
 
@@ -125,7 +130,7 @@ AGENT_EXECUTION_FLOW.md
 
 Localização:
 
-/ai/PLAYBOOKS
+`/ai/playbooks`
 
 Define processos para resolver tarefas comuns de engenharia.
 
@@ -135,7 +140,7 @@ AI_FEATURE_DESIGN.md
 AI_BUG_INVESTIGATION.md  
 AI_PR_REVIEW.md  
 AI_PROJECT_BOOTSTRAP.md  
-AI_REFACTOR_PLAN.md  
+AI_REFACTOR_GUIDE.md  
 
 ---
 
@@ -143,7 +148,7 @@ AI_REFACTOR_PLAN.md
 
 Localização:
 
-/ai/AGENTS
+`/ai/agents`
 
 Define papéis especializados da IA.
 
@@ -167,7 +172,7 @@ Cada agente possui responsabilidades específicas.
 
 Localização:
 
-/ai/DOCS
+`/ai/docs`
 
 Explica como utilizar o framework.
 
@@ -181,45 +186,15 @@ WORKFLOW_EXAMPLES.md
 
 # Como o sistema funciona
 
-O fluxo recomendado de utilização é:
+O fluxo operacional recomendado é:
 
-1. Ativar contexto do projeto
+1. ativar contexto (`/ai/ACTIVATE_PROJECT_CONTEXT.md`)
+2. classificar tarefa (`/ai/workflows/AI_TASK_ROUTER.md`)
+3. selecionar playbook (`/ai/playbooks/PLAYBOOK_INDEX.md`)
+4. orquestrar agentes (`/ai/workflows/AI_AGENT_ORCHESTRATOR.md`)
+5. executar fluxo (`/ai/workflows/AGENT_EXECUTION_FLOW.md`)
 
-Consultar:
-
-ACTIVATE_PROJECT_CONTEXT.md
-
----
-
-2. Classificar a tarefa
-
-Consultar:
-
-WORKFLOWS/AI_TASK_ROUTER.md
-
----
-
-3. Selecionar processo
-
-Consultar:
-
-PLAYBOOKS/PLAYBOOK_INDEX.md
-
----
-
-4. Selecionar agentes
-
-Consultar:
-
-WORKFLOWS/AI_AGENT_ORCHESTRATOR.md
-
----
-
-5. Executar tarefa
-
-Seguir:
-
-WORKFLOWS/AGENT_EXECUTION_FLOW.md
+Para detalhes de localização e navegação por arquivos, usar `/ai/AI_SYSTEM_MAP.md`.
 
 ---
 
@@ -267,7 +242,7 @@ Dentro deste framework, a IA atua como:
 - especialista em segurança
 - especialista em testes
 
-Esses papéis são ativados através dos agentes definidos na pasta `/ai/AGENTS`.
+Esses papéis são ativados através dos agentes definidos na pasta `/ai/agents`.
 
 ---
 
@@ -283,3 +258,11 @@ Novos elementos podem ser adicionados, como:
 - novas práticas de engenharia
 
 O objetivo é que o sistema evolua junto com o projeto.
+
+---
+
+# Referências
+
+- `/ai/AI_SYSTEM_MAP.md`
+- `/ai/ACTIVATE_PROJECT_CONTEXT.md`
+- `/ai/docs/DOCUMENT_TEMPLATES.md`

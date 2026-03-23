@@ -8,13 +8,13 @@ Melhorar a estrutura do código sem alterar comportamento funcional, reduzindo c
 
 ## Deve consultar primeiro
 - /ai/README_AI.md
-- /ai/AI_RULES.md
-- /ai/AI_REFACTOR_PLAN.md
-- /ai/CODE_STYLE.md
-- /ai/PROJECT_MAP.md
-- /ai/ARCHITECTURE.md
-- /ai/CONSTRAINTS.md
-- /ai/TESTING_GUIDELINES.md
+- /ai/governance/AI_RULES.md
+- /ai/playbooks/AI_REFACTOR_GUIDE.md
+- /ai/governance/CODE_STYLE.md
+- /ai/context/PROJECT_MAP.md
+- /ai/context/ARCHITECTURE.md
+- /ai/governance/CONSTRAINTS.md
+- /ai/engineering/TESTING_GUIDELINES.md
 
 ## Responsabilidades
 - remover duplicação

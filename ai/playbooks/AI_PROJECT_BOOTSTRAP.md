@@ -31,7 +31,7 @@ Definir estrutura básica do projeto.
 
 Consultar:
 
-/ai/CONTEXT/PROJECT_MAP.md  
+`/ai/context/PROJECT_MAP.md`  
 
 ---
 
@@ -39,7 +39,7 @@ Consultar:
 
 Consultar:
 
-/ai/CONTEXT/ARCHITECTURE.md  
+`/ai/context/ARCHITECTURE.md`  
 
 Definir:
 
@@ -53,7 +53,7 @@ Definir:
 
 Consultar:
 
-/ai/GOVERNANCE/CODE_STYLE.md  
+`/ai/governance/CODE_STYLE.md`  
 
 Definir convenções para:
 
@@ -67,8 +67,8 @@ Definir convenções para:
 
 Consultar:
 
-/ai/GOVERNANCE/AI_RULES.md  
-/ai/GOVERNANCE/CONSTRAINTS.md  
+`/ai/governance/AI_RULES.md`  
+`/ai/governance/CONSTRAINTS.md`  
 
 Definir regras do projeto.
 
@@ -78,7 +78,7 @@ Definir regras do projeto.
 
 Consultar:
 
-/ai/ENGINEERING/TESTING_GUIDELINES.md  
+`/ai/engineering/TESTING_GUIDELINES.md`  
 
 Definir estratégia de testes desde o início.
 
@@ -91,3 +91,25 @@ Utilizar:
 - agentes especializados
 - workflows do framework
 - playbooks disponíveis
+
+---
+
+# 9. Baseline técnica inicial
+
+Antes de iniciar entregas, garantir:
+
+- baseline de segurança alinhada com `/ai/engineering/SECURITY_BASELINE.md`
+- baseline de performance alinhada com `/ai/engineering/PERFORMANCE_GUIDELINES.md`
+- checklist de entrega alinhado com `/ai/governance/DELIVERY_CHECKLIST.md`
+
+---
+
+# 10. Critérios de conclusão
+
+O bootstrap é considerado concluído quando:
+
+- estrutura inicial do projeto está criada e documentada
+- arquitetura base e responsabilidades por camada estão definidas
+- regras de governança foram aplicadas
+- estratégia mínima de testes foi definida
+- baseline de segurança e performance foi registrada

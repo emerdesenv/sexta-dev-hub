@@ -1,4 +1,4 @@
-# AI_CONTEXT.md
+# AI Context
 
 ## Propósito deste Documento
 
@@ -15,9 +15,9 @@ Este documento deve ser utilizado como **referência inicial de entendimento do 
 
 Outros documentos complementares incluem:
 
-/ai/CONTEXT/ARCHITECTURE.md  
-/ai/CONTEXT/PROJECT_MAP.md  
-/ai/CONTEXT/DECISION_LOG.md  
+`/ai/context/ARCHITECTURE.md`  
+`/ai/context/PROJECT_MAP.md`  
+`/ai/context/DECISION_LOG.md`  
 
 ---
 
@@ -162,12 +162,12 @@ Responsável pela interface do usuário.
 
 Estrutura típica:
 
-src/
-components/
-pages/
-router/
-services/
-assets/
+- `src/`
+- `components/`
+- `pages/`
+- `router/`
+- `services/`
+- `assets/`
 
 Principais responsabilidades:
 
@@ -183,10 +183,10 @@ Responsável pela API da aplicação.
 
 Estrutura típica:
 
-controllers/
-services/
-routes/
-middlewares/
+- `controllers/`
+- `services/`
+- `routes/`
+- `middlewares/`
 
 Principais responsabilidades:
 
@@ -253,20 +253,11 @@ Cada conteúdo pode possuir:
 
 O desenvolvimento da plataforma segue alguns princípios:
 
-Simplicidade  
-Priorizar soluções claras e fáceis de manter.
-
-Separação de responsabilidades  
-Frontend e backend devem possuir responsabilidades bem definidas.
-
-Escalabilidade  
-A arquitetura deve permitir evolução do sistema.
-
-Clareza de código  
-O código deve ser legível e organizado.
-
-Experiência do usuário  
-A interface deve ser intuitiva e acessível.
+- **Simplicidade:** priorizar soluções claras e fáceis de manter.
+- **Separação de responsabilidades:** frontend e backend devem possuir responsabilidades bem definidas.
+- **Escalabilidade:** a arquitetura deve permitir evolução do sistema.
+- **Clareza de código:** o código deve ser legível e organizado.
+- **Experiência do usuário:** a interface deve ser intuitiva e acessível.
 
 ---
 

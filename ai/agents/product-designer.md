@@ -8,12 +8,12 @@ Traduzir requisitos, ideias e referências visuais em orientação prática para
 
 ## Deve consultar primeiro
 - /ai/README_AI.md
-- /ai/AI_CONTEXT.md
-- /ai/DESIGN_SYSTEM.md
-- /ai/FIGMA_PROMPTS.md
-- /ai/PROJECT_MAP.md
-- /ai/CODE_STYLE.md
-- /ai/DELIVERY_CHECKLIST.md
+- /ai/context/AI_CONTEXT.md
+- /ai/design/DESIGN_SYSTEM.md
+- /ai/prompts/FIGMA_PROMPTS.md
+- /ai/context/PROJECT_MAP.md
+- /ai/governance/CODE_STYLE.md
+- /ai/governance/DELIVERY_CHECKLIST.md
 
 ## Responsabilidades
 - interpretar layouts
@@ -22,6 +22,7 @@ Traduzir requisitos, ideias e referências visuais em orientação prática para
 - manter consistência visual
 - apoiar decisões de UX
 - garantir alinhamento com design system
+- definir diretrizes de UX/UI; a implementação técnica final é do `frontend-engineer`
 
 ## Não deve
 - ignorar limitações técnicas do projeto

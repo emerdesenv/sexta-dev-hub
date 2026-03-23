@@ -4,7 +4,7 @@
 
 Este documento contém prompts padronizados para gerar interfaces no **Figma com IA** alinhadas ao design system e à arquitetura do projeto **Sexta Dev Hub**.
 
-Os prompts aqui definidos devem gerar telas modernas, responsivas e consistentes com o sistema de design definido em `DESIGN_SYSTEM.md`.
+Os prompts aqui definidos devem gerar telas modernas, responsivas e consistentes com o sistema de design definido em `/ai/design/DESIGN_SYSTEM.md`.
 
 ---
 
@@ -37,6 +37,14 @@ Diretrizes de interface:
 ---
 
 # Prompt Base (usar como referência)
+
+Use este prompt com constraints explícitas:
+
+- grid consistente (desktop/tablet/mobile)
+- escala tipográfica definida
+- spacing consistente entre seções e componentes
+- estados de interação (hover, focus, disabled) para botões e inputs
+- contraste adequado para leitura
 
 Create a modern educational web platform interface called **Sexta Dev Hub**.
 
@@ -242,8 +250,8 @@ Após gerar a interface no Figma:
 
 * usar o layout como referência visual
 * converter seções em componentes reutilizáveis
-* seguir o `DESIGN_SYSTEM.md`
-* respeitar `AI_RULES.md`
+* seguir o `/ai/design/DESIGN_SYSTEM.md`
+* respeitar `/ai/governance/AI_RULES.md`
 * implementar mudanças de forma incremental
 
 ---

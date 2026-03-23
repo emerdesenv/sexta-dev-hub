@@ -84,3 +84,9 @@ Monitorar:
 - uso de memória
 - tempo de resposta
 - taxa de erro
+
+Critérios mínimos recomendados:
+
+- registrar p95 de resposta nos endpoints críticos
+- evitar aumento de payload sem justificativa
+- validar impacto de performance em mudanças que afetam queries ou renderização

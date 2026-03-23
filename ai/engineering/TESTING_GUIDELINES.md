@@ -22,9 +22,9 @@ testa fluxo completo
 
 # Prioridade
 
-1 lógica de negócio
-2 endpoints críticos
-3 fluxos principais
+1. lógica de negócio
+2. endpoints críticos
+3. fluxos principais
 
 ---
 
@@ -46,3 +46,9 @@ Fluxos mínimos:
 - cadastro
 - upload de arquivos
 - APIs principais
+
+Política mínima:
+
+- toda alteração deve incluir validação do fluxo principal impactado
+- mudanças com risco de regressão devem incluir teste automatizado quando possível
+- registrar evidências de teste na entrega (automatizado e/ou manual)

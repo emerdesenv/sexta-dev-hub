@@ -39,8 +39,9 @@ Evitar adicionar novas dependências.
 
 Antes de adicionar qualquer pacote:
 
-1 verificar se já existe solução interna
-2 avaliar impacto na manutenção
+1. verificar se já existe solução interna
+2. avaliar impacto na manutenção
+3. registrar justificativa técnica na entrega
 
 ---
 
@@ -51,6 +52,12 @@ Evitar:
 - queries N+1
 - loops desnecessários
 - operações bloqueantes
+
+Evidência mínima de validação:
+
+- identificar o endpoint/fluxo impactado
+- comparar comportamento antes/depois da mudança
+- registrar risco residual quando não houver medição automatizada
 
 ---
 

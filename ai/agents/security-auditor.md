@@ -8,12 +8,12 @@ Analisar código, fluxos e arquitetura sob a ótica de segurança, identificando
 
 ## Deve consultar primeiro
 - /ai/README_AI.md
-- /ai/AI_RULES.md
-- /ai/ARCHITECTURE.md
-- /ai/SECURITY_BASELINE.md
-- /ai/CONSTRAINTS.md
-- /ai/PROJECT_MAP.md
-- /ai/DELIVERY_CHECKLIST.md
+- /ai/governance/AI_RULES.md
+- /ai/context/ARCHITECTURE.md
+- /ai/engineering/SECURITY_BASELINE.md
+- /ai/governance/CONSTRAINTS.md
+- /ai/context/PROJECT_MAP.md
+- /ai/governance/DELIVERY_CHECKLIST.md
 
 ## Responsabilidades
 - revisar validação de input
