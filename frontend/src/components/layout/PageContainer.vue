@@ -1,7 +1,7 @@
 <template>
-  <div class="sd-container" v-bind="$attrs">
-    <slot />
-  </div>
+    <div class="sd-container" v-bind="$attrs">
+        <slot />
+    </div>
 </template>
 
 <script setup>

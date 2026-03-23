@@ -1,207 +1,207 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #0b1220;
-  --surface: #111a2f;
-  --surface-2: #1a2440;
-  --border: #2f3d66;
-  --primary: #2563eb;
-  --primary-2: #06b6d4;
-  --text: #edf2ff;
-  --muted: #a9b5d1;
-  --danger: #ff7b7b;
+    --bg: #0b1220;
+    --surface: #111a2f;
+    --surface-2: #1a2440;
+    --border: #2f3d66;
+    --primary: #2563eb;
+    --primary-2: #06b6d4;
+    --text: #edf2ff;
+    --muted: #a9b5d1;
+    --danger: #ff7b7b;
 }
 
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 body {
-  margin: 0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial,
-    Helvetica, sans-serif;
-  background: linear-gradient(180deg, #07101c, #0b1220 20%, #0f1630);
-  color: var(--text);
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial,
+        Helvetica, sans-serif;
+    background: linear-gradient(180deg, #07101c, #0b1220 20%, #0f1630);
+    color: var(--text);
 }
 
 a {
-  color: inherit;
-  text-decoration: none;
+    color: inherit;
+    text-decoration: none;
 }
 
 .sd-container {
-  max-width: 72rem; /* tailwind: max-w-6xl */
-  margin: 0 auto;
-  padding: 0 1.5rem; /* tailwind: px-6 */
+    max-width: 72rem; /* tailwind: max-w-6xl */
+    margin: 0 auto;
+    padding: 0 1.5rem; /* tailwind: px-6 */
 }
 
 .sd-section {
-  padding-top: 2.5rem;
-  padding-bottom: 2.5rem;
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
 }
 
 .sd-card {
-  border-radius: 1rem; /* rounded-2xl */
-  border: 1px solid var(--border);
-  background: rgba(17, 26, 47, 0.9); /* surface/90 */
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
-  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    border-radius: 1rem; /* rounded-2xl */
+    border: 1px solid var(--border);
+    background: rgba(17, 26, 47, 0.9); /* surface/90 */
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
 }
 
 .sd-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  border-radius: 9999px;
-  border: 1px solid rgba(47, 61, 102, 0.6);
-  background: #111a2f;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(47, 61, 102, 0.6);
+    background: #111a2f;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--muted);
 }
 
 .sd-badge-primary {
-  border-color: rgba(37, 99, 235, 0.2);
-  background: rgba(37, 99, 235, 0.1);
-  color: #93c5fd;
+    border-color: rgba(37, 99, 235, 0.2);
+    background: rgba(37, 99, 235, 0.1);
+    color: #93c5fd;
 }
 
 .sd-badge-audio {
-  border-color: rgba(52, 211, 153, 0.2);
-  background: rgba(52, 211, 153, 0.1);
-  color: #d1fae5;
+    border-color: rgba(52, 211, 153, 0.2);
+    background: rgba(52, 211, 153, 0.1);
+    color: #d1fae5;
 }
 
 .sd-badge-pdf {
-  border-color: rgba(147, 197, 253, 0.2);
-  background: rgba(147, 197, 253, 0.1);
-  color: #dbeafe;
+    border-color: rgba(147, 197, 253, 0.2);
+    background: rgba(147, 197, 253, 0.1);
+    color: #dbeafe;
 }
 
 .sd-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  border-radius: 0.75rem; /* rounded-xl */
-  padding: 0.75rem 1rem; /* py-3 px-4 */
-  font-weight: 700;
-  border: 0;
-  cursor: pointer;
-  transition:
-    background-color 150ms ease,
-    border-color 150ms ease,
-    color 150ms ease,
-    transform 150ms ease,
-    box-shadow 150ms ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 0.75rem; /* rounded-xl */
+    padding: 0.75rem 1rem; /* py-3 px-4 */
+    font-weight: 700;
+    border: 0;
+    cursor: pointer;
+    transition:
+        background-color 150ms ease,
+        border-color 150ms ease,
+        color 150ms ease,
+        transform 150ms ease,
+        box-shadow 150ms ease;
 }
 
 .sd-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .sd-button-primary {
-  background: var(--primary);
-  color: #ffffff;
+    background: var(--primary);
+    color: #ffffff;
 }
 
 .sd-button-primary:hover {
-  background: rgba(37, 99, 235, 0.9);
-  transform: translateY(-1px);
-  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.25);
+    background: rgba(37, 99, 235, 0.9);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgba(37, 99, 235, 0.25);
 }
 
 .sd-button-secondary {
-  background: transparent;
-  border: 1px solid rgba(47, 61, 102, 0.9);
-  color: var(--text);
+    background: transparent;
+    border: 1px solid rgba(47, 61, 102, 0.9);
+    color: var(--text);
 }
 
 .sd-button-secondary:hover {
-  background: rgba(26, 36, 64, 0.4); /* surface-2/40 */
-  transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgba(4, 10, 24, 0.28);
+    background: rgba(26, 36, 64, 0.4); /* surface-2/40 */
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(4, 10, 24, 0.28);
 }
 
 .sd-button-danger {
-  background: var(--danger);
-  color: #ffffff;
+    background: var(--danger);
+    color: #ffffff;
 }
 
 .sd-button-danger:hover {
-  background: rgba(255, 123, 123, 0.9);
-  transform: translateY(-1px);
-  box-shadow: 0 10px 22px rgba(255, 123, 123, 0.24);
+    background: rgba(255, 123, 123, 0.9);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgba(255, 123, 123, 0.24);
 }
 
 .sd-button:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.45);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.45);
 }
 
 .sd-button:active {
-  transform: translateY(0);
-  box-shadow: none;
+    transform: translateY(0);
+    box-shadow: none;
 }
 
 .sd-input {
-  width: 100%;
-  border-radius: 0.75rem; /* rounded-xl */
-  border: 1px solid rgba(47, 61, 102, 0.9);
-  background: #0b1326;
-  color: var(--text);
-  padding: 0.75rem 1rem; /* py-3 px-4 */
-  outline: none;
+    width: 100%;
+    border-radius: 0.75rem; /* rounded-xl */
+    border: 1px solid rgba(47, 61, 102, 0.9);
+    background: #0b1326;
+    color: var(--text);
+    padding: 0.75rem 1rem; /* py-3 px-4 */
+    outline: none;
 }
 
 .sd-input::placeholder {
-  color: var(--muted);
+    color: var(--muted);
 }
 
 .sd-input:focus {
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.6);
-  border-color: rgba(37, 99, 235, 0.8);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.6);
+    border-color: rgba(37, 99, 235, 0.8);
 }
 
 .sd-label {
-  display: block;
-  font-size: 0.875rem; /* text-sm */
-  font-weight: 500;
-  color: var(--muted);
+    display: block;
+    font-size: 0.875rem; /* text-sm */
+    font-weight: 500;
+    color: var(--muted);
 }
 
 .sd-table {
-  width: 100%;
-  border-collapse: collapse;
+    width: 100%;
+    border-collapse: collapse;
 }
 
 .sd-table th,
 .sd-table td {
-  padding: 0.75rem 1rem; /* py-3 px-4 */
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  text-align: left;
+    padding: 0.75rem 1rem; /* py-3 px-4 */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    text-align: left;
 }
 
 .sd-table th {
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: var(--muted);
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--muted);
 }
 
 .sd-notice {
-  border-radius: 0.75rem; /* rounded-xl */
-  border: 1px solid rgba(52, 211, 153, 0.3);
-  background: rgba(52, 211, 153, 0.1);
-  padding: 0.75rem 1rem;
-  color: #d1fae5;
+    border-radius: 0.75rem; /* rounded-xl */
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    background: rgba(52, 211, 153, 0.1);
+    padding: 0.75rem 1rem;
+    color: #d1fae5;
 }
 
 .sd-error {
-  border-radius: 0.75rem; /* rounded-xl */
-  border: 1px solid rgba(255, 123, 123, 0.3);
-  background: rgba(255, 123, 123, 0.1);
-  padding: 0.75rem 1rem;
-  color: #ffb1b1;
+    border-radius: 0.75rem; /* rounded-xl */
+    border: 1px solid rgba(255, 123, 123, 0.3);
+    background: rgba(255, 123, 123, 0.1);
+    padding: 0.75rem 1rem;
+    color: #ffb1b1;
 }

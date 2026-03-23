@@ -393,6 +393,23 @@ Usar camelCase:
 
 ---
 
+# Formatação de Código (UI)
+
+Para manter consistência entre pessoas e agentes de IA, seguir padrão único de formatação no frontend:
+
+## Indentação e espaçamento
+- usar **4 espaços** por nível de indentação
+- não usar tab para indentar
+- manter espaçamento consistente entre blocos de template, script e style
+- evitar linhas muito longas; quebrar atributos e props quando necessário
+
+## Diretrizes práticas
+- manter tags e propriedades alinhadas visualmente em componentes Vue
+- evitar mistura de estilos no mesmo arquivo (ex.: parte com tabs e parte com espaços)
+- usar formatação automática do projeto sempre que disponível
+
+---
+
 # Integração com Figma
 
 Ao converter layouts do Figma para código:
