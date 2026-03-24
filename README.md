@@ -19,6 +19,7 @@ O projeto é composto pelas seguintes tecnologias:
 | Frontend | Vue.js + Vite |
 | Backend | Node.js + Express |
 | Banco de Dados | MySQL |
+| Estilo | Tailwind |
 | Reverse Proxy | Traefik |
 | Infraestrutura | Docker + Docker Compose |
 | HTTPS | Let's Encrypt |

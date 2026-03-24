@@ -2,24 +2,24 @@
     <div class="min-h-screen flex flex-col">
         <PublicHeader />
         <PageContainer class="pt-8 md:pt-10 pb-12">
-            <section class="sd-card p-6 md:p-7">
+            <section class="sd-card sd-card-section p-6 md:p-7">
                 <Badge tone="primary">Minha conta</Badge>
                 <h1 class="mt-3 text-3xl sm:text-4xl font-extrabold">Perfil do aluno</h1>
                 <p class="mt-2 text-muted">Acompanhe seu histórico e mantenha seus dados seguros.</p>
 
                 <div class="mt-5 grid gap-4 md:grid-cols-3">
-                    <div class="rounded-xl border border-border/60 bg-surface/40 p-4">
+                    <div class="sd-card-item p-4">
                         <div class="text-muted text-sm">Usuário</div>
                         <div class="inline-flex items-center gap-2">
                             <strong class="text-xl font-bold">{{ profile.username || '-' }}</strong>
                             <Badge v-if="profileStats.profileProEnabled" tone="pro">PRO</Badge>
                         </div>
                     </div>
-                    <div class="rounded-xl border border-border/60 bg-surface/40 p-4">
+                    <div class="sd-card-item p-4">
                         <div class="text-muted text-sm">Nível</div>
                         <strong class="text-xl font-bold">N{{ profileStats.level || 1 }}</strong>
                     </div>
-                    <div class="rounded-xl border border-border/60 bg-surface/40 p-4">
+                    <div class="sd-card-item p-4">
                         <div class="text-muted text-sm">XP total</div>
                         <strong class="text-xl font-bold">{{ profileStats.xpTotal || 0 }}</strong>
                     </div>
@@ -32,8 +32,8 @@
                 </div>
             </section>
 
-            <section class="sd-card p-6 md:p-7 mt-6">
-                <h2 class="text-2xl font-bold">Alterar senha</h2>
+            <section class="sd-card sd-card-section p-6 md:p-7 mt-6">
+                <h2 class="sd-section-title">Alterar senha</h2>
                 <div v-if="notice" class="sd-notice mt-3">{{ notice }}</div>
                 <div v-if="error" class="sd-error mt-3">{{ error }}</div>
                 <form class="mt-4 grid gap-4 max-w-lg" @submit.prevent="updatePassword">
@@ -57,13 +57,13 @@
             </section>
 
             <section class="mt-6 grid gap-6 lg:grid-cols-2">
-                <div class="sd-card p-6">
-                    <h2 class="text-2xl font-bold">Histórico de eventos</h2>
+                <div class="sd-card sd-card-section p-6">
+                    <h2 class="sd-section-title">Histórico de eventos</h2>
                     <div class="space-y-2 mt-4" v-if="history.events.length">
                         <div
                             v-for="event in history.events"
                             :key="event.id"
-                            class="rounded-lg border border-border/50 bg-surface/30 p-3"
+                            class="sd-list-item p-3"
                         >
                             <div class="font-semibold text-sm">{{ event.type }}</div>
                             <div class="text-xs text-muted mt-1">
@@ -75,14 +75,14 @@
                     <div v-else class="sd-notice mt-4">Sem eventos registrados ainda.</div>
                 </div>
 
-                <div class="sd-card p-6">
-                    <h2 class="text-2xl font-bold">Episódios concluídos</h2>
+                <div class="sd-card sd-card-section p-6">
+                    <h2 class="sd-section-title">Episódios concluídos</h2>
                     <div class="space-y-2 mt-4" v-if="history.completedEpisodes.length">
                         <router-link
                             v-for="episode in history.completedEpisodes"
                             :key="`${episode.episodeId}-${episode.completedAt}`"
                             :to="`/episodio/${episode.slug}`"
-                            class="block rounded-lg border border-border/50 bg-surface/30 p-3 hover:bg-surface-2/40"
+                            class="sd-list-item block p-3"
                         >
                             <div class="font-semibold text-sm">{{ episode.title }}</div>
                             <div class="text-xs text-muted mt-1">

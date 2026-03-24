@@ -1,19 +1,34 @@
 import { defineStore } from 'pinia';
 import api from '../services/api';
 
-function applyTheme(theme) {
+function resolveTheme(gameTheme, uiTheme) {
+    if (uiTheme === 'light') return 'light';
+    if (uiTheme === 'dark') return 'default';
+    return gameTheme || 'default';
+}
+
+function applyTheme(gameTheme, uiTheme) {
     if (typeof document === 'undefined') return;
-    document.body.dataset.theme = theme || 'default';
+    document.body.dataset.theme = resolveTheme(gameTheme, uiTheme);
 }
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
         token: localStorage.getItem('sexta_dev_token') || '',
         user: JSON.parse(localStorage.getItem('sexta_dev_user') || 'null'),
-        theme: localStorage.getItem('sexta_dev_theme') || 'default'
+        theme: localStorage.getItem('sexta_dev_theme') || 'default',
+        uiTheme: localStorage.getItem('sexta_dev_ui_theme') || 'system',
     }),
     getters: { isAuthenticated: (state) => !!state.token },
     actions: {
+        applyCurrentTheme() {
+            applyTheme(this.theme, this.uiTheme);
+        },
+        setUiTheme(themePreference) {
+            this.uiTheme = themePreference;
+            localStorage.setItem('sexta_dev_ui_theme', themePreference);
+            this.applyCurrentTheme();
+        },
         async login(payload) {
             const { data } = await api.post('/auth/login', payload);
             this.token = data.token;
@@ -26,7 +41,7 @@ export const useAuthStore = defineStore('auth', {
             if (!this.token) {
                 this.theme = 'default';
                 localStorage.setItem('sexta_dev_theme', 'default');
-                applyTheme('default');
+                this.applyCurrentTheme();
                 return;
             }
 
@@ -35,11 +50,11 @@ export const useAuthStore = defineStore('auth', {
                 const activeTheme = data?.profile?.activeTheme || 'default';
                 this.theme = activeTheme;
                 localStorage.setItem('sexta_dev_theme', activeTheme);
-                applyTheme(activeTheme);
+                this.applyCurrentTheme();
             } catch {
                 this.theme = 'default';
                 localStorage.setItem('sexta_dev_theme', 'default');
-                applyTheme('default');
+                this.applyCurrentTheme();
             }
         },
         logout() {
@@ -49,7 +64,7 @@ export const useAuthStore = defineStore('auth', {
             localStorage.removeItem('sexta_dev_token');
             localStorage.removeItem('sexta_dev_user');
             localStorage.setItem('sexta_dev_theme', 'default');
-            applyTheme('default');
+            this.applyCurrentTheme();
         }
     }
 });

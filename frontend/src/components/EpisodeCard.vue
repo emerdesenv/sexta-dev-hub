@@ -12,6 +12,26 @@
 
         <div class="p-5 flex flex-col gap-3 flex-1">
             <div class="flex flex-wrap gap-2">
+                <Badge
+                    v-if="episode.completed"
+                    tone="success"
+                    aria-label="Episódio concluído"
+                    title="Episódio concluído"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        class="w-4 h-4"
+                        aria-hidden="true"
+                    >
+                        <path
+                            fill-rule="evenodd"
+                            d="M16.704 5.29a1 1 0 0 1 .006 1.414l-7.32 7.381a1 1 0 0 1-1.42-.002L3.29 9.37a1 1 0 0 1 1.42-1.408l3.97 4.004 6.614-6.67a1 1 0 0 1 1.41-.006Z"
+                            clip-rule="evenodd"
+                        />
+                    </svg>
+                </Badge>
                 <Badge tone="primary">+{{ episode.xp_reward || 40 }} XP</Badge>
                 <Badge>{{ episode.year_target }}º ano</Badge>
                 <Badge>{{ episode.category }}</Badge>
@@ -20,23 +40,23 @@
                 <Badge v-if="episode.pdf_url" tone="pdf">PDF</Badge>
             </div>
 
-            <h3 class="text-lg sm:text-xl font-bold leading-snug">
+            <h3 class="sd-card-title">
                 {{ episode.title }}
             </h3>
-            <p class="text-muted leading-relaxed">
+            <p class="sd-card-meta leading-relaxed">
                 {{ episode.summary }}
             </p>
 
             <router-link
                 v-if="auth.isAuthenticated"
-                class="sd-button sd-button-primary mt-auto px-4 py-2 text-sm"
+                class="sd-button sd-button-primary sd-card-actions px-4 py-2 text-sm"
                 :to="`/episodio/${episode.slug}`"
             >
                 Abrir episódio
             </router-link>
             <button
                 v-else
-                class="sd-button sd-button-primary mt-auto px-4 py-2 text-sm"
+                class="sd-button sd-button-primary sd-card-actions px-4 py-2 text-sm"
                 type="button"
                 @click="showLoginPrompt = true"
             >

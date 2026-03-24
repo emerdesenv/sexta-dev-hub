@@ -11,12 +11,6 @@
                         <p class="mt-2 text-muted leading-relaxed">
                             Acesse para gerenciar episódios e manter a área pública atualizada.
                         </p>
-                        <p class="mt-2 text-muted text-sm leading-relaxed">
-                            Alunos e visitantes não possuem cadastro/login nesta versão.
-                        </p>
-                        <p class="mt-2 text-muted text-sm leading-relaxed">
-                            Para acesso de aluno, use a rota "Entrar aluno" no menu principal.
-                        </p>
                     </div>
 
                     <label class="flex flex-col gap-2">

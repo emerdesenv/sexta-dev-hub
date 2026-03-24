@@ -6,6 +6,14 @@
             </router-link>
 
             <nav class="hidden md:flex items-center gap-2">
+                <button
+                    type="button"
+                    class="sd-button sd-button-secondary px-3 py-2 text-sm"
+                    :title="themeButtonTitle"
+                    @click="toggleTheme"
+                >
+                    {{ themeButtonLabel }}
+                </button>
                 <router-link
                     class="sd-button sd-button-secondary px-3 py-2 text-sm"
                     to="/gamificacao"
@@ -57,6 +65,14 @@
             </nav>
 
             <nav class="md:hidden flex items-center gap-2">
+                <button
+                    type="button"
+                    class="sd-button sd-button-secondary px-3 py-2 text-sm"
+                    :title="themeButtonTitle"
+                    @click="toggleTheme"
+                >
+                    {{ themeButtonLabel }}
+                </button>
                 <router-link
                     class="sd-button sd-button-secondary px-3 py-2 text-sm"
                     to="/gamificacao"
@@ -119,10 +135,23 @@ const auth = useAuthStore();
 const router = useRouter();
 const menuOpen = ref(false);
 const menuRef = ref(null);
+const themeOrder = ['system', 'light', 'dark'];
 
 const userInitial = computed(() => {
     const username = auth.user?.username || 'U';
     return username.charAt(0).toUpperCase();
+});
+
+const themeButtonLabel = computed(() => {
+    if (auth.uiTheme === 'light') return 'Tema: Claro';
+    if (auth.uiTheme === 'dark') return 'Tema: Escuro';
+    return 'Tema: Sistema';
+});
+
+const themeButtonTitle = computed(() => {
+    if (auth.uiTheme === 'light') return 'Trocar para tema escuro';
+    if (auth.uiTheme === 'dark') return 'Trocar para tema do sistema';
+    return 'Trocar para tema claro';
 });
 
 function closeMenu() {
@@ -146,6 +175,12 @@ function handleLogout() {
     router.push('/');
 }
 
+function toggleTheme() {
+    const currentIndex = themeOrder.indexOf(auth.uiTheme);
+    const nextTheme = themeOrder[(currentIndex + 1) % themeOrder.length];
+    auth.setUiTheme(nextTheme);
+}
+
 onMounted(() => {
     document.addEventListener('click', handleClickOutside);
 });
@@ -157,8 +192,8 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .user-menu-button {
-    border: 1px solid rgba(47, 61, 102, 0.9);
-    background: rgba(17, 26, 47, 0.95);
+    border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
+    background: color-mix(in srgb, var(--surface) 94%, transparent);
     border-radius: 999px;
     padding: 2px;
     cursor: pointer;
@@ -183,8 +218,8 @@ onBeforeUnmount(() => {
     right: 0;
     min-width: 180px;
     border-radius: 12px;
-    border: 1px solid rgba(47, 61, 102, 0.9);
-    background: rgba(17, 26, 47, 0.98);
+    border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
+    background: color-mix(in srgb, var(--surface) 96%, transparent);
     box-shadow: 0 16px 32px rgba(0, 0, 0, 0.28);
     overflow: hidden;
     z-index: 70;
@@ -203,10 +238,10 @@ onBeforeUnmount(() => {
 }
 
 .user-menu-item:hover {
-    background: rgba(26, 36, 64, 0.6);
+    background: color-mix(in srgb, var(--surface-2) 65%, transparent);
 }
 
 .user-menu-item-danger {
-    color: #ffb1b1;
+    color: color-mix(in srgb, var(--danger) 70%, white);
 }
 </style>

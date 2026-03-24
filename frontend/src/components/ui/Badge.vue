@@ -9,7 +9,19 @@ const props = defineProps({
     tone: {
         type: String,
         default: 'neutral',
-        validator: (v) => ['neutral', 'primary', 'audio', 'pdf', 'pro'].includes(v),
+        validator: (v) =>
+            [
+                'neutral',
+                'primary',
+                'audio',
+                'pdf',
+                'pro',
+                'success',
+                'info',
+                'warning',
+                'published',
+                'draft',
+            ].includes(v),
     },
 })
 
@@ -19,6 +31,11 @@ const toneClass = {
     audio: 'sd-badge-audio',
     pdf: 'sd-badge-pdf',
     pro: 'sd-badge-pro',
+    success: 'sd-badge-success',
+    info: 'sd-badge-info',
+    warning: 'sd-badge-warning',
+    published: 'sd-badge-published',
+    draft: 'sd-badge-draft',
 }[props.tone]
 </script>
 

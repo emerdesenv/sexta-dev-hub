@@ -2,7 +2,7 @@
     <div class="min-h-screen flex flex-col">
         <PublicHeader />
         <PageContainer class="pt-8 md:pt-10 pb-12">
-            <section class="sd-card p-6 md:p-7">
+            <section class="sd-card sd-card-section p-6 md:p-7">
                 <div class="flex items-start justify-between gap-4 flex-wrap">
                     <div>
                         <Badge tone="primary">Gamificação</Badge>
@@ -28,20 +28,20 @@
                 </div>
 
                 <div class="mt-6 grid gap-4 sm:grid-cols-3">
-                    <div class="rounded-xl border border-border/60 bg-surface/40 p-4">
+                    <div class="sd-card-item p-4">
                         <div class="text-muted text-sm">Nivel atual</div>
                         <strong class="text-3xl font-extrabold">{{ data.profile.level }}</strong>
                         <div class="text-muted text-sm mt-1">{{ data.profile.xpTotal }} XP total</div>
                     </div>
-                    <div class="rounded-xl border border-border/60 bg-surface/40 p-4">
+                    <div class="sd-card-item p-4">
                         <div class="text-muted text-sm">Streak</div>
                         <strong class="text-3xl font-extrabold">{{ data.profile.streakDays }} dias</strong>
                         <div class="text-muted text-sm mt-1">Consistencia ativa</div>
-                        <div class="text-xs mt-2" :class="data.profile.streakShieldCount > 0 ? 'text-cyan-300' : 'text-muted'">
+                        <div class="text-xs mt-2" :class="data.profile.streakShieldCount > 0 ? 'text-info' : 'text-muted'">
                             Escudo de streak: {{ data.profile.streakShieldCount || 0 }}
                         </div>
                     </div>
-                    <div class="rounded-xl border border-border/60 bg-surface/40 p-4">
+                    <div class="sd-card-item p-4">
                         <div class="text-muted text-sm">Moedas</div>
                         <strong class="text-3xl font-extrabold">{{ data.profile.coins }}</strong>
                         <div class="text-muted text-sm mt-1">Para trocar por recompensas</div>
@@ -50,15 +50,16 @@
 
                 <div class="mt-5">
                     <div class="text-sm text-muted">Progresso do nível</div>
-                    <div class="h-2 rounded-full bg-surface-2/70 mt-2 overflow-hidden">
-                        <div class="h-full bg-blue-500" :style="{ width: levelPercent + '%' }"></div>
+                    <div class="sd-progress">
+                        <div class="sd-progress-fill sd-progress-fill-level" :style="{ width: levelPercent + '%' }"></div>
                     </div>
                     <div class="text-xs text-muted mt-2">
+                        {{ levelPercent }}% •
                         {{ data.profile.xpCurrentLevel }} / {{ data.profile.xpNextLevel }} XP para o próximo nível
                     </div>
                     <div
                         v-if="(data.profile.streakShieldCount || 0) > 0"
-                        class="text-xs text-cyan-300 mt-1"
+                        class="text-xs text-info mt-1"
                     >
                         Você possui proteção ativa para manter sua sequência.
                     </div>
@@ -66,28 +67,31 @@
             </section>
 
             <section class="mt-8">
-                <h2 class="text-2xl font-bold">Missoes</h2>
+                <h2 class="sd-section-title">Missoes</h2>
                 <div v-if="notice" class="sd-notice mt-3">{{ notice }}</div>
                 <div v-if="errorMessage" class="sd-error mt-3">{{ errorMessage }}</div>
                 <div class="mt-4 grid gap-4 md:grid-cols-3">
                     <article
                         v-for="mission in data.missions"
                         :key="mission.key"
-                        class="sd-card p-5"
+                        class="sd-card sd-card-item p-5"
                     >
-                        <h3 class="font-bold text-lg">{{ mission.title }}</h3>
-                        <div class="text-muted text-sm mt-2">Progresso {{ mission.progress }}/{{ mission.target }}</div>
-                        <div class="h-2 rounded-full bg-surface-2/70 mt-2 overflow-hidden">
+                        <h3 class="sd-card-title">{{ mission.title }}</h3>
+                        <div class="sd-card-meta">Progresso {{ mission.progress }}/{{ mission.target }}</div>
+                        <div class="sd-progress">
                             <div
-                                class="h-full bg-cyan-500"
+                                class="sd-progress-fill sd-progress-fill-mission"
                                 :style="{ width: missionPercent(mission) + '%' }"
                             ></div>
+                        </div>
+                        <div class="text-xs text-muted">
+                            {{ missionPercent(mission) }}%
                         </div>
                         <div class="text-sm mt-3 text-muted">
                             Recompensa: +{{ mission.rewardXp }} XP • +{{ mission.rewardCoins }} moedas
                         </div>
                         <div class="mt-3">
-                            <Badge :tone="mission.status === 'completed' ? 'audio' : 'neutral'">
+                            <Badge :tone="mission.status === 'completed' ? 'success' : 'info'">
                                 {{ mission.status === 'completed' ? 'Concluída' : 'Em andamento' }}
                             </Badge>
                         </div>
@@ -113,18 +117,18 @@
             </section>
 
             <section class="mt-8">
-                <h2 class="text-2xl font-bold">Conquistas</h2>
+                <h2 class="sd-section-title">Conquistas</h2>
                 <div class="mt-4 grid gap-4 md:grid-cols-3">
                     <article
                         v-for="badge in data.badges"
                         :key="badge.key"
-                        class="sd-card p-5"
+                        class="sd-card sd-card-item p-5"
                     >
-                        <h3 class="font-bold">{{ badge.title }}</h3>
-                        <p class="text-sm text-muted mt-2" v-if="badge.target">
+                        <h3 class="sd-card-title">{{ badge.title }}</h3>
+                        <p class="sd-card-meta" v-if="badge.target">
                             {{ badge.progress || 0 }}/{{ badge.target }}
                         </p>
-                        <p class="text-sm mt-2" :class="badge.unlocked ? 'text-emerald-300' : 'text-muted'">
+                        <p class="text-sm mt-2" :class="badge.unlocked ? 'text-success' : 'text-muted'">
                             {{ badge.unlocked ? 'Desbloqueada' : 'Bloqueada' }}
                         </p>
                     </article>
@@ -132,13 +136,13 @@
             </section>
 
             <section class="mt-8">
-                <h2 class="text-2xl font-bold">Ranking</h2>
-                <div class="sd-card mt-4 p-4">
+                <h2 class="sd-section-title">Ranking</h2>
+                <div class="sd-card sd-card-section mt-4 p-4">
                     <div class="space-y-2">
                         <div
                             v-for="(player, index) in leaderboard"
                             :key="`${player.username}-${index}`"
-                            class="flex justify-between items-center rounded-lg border border-border/50 p-3 bg-surface/30"
+                            class="sd-list-item flex justify-between items-center p-3"
                         >
                             <span class="inline-flex items-center gap-2">
                                 <span>#{{ index + 1 }} • {{ player.username }}</span>
@@ -151,19 +155,19 @@
             </section>
 
             <section class="mt-8">
-                <h2 class="text-2xl font-bold">Recompensas</h2>
+                <h2 class="sd-section-title">Recompensas</h2>
                 <div class="mt-4 grid gap-4 md:grid-cols-4">
                     <article
                         v-for="reward in data.rewards"
                         :key="reward.key"
-                        class="sd-card p-4"
+                        class="sd-card sd-card-item p-4"
                     >
-                        <h3 class="font-bold">{{ reward.title }}</h3>
-                        <p class="text-sm text-muted mt-1">{{ reward.costCoins }} moedas</p>
+                        <h3 class="sd-card-title">{{ reward.title }}</h3>
+                        <p class="sd-card-meta">{{ reward.costCoins }} moedas</p>
                         <p class="text-xs text-muted mt-2">Categoria: {{ reward.category }}</p>
                         <p class="text-sm mt-3">{{ rewardHelpText(reward.key).whatItDoes }}</p>
                         <p class="text-xs text-muted mt-1">Quando usar: {{ rewardHelpText(reward.key).whenToUse }}</p>
-                        <p v-if="reward.owned" class="text-xs text-emerald-300 mt-2">Resgatada</p>
+                        <p v-if="reward.owned" class="text-xs text-success mt-2">Resgatada</p>
                         <button
                             v-if="auth.isAuthenticated"
                             class="sd-button sd-button-secondary mt-3 w-full"

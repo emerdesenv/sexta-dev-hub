@@ -13,7 +13,7 @@ app.use(pinia).use(router);
 
 const auth = useAuthStore(pinia);
 if (typeof document !== 'undefined') {
-    document.body.dataset.theme = auth.theme || 'default';
+    auth.applyCurrentTheme();
 }
 
 app.mount('#app');

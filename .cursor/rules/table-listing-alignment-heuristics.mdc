@@ -1,0 +1,38 @@
+---
+description: Heuristicas de alinhamento para listagens em tabelas no frontend
+globs: frontend/src/**/*.{vue,js,css}
+alwaysApply: false
+---
+
+# Heuristicas de alinhamento em tabelas
+
+Use estas regras ao criar ou ajustar tabelas de listagem no frontend para melhorar leitura e escaneabilidade.
+
+## Regras base por tipo de coluna
+
+- Texto curto e longo (ex.: Titulo, Nome, Categoria): alinhar a esquerda.
+- Numeros (ex.: Quantidade, Pontos, Duracao em minutos): alinhar a direita.
+- Valores monetarios e percentuais: alinhar a direita.
+- Datas e horas: alinhar a esquerda por padrao; use direita apenas se a tabela for numerica/financeira.
+- Status com badge/chip (ex.: Publicado, Rascunho): centralizar.
+- Coluna de acoes (botao/menu): celulas alinhadas a direita.
+
+## Consistencia de cabecalho e celula
+
+- O alinhamento do cabecalho deve corresponder ao alinhamento das celulas da coluna.
+- Excecao: quando houver coluna "Acoes", o titulo "Acoes" no cabecalho deve ficar centralizado.
+- Evite misturar alinhamentos diferentes dentro da mesma coluna.
+- Defina largura minima para colunas de acoes e status para evitar quebra visual.
+
+## Exemplo de aplicacao
+
+- Titulo: esquerda
+- Ano: direita (ou centro quando for etiqueta curta)
+- Status: centro
+- Categoria: esquerda
+- Acoes (cabecalho): centro
+- Acoes (celulas): direita
+
+## Prioridade
+
+Se houver conflito com implementacao existente, preserve o design system do projeto e aplique estas regras onde for possivel sem regressao visual.

@@ -2,7 +2,7 @@
     <div class="min-h-screen flex flex-col">
         <PublicHeader />
         <PageContainer class="pt-8 md:pt-10">
-            <section class="sd-card p-7 md:grid md:grid-cols-[1.35fr_0.9fr] md:items-center md:gap-6">
+            <section class="sd-card sd-card-section p-7 md:grid md:grid-cols-[1.35fr_0.9fr] md:items-center md:gap-6">
                 <div>
                     <Badge tone="primary">Conteúdo aberto para alunos</Badge>
                     <Badge
@@ -39,15 +39,15 @@
                 </div>
 
                 <div class="mt-6 md:mt-0 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div class="rounded-xl border border-border/60 bg-surface/40 p-4">
+                    <div class="sd-card-item p-4">
                         <strong class="text-3xl font-extrabold">{{ episodes.length }}</strong>
                         <div class="text-muted text-sm mt-1">episódios publicados</div>
                     </div>
-                    <div class="rounded-xl border border-border/60 bg-surface/40 p-4">
+                    <div class="sd-card-item p-4">
                         <strong class="text-xl font-extrabold">PDF + Áudio</strong>
                         <div class="text-muted text-sm mt-1">microlearning centralizado</div>
                     </div>
-                    <div class="rounded-xl border border-border/60 bg-surface/40 p-4">
+                    <div class="sd-card-item p-4">
                         <strong class="text-xl font-extrabold">GitHub / Site</strong>
                         <div class="text-muted text-sm mt-1">base pronta para produção</div>
                     </div>
@@ -123,6 +123,18 @@ const filters = reactive({ year: '', category: '' });
 const githubUrl = import.meta.env.VITE_GITHUB_URL || '';
 const streakShieldCount = ref(0);
 const auth = useAuthStore();
+const completedEpisodeSlugs = ref(new Set());
+
+function applyCompletionState(list) {
+    if (!auth.isAuthenticated || auth.user?.role !== 'student') {
+        return list.map((episode) => ({ ...episode, completed: false }));
+    }
+
+    return list.map((episode) => ({
+        ...episode,
+        completed: completedEpisodeSlugs.value.has(episode.slug),
+    }));
+}
 
 async function loadEpisodes() {
     const params = {};
@@ -134,7 +146,7 @@ async function loadEpisodes() {
 
     try {
         const { data } = await api.get('/episodes/public', { params });
-        episodes.value = data;
+        episodes.value = applyCompletionState(data);
     } catch (e) {
         episodes.value = [];
         error.value = e?.response?.data?.message || 'Não foi possível carregar episódios.';
@@ -146,14 +158,27 @@ async function loadEpisodes() {
 async function loadStudentPerks() {
     if (!auth.isAuthenticated || auth.user?.role !== 'student') {
         streakShieldCount.value = 0;
+        completedEpisodeSlugs.value = new Set();
+        episodes.value = applyCompletionState(episodes.value);
         return;
     }
 
     try {
-        const { data } = await api.get('/gamification/me');
+        const [{ data }, { data: historyData }] = await Promise.all([
+            api.get('/gamification/me'),
+            api.get('/gamification/history/me'),
+        ]);
         streakShieldCount.value = Number(data?.profile?.streakShieldCount || 0);
+        completedEpisodeSlugs.value = new Set(
+            (historyData?.completedEpisodes || [])
+                .map((episode) => episode.slug)
+                .filter(Boolean),
+        );
+        episodes.value = applyCompletionState(episodes.value);
     } catch {
         streakShieldCount.value = 0;
+        completedEpisodeSlugs.value = new Set();
+        episodes.value = applyCompletionState(episodes.value);
     }
 }
 

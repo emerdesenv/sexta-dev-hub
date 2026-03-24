@@ -23,6 +23,7 @@
 </template>
 
 <script setup>
-const githubUrl = import.meta.env.VITE_GITHUB_URL || '';
+const githubEnvUrl = import.meta.env.VITE_GITHUB_URL || '';
+const githubUrl = githubEnvUrl || 'https://github.com/emerdesenv/sexta-dev-hub';
 </script>
 
