@@ -16,7 +16,7 @@ const DAILY_LOGIN_COINS = 5;
 const REWARDS = [
     { key: 'theme_neon', title: 'Tema Neon', costCoins: 120, category: 'visual' },
     { key: 'profile_pro', title: 'Selo Perfil Pro', costCoins: 220, category: 'visual' },
-    { key: 'streak_shield', title: 'Protecao de streak', costCoins: 250, category: 'benefit' },
+    { key: 'streak_shield', title: 'Proteção de streak', costCoins: 250, category: 'benefit' },
     { key: 'early_access', title: 'Acesso antecipado', costCoins: 500, category: 'content' }
 ];
 

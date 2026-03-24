@@ -80,7 +80,7 @@ a {
 }
 
 .sd-container {
-    max-width: 72rem; /* tailwind: max-w-6xl */
+    max-width: 80rem; /* tailwind: max-w-6xl */
     margin: 0 auto;
     padding: 0 1.5rem; /* tailwind: px-6 */
 }
