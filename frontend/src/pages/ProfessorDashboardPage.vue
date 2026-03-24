@@ -144,6 +144,58 @@
                                     Nenhuma atividade encontrada com os filtros selecionados.
                                 </div>
                             </div>
+
+                            <div class="mt-8">
+                                <div class="flex items-center justify-between gap-3 flex-wrap">
+                                    <h3 class="sd-card-title">Mini game: organize a linha do tempo</h3>
+                                    <button
+                                        class="sd-button sd-button-secondary px-3 py-2 text-sm"
+                                        type="button"
+                                        @click="resetTimelineGame"
+                                    >
+                                        Reiniciar mini game
+                                    </button>
+                                </div>
+                                <p class="text-sm text-muted mt-1">
+                                    Segure e arraste os marcos para a ordem correta na linha do tempo.
+                                </p>
+
+                                <div class="timeline-game mt-4">
+                                    <div class="timeline-game-pool">
+                                        <button
+                                            v-for="item in timelinePoolItems"
+                                            :key="item.id"
+                                            type="button"
+                                            class="timeline-pool-item"
+                                            @pointerdown="startTimelineDrag(item.id, $event)"
+                                        >
+                                            <span class="timeline-pool-item-year">{{ item.year }}</span>
+                                            <span class="timeline-pool-item-title">{{ item.title }}</span>
+                                        </button>
+                                    </div>
+
+                                    <div class="timeline-slots">
+                                        <div
+                                            v-for="(slot, index) in timelineSlots"
+                                            :key="`slot-${index}`"
+                                            class="timeline-slot"
+                                            :data-slot-index="index"
+                                            :class="{ 'timeline-slot-active': activeDropSlot === index }"
+                                        >
+                                            <div class="timeline-slot-label">Posição {{ index + 1 }}</div>
+                                            <div v-if="slot" class="timeline-slot-card">
+                                                <span class="timeline-slot-year">{{ slot.year }}</span>
+                                                <strong class="timeline-slot-title">{{ slot.title }}</strong>
+                                            </div>
+                                            <div v-else class="timeline-slot-empty">Solte aqui</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div v-if="timelineFeedback" class="mt-3 text-sm" :class="timelineAllCorrect ? 'text-[var(--success)]' : 'text-[var(--warning)]'">
+                                    {{ timelineFeedback }}
+                                </div>
+                            </div>
                         </div>
 
                         <div v-if="activeSection === 'events'" class="sd-card p-6">
@@ -437,6 +489,21 @@ const pageTo = computed(() => Math.min(endIndex.value, totalItems.value));
 const isFirstPage = computed(() => currentPage.value <= 1);
 const isLastPage = computed(() => currentPage.value >= totalPages.value);
 const openActionMenuId = ref(null);
+const timelineMilestones = [
+    { id: 'beginning', year: 2017, title: 'Beginning', description: 'Início da jornada empreendedora.' },
+    { id: 'investigation', year: 2018, title: 'Investigation', description: 'Pesquisa de mercado e público-alvo.' },
+    { id: 'planning', year: 2019, title: 'Planning', description: 'Estruturação de estratégia e roadmap.' },
+    { id: 'innovation', year: 2020, title: 'Innovation', description: 'Lançamento da primeira solução educacional.' },
+    { id: 'creativity', year: 2021, title: 'Creativity', description: 'Expansão criativa do produto.' },
+    { id: 'recognition', year: 2022, title: 'Recognition', description: 'Reconhecimento em prêmio nacional.' },
+    { id: 'health', year: 2023, title: 'Health', description: 'Nova solução para saúde e IA.' },
+];
+const timelinePoolItems = ref(shuffleTimelineItems(timelineMilestones));
+const timelineSlots = ref(Array(timelineMilestones.length).fill(null));
+const draggingTimelineItemId = ref(null);
+const activeDropSlot = ref(null);
+const timelineFeedback = ref('');
+const timelineAllCorrect = computed(() => timelineSlots.value.every((slot, index) => slot?.id === timelineMilestones[index].id));
 
 watch(itemsPerPage, () => {
     currentPage.value = 1;
@@ -499,6 +566,91 @@ function goToNextPage() {
 
 function closeActionMenu() {
     openActionMenuId.value = null;
+}
+
+function shuffleTimelineItems(items) {
+    return [...items]
+        .map((item) => ({ item, sortKey: Math.random() }))
+        .sort((a, b) => a.sortKey - b.sortKey)
+        .map((entry) => entry.item);
+}
+
+function startTimelineDrag(itemId, event) {
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+    draggingTimelineItemId.value = itemId;
+    timelineFeedback.value = '';
+    window.addEventListener('pointermove', handleTimelinePointerMove);
+    window.addEventListener('pointerup', handleTimelinePointerUp);
+}
+
+function setActiveDropSlot(index) {
+    if (!draggingTimelineItemId.value) return;
+    activeDropSlot.value = index;
+}
+
+function getSlotIndexFromPoint(clientX, clientY) {
+    const element = document.elementFromPoint(clientX, clientY);
+    const slotElement = element?.closest?.('[data-slot-index]');
+    if (!slotElement) return null;
+    const parsedIndex = Number(slotElement.getAttribute('data-slot-index'));
+    return Number.isNaN(parsedIndex) ? null : parsedIndex;
+}
+
+function handleTimelinePointerMove(event) {
+    if (!draggingTimelineItemId.value) return;
+    const slotIndex = getSlotIndexFromPoint(event.clientX, event.clientY);
+    if (slotIndex === null) {
+        activeDropSlot.value = null;
+        return;
+    }
+    setActiveDropSlot(slotIndex);
+}
+
+function handleTimelinePointerUp(event) {
+    if (!draggingTimelineItemId.value) return;
+    const slotIndex = getSlotIndexFromPoint(event.clientX, event.clientY);
+    if (slotIndex !== null) {
+        dropTimelineItem(slotIndex);
+    } else {
+        draggingTimelineItemId.value = null;
+        activeDropSlot.value = null;
+    }
+    window.removeEventListener('pointermove', handleTimelinePointerMove);
+    window.removeEventListener('pointerup', handleTimelinePointerUp);
+}
+
+function dropTimelineItem(index) {
+    const draggingId = draggingTimelineItemId.value;
+    if (!draggingId) return;
+    const milestone = timelineMilestones.find((item) => item.id === draggingId);
+    if (!milestone) return;
+    if (timelineSlots.value[index]) {
+        timelineFeedback.value = 'Essa posição já está ocupada. Escolha outro espaço.';
+        draggingTimelineItemId.value = null;
+        activeDropSlot.value = null;
+        return;
+    }
+
+    timelineSlots.value[index] = milestone;
+    timelinePoolItems.value = timelinePoolItems.value.filter((item) => item.id !== draggingId);
+    draggingTimelineItemId.value = null;
+    activeDropSlot.value = null;
+
+    if (timelinePoolItems.value.length === 0) {
+        timelineFeedback.value = timelineAllCorrect.value
+            ? 'Parabéns! A ordem está correta.'
+            : 'Boa tentativa! A ordem final ainda tem pontos para ajustar. Reinicie para tentar novamente.';
+    }
+}
+
+function resetTimelineGame() {
+    timelineSlots.value = Array(timelineMilestones.length).fill(null);
+    timelinePoolItems.value = shuffleTimelineItems(timelineMilestones);
+    draggingTimelineItemId.value = null;
+    activeDropSlot.value = null;
+    timelineFeedback.value = '';
+    window.removeEventListener('pointermove', handleTimelinePointerMove);
+    window.removeEventListener('pointerup', handleTimelinePointerUp);
 }
 
 function toggleActionMenu(episodeId) {
@@ -585,6 +737,8 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
     document.removeEventListener('click', handleDocumentClick);
+    window.removeEventListener('pointermove', handleTimelinePointerMove);
+    window.removeEventListener('pointerup', handleTimelinePointerUp);
 });
 </script>
 
@@ -641,5 +795,94 @@ onBeforeUnmount(() => {
     background: color-mix(in srgb, var(--surface) 98%, transparent);
     padding: 18px;
     box-shadow: 0 24px 50px rgba(0, 0, 0, 0.38);
+}
+
+.timeline-game {
+    border: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
+    background: color-mix(in srgb, var(--surface-2) 38%, transparent);
+    border-radius: 14px;
+    padding: 14px;
+}
+
+.timeline-game-pool {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.timeline-pool-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid color-mix(in srgb, var(--primary) 45%, transparent);
+    border-radius: 999px;
+    padding: 8px 12px;
+    background: color-mix(in srgb, var(--surface) 96%, transparent);
+    color: var(--text);
+    cursor: grab;
+}
+
+.timeline-pool-item:active {
+    cursor: grabbing;
+}
+
+.timeline-pool-item-year {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.timeline-pool-item-title {
+    font-size: 0.8125rem;
+    font-weight: 600;
+}
+
+.timeline-slots {
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+}
+
+.timeline-slot {
+    min-height: 92px;
+    border-radius: 12px;
+    border: 1px dashed color-mix(in srgb, var(--border) 90%, transparent);
+    background: color-mix(in srgb, var(--surface) 94%, transparent);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.timeline-slot-active {
+    border-color: color-mix(in srgb, var(--primary) 70%, transparent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+.timeline-slot-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.timeline-slot-empty {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+}
+
+.timeline-slot-card {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.timeline-slot-year {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.timeline-slot-title {
+    font-size: 0.875rem;
 }
 </style>
