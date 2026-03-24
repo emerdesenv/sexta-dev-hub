@@ -28,7 +28,34 @@
                     </aside>
 
                     <section class="grid gap-6">
-                        <div class="sd-card p-6">
+                        <div class="flex flex-wrap gap-2">
+                            <button
+                                type="button"
+                                class="sd-button px-3 py-2 text-sm"
+                                :class="activeSection === 'metrics' ? 'sd-button-primary' : 'sd-button-secondary'"
+                                @click="activeSection = 'metrics'"
+                            >
+                                Métricas de gamificação
+                            </button>
+                            <button
+                                type="button"
+                                class="sd-button px-3 py-2 text-sm"
+                                :class="activeSection === 'events' ? 'sd-button-primary' : 'sd-button-secondary'"
+                                @click="activeSection = 'events'"
+                            >
+                                Eventos recentes
+                            </button>
+                            <button
+                                type="button"
+                                class="sd-button px-3 py-2 text-sm"
+                                :class="activeSection === 'episodes' ? 'sd-button-primary' : 'sd-button-secondary'"
+                                @click="activeSection = 'episodes'"
+                            >
+                                Episódios cadastrados
+                            </button>
+                        </div>
+
+                        <div v-if="activeSection === 'metrics'" class="sd-card p-6">
                             <div class="flex justify-between items-center gap-3 flex-wrap">
                                 <h2 class="sd-section-title">Métricas de gamificação</h2>
                                 <button
@@ -64,42 +91,110 @@
                                 </div>
                             </div>
 
-                            <div class="mt-5">
-                                <h3 class="sd-card-title">
-                                    Eventos recentes
-                                    <span class="text-sm text-muted">({{ metrics.recentEvents.length }})</span>
-                                </h3>
-                                <div class="mt-2 max-h-56 sm:max-h-64 lg:max-h-80 overflow-y-auto overscroll-contain pr-1">
-                                    <div class="space-y-2" v-if="metrics.recentEvents.length">
-                                        <div
-                                            v-for="(event, index) in metrics.recentEvents"
-                                            :key="event.id || `${event.username}-${event.type}-${index}`"
-                                            class="sd-list-item p-3 flex justify-between gap-4 flex-wrap"
-                                        >
-                                            <span class="text-sm break-words">
-                                                <b>{{ event.username }}</b> • {{ event.type }}
-                                            </span>
-                                            <span class="text-xs text-muted">
-                                                XP {{ event.xpDelta >= 0 ? '+' : '' }}{{ event.xpDelta }} • Moedas {{ event.coinsDelta >= 0 ? '+' : '' }}{{ event.coinsDelta }}
-                                            </span>
-                                        </div>
+                            <div class="mt-6">
+                                <h3 class="sd-card-title">Desempenho em atividades avaliativas</h3>
+                                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mt-3">
+                                    <div class="sd-card-item p-4">
+                                        <div class="text-sm text-muted">Atividades avaliativas</div>
+                                        <strong class="text-2xl font-bold">{{ metrics.assessmentSummary.totalAssessmentEpisodes }}</strong>
                                     </div>
-                                    <div v-else class="sd-notice">
-                                        Sem eventos de gamificação ainda.
+                                    <div class="sd-card-item p-4">
+                                        <div class="text-sm text-muted">Média de aprovação</div>
+                                        <strong class="text-2xl font-bold">{{ metrics.assessmentSummary.averagePassRate }}%</strong>
                                     </div>
+                                    <div class="sd-card-item p-4">
+                                        <div class="text-sm text-muted">Média de nota</div>
+                                        <strong class="text-2xl font-bold">{{ metrics.assessmentSummary.averageScore }}%</strong>
+                                    </div>
+                                    <div class="sd-card-item p-4">
+                                        <div class="text-sm text-muted">Tentativas por aluno</div>
+                                        <strong class="text-2xl font-bold">{{ metrics.assessmentSummary.averageAttemptsPerStudent }}</strong>
+                                    </div>
+                                </div>
+                                <div class="mt-4 overflow-auto" v-if="metrics.assessmentEpisodes.length">
+                                    <table class="sd-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Atividade</th>
+                                                <th>Modo</th>
+                                                <th class="text-right">Alunos</th>
+                                                <th class="text-right">Aprovação</th>
+                                                <th class="text-right">Nota média</th>
+                                                <th class="text-right">Tentativas/aluno</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr
+                                                v-for="item in metrics.assessmentEpisodes"
+                                                :key="item.episodeId"
+                                                class="cursor-pointer hover:bg-surface-2/40"
+                                                @click="openAssessmentDetails(item)"
+                                            >
+                                                <td class="font-medium">{{ item.title }}</td>
+                                                <td>{{ formatAssessmentMode(item.mode) }}</td>
+                                                <td class="text-right">{{ item.studentsTried }}</td>
+                                                <td class="text-right">{{ item.passRate }}%</td>
+                                                <td class="text-right">{{ item.averageScore }}%</td>
+                                                <td class="text-right">{{ item.attemptsPerStudent }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div v-else class="sd-notice mt-4">
+                                    Nenhuma atividade encontrada com os filtros selecionados.
                                 </div>
                             </div>
                         </div>
 
-                        <EpisodeForm
-                            v-if="showForm"
-                            :editing="editing"
-                            :model-value="selectedEpisode"
-                            @submit="handleSubmit"
-                            @cancel="resetForm"
-                        />
+                        <div v-if="activeSection === 'events'" class="sd-card p-6">
+                            <div class="flex justify-between items-center gap-3 flex-wrap">
+                                <h2 class="sd-section-title">
+                                    Eventos recentes
+                                    <span class="text-sm text-muted">({{ metrics.recentEvents.length }})</span>
+                                </h2>
+                                <button
+                                    class="sd-button sd-button-secondary px-3 py-2 text-sm"
+                                    type="button"
+                                    :disabled="loadingMetrics"
+                                    @click="loadMetrics"
+                                >
+                                    {{ loadingMetrics ? 'Atualizando...' : 'Atualizar eventos' }}
+                                </button>
+                            </div>
+                            <div v-if="metricsError" class="sd-error mt-4">
+                                {{ metricsError }}
+                            </div>
+                            <div class="mt-2 max-h-80 overflow-y-auto overscroll-contain pr-1">
+                                <div class="space-y-2" v-if="metrics.recentEvents.length">
+                                    <div
+                                        v-for="(event, index) in metrics.recentEvents"
+                                        :key="event.id || `${event.username}-${event.type}-${index}`"
+                                        class="sd-list-item p-3 flex justify-between gap-4 flex-wrap"
+                                    >
+                                        <span class="text-sm break-words">
+                                            <b>{{ event.username }}</b> • {{ event.type }}
+                                        </span>
+                                        <span class="text-xs text-muted">
+                                            XP {{ event.xpDelta >= 0 ? '+' : '' }}{{ event.xpDelta }} • Moedas {{ event.coinsDelta >= 0 ? '+' : '' }}{{ event.coinsDelta }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div v-else class="sd-notice">
+                                    Sem eventos de gamificação ainda.
+                                </div>
+                            </div>
+                        </div>
 
-                        <div class="sd-card sd-card-section p-6 overflow-auto">
+                        <div v-if="activeSection === 'episodes' && showForm">
+                            <EpisodeForm
+                                :editing="editing"
+                                :model-value="selectedEpisode"
+                                @submit="handleSubmit"
+                                @cancel="resetForm"
+                            />
+                        </div>
+
+                        <div v-if="activeSection === 'episodes'" class="sd-card sd-card-section p-6 overflow-auto">
                             <div v-if="actionError" class="sd-error mb-4">
                                 {{ actionError }}
                             </div>
@@ -121,6 +216,7 @@
                                 <thead>
                                     <tr>
                                         <th>Título</th>
+                                        <th>Tipo</th>
                                         <th class="text-right">Ano</th>
                                         <th class="text-center">Status</th>
                                         <th>Categoria</th>
@@ -134,6 +230,11 @@
                                         class="hover:bg-surface-2/40"
                                     >
                                         <td class="font-medium">{{ episode.title }}</td>
+                                        <td>
+                                            <span class="sd-badge">
+                                                {{ episode.episode_type === 'assessment' ? 'Avaliativo' : 'Estudo' }}
+                                            </span>
+                                        </td>
                                         <td class="text-right">{{ episode.year_target }}º ano</td>
                                         <td class="text-center">
                                             <span
@@ -182,7 +283,7 @@
                                     </tr>
 
                                     <tr v-if="episodes.length === 0">
-                                        <td colspan="5" class="py-8 text-center text-muted">
+                                        <td colspan="6" class="py-8 text-center text-muted">
                                             Nenhum episódio cadastrado.
                                         </td>
                                     </tr>
@@ -233,6 +334,53 @@
                 </div>
             </main>
         </PageContainer>
+        <Teleport to="body">
+            <div
+                v-if="selectedAssessment"
+                class="row-actions-menu-overlay"
+                role="dialog"
+                aria-modal="true"
+                aria-label="Detalhes da atividade avaliativa"
+                @click.self="selectedAssessment = null"
+            >
+                <div class="row-actions-modal" @click.stop>
+                    <div class="flex items-center justify-between gap-2">
+                        <h3 class="sd-card-title">Desempenho por aluno</h3>
+                        <button type="button" class="sd-button sd-button-secondary px-3 py-2 text-sm" @click="selectedAssessment = null">
+                            Fechar
+                        </button>
+                    </div>
+                    <p class="text-sm text-muted mt-1">{{ selectedAssessment.title }} • {{ formatAssessmentMode(selectedAssessment.mode) }}</p>
+                    <div class="mt-4 max-h-[60vh] overflow-auto">
+                        <table class="sd-table">
+                            <thead>
+                                <tr>
+                                    <th>Aluno</th>
+                                    <th class="text-right">Tentativas</th>
+                                    <th class="text-right">Melhor nota</th>
+                                    <th class="text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="student in selectedAssessment.students" :key="`${selectedAssessment.episodeId}-${student.userId}`">
+                                    <td>{{ student.username }}</td>
+                                    <td class="text-right">{{ student.attemptsUsed }}</td>
+                                    <td class="text-right">{{ student.bestScore }}%</td>
+                                    <td class="text-center">
+                                        <span class="sd-badge" :class="student.passed ? 'sd-badge-published' : 'sd-badge-draft'">
+                                            {{ student.passed ? 'Aprovado' : 'Reprovado' }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr v-if="!selectedAssessment.students?.length">
+                                    <td colspan="4" class="py-6 text-center text-muted">Sem dados de alunos para esta atividade.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </Teleport>
         <Footer />
     </div>
 </template>
@@ -263,8 +411,18 @@ const metrics = ref({
         missionClaims: 0,
         rewardsRedeemed: 0
     },
+    assessmentSummary: {
+        totalAssessmentEpisodes: 0,
+        totalAssessmentAttempts: 0,
+        averagePassRate: 0,
+        averageScore: 0,
+        averageAttemptsPerStudent: 0
+    },
+    assessmentEpisodes: [],
     recentEvents: []
 });
+const activeSection = ref('metrics');
+const selectedAssessment = ref(null);
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
 const perPageOptions = [5, 10, 20, 50];
@@ -316,6 +474,17 @@ async function loadMetrics() {
     } finally {
         loadingMetrics.value = false;
     }
+}
+
+function formatAssessmentMode(mode) {
+    if (mode === 'quiz') return 'Quiz';
+    if (mode === 'open_text') return 'Resposta aberta';
+    if (mode === 'mini_game') return 'Mini game';
+    return '—';
+}
+
+function openAssessmentDetails(item) {
+    selectedAssessment.value = item;
 }
 
 function goToPrevPage() {
@@ -451,5 +620,26 @@ onBeforeUnmount(() => {
 
 .row-actions-item-danger {
     color: color-mix(in srgb, var(--danger) 78%, white);
+}
+
+.row-actions-menu-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(3, 8, 20, 0.72);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    z-index: 80;
+}
+
+.row-actions-modal {
+    width: 100%;
+    max-width: 880px;
+    border-radius: 14px;
+    border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
+    background: color-mix(in srgb, var(--surface) 98%, transparent);
+    padding: 18px;
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.38);
 }
 </style>

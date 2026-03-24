@@ -33,11 +33,21 @@
                     </svg>
                 </Badge>
                 <Badge tone="primary">+{{ episode.xp_reward || 40 }} XP</Badge>
+                <Badge v-if="episode.episode_type === 'assessment'" tone="audio">Avaliativo</Badge>
                 <Badge>{{ episode.year_target }}º ano</Badge>
                 <Badge>{{ episode.category }}</Badge>
                 <Badge v-if="episode.duration_label">{{ episode.duration_label }}</Badge>
                 <Badge v-if="episode.audio_url" tone="audio">Áudio</Badge>
                 <Badge v-if="episode.pdf_url" tone="pdf">PDF</Badge>
+                <Badge
+                    v-if="episode.episode_type === 'assessment' && episode.assessment_best_score !== null && episode.assessment_best_score !== undefined"
+                    :tone="episode.assessment_best_score >= (episode.passing_score || 60) ? 'success' : 'neutral'"
+                >
+                    Nota: {{ Math.round(episode.assessment_best_score) }}%
+                </Badge>
+                <Badge v-if="episode.episode_type === 'assessment'" tone="neutral">
+                    Tentativas: {{ attemptsUsed }}/{{ maxAttempts }}
+                </Badge>
             </div>
 
             <h3 class="sd-card-title">
@@ -98,17 +108,19 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import Card from './ui/Card.vue';
 import Badge from './ui/Badge.vue';
 import { useAuthStore } from '../stores/auth';
 
-defineProps({ episode: Object });
+const props = defineProps({ episode: Object });
 
 const auth = useAuthStore();
 const router = useRouter();
 const showLoginPrompt = ref(false);
+const attemptsUsed = computed(() => Number(props.episode?.assessment_attempts_used || 0));
+const maxAttempts = computed(() => Number(props.episode?.max_attempts || 1));
 
 function goToStudentAuth() {
     closeLoginPrompt();

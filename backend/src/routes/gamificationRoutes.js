@@ -9,6 +9,8 @@ import {
     getMyHistory,
     getMyGamification,
     getPreviewGamification,
+    startAssessmentAttempt,
+    submitAssessmentAttempt,
     redeemReward
 } from '../controllers/gamificationController.js';
 
@@ -19,6 +21,8 @@ router.get('/leaderboard', getLeaderboard);
 router.get('/me', authRequired, getMyGamification);
 router.get('/history/me', authRequired, getMyHistory);
 router.post('/episodes/:episodeId/complete', authRequired, completeEpisode);
+router.post('/episodes/:episodeId/attempts/start', authRequired, startAssessmentAttempt);
+router.post('/episodes/:episodeId/attempts/submit', authRequired, submitAssessmentAttempt);
 router.post('/missions/:missionKey/claim', authRequired, claimMission);
 router.post('/rewards/:rewardKey/redeem', authRequired, redeemReward);
 router.post('/rewards/:rewardKey/activate', authRequired, activateReward);

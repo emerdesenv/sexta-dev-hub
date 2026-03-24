@@ -67,6 +67,15 @@
                     </label>
 
                     <label class="flex-1">
+                        <span class="sd-label">Tipo de episódio</span>
+                        <select class="sd-input" v-model="filters.type">
+                            <option value="">Todos os tipos</option>
+                            <option value="study">Estudo</option>
+                            <option value="assessment">Avaliativo</option>
+                        </select>
+                    </label>
+
+                    <label class="flex-1">
                         <span class="sd-label">Categoria</span>
                         <input
                             class="sd-input"
@@ -119,7 +128,7 @@ import { useAuthStore } from '../stores/auth';
 const episodes = ref([]);
 const loading = ref(false);
 const error = ref('');
-const filters = reactive({ year: '', category: '' });
+const filters = reactive({ year: '', type: '', category: '' });
 const githubUrl = import.meta.env.VITE_GITHUB_URL || '';
 const streakShieldCount = ref(0);
 const auth = useAuthStore();
@@ -139,6 +148,7 @@ function applyCompletionState(list) {
 async function loadEpisodes() {
     const params = {};
     if (filters.year) params.year = filters.year;
+    if (filters.type) params.type = filters.type;
     if (filters.category) params.category = filters.category;
 
     loading.value = true;

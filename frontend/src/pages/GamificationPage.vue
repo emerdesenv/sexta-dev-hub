@@ -117,6 +117,55 @@
             </section>
 
             <section class="mt-8">
+                <h2 class="sd-section-title">Desempenho em atividades</h2>
+                <div v-if="auth.isAuthenticated" class="mt-4 grid gap-4 md:grid-cols-4">
+                    <article class="sd-card sd-card-item p-4">
+                        <div class="text-muted text-sm">Média de nota</div>
+                        <strong class="text-2xl font-extrabold">{{ assessmentStats.averageScore }}%</strong>
+                    </article>
+                    <article class="sd-card sd-card-item p-4">
+                        <div class="text-muted text-sm">Taxa de aprovação</div>
+                        <strong class="text-2xl font-extrabold">{{ assessmentStats.passRate }}%</strong>
+                    </article>
+                    <article class="sd-card sd-card-item p-4">
+                        <div class="text-muted text-sm">Tentativas totais</div>
+                        <strong class="text-2xl font-extrabold">{{ assessmentStats.totalAttempts }}</strong>
+                    </article>
+                    <article class="sd-card sd-card-item p-4">
+                        <div class="text-muted text-sm">Atividades avaliativas</div>
+                        <strong class="text-2xl font-extrabold">{{ assessmentStats.distinctActivities }}</strong>
+                    </article>
+                </div>
+                <div v-if="auth.isAuthenticated" class="sd-card sd-card-section mt-4 p-4">
+                    <h3 class="sd-card-title">Últimas tentativas</h3>
+                    <div v-if="assessmentAttempts.length" class="space-y-2 mt-3">
+                        <router-link
+                            v-for="attempt in assessmentAttempts.slice(0, 8)"
+                            :key="attempt.attemptId"
+                            :to="`/episodio/${attempt.slug}`"
+                            class="sd-list-item flex justify-between items-center p-3"
+                        >
+                            <span class="text-sm">
+                                {{ attempt.title }} • Tentativa {{ attempt.attemptNumber }}
+                            </span>
+                            <span class="inline-flex items-center gap-2">
+                                <span class="text-xs text-muted">Nota {{ attempt.score ?? '-' }}%</span>
+                                <Badge :tone="attempt.passed ? 'success' : 'neutral'">
+                                    {{ attempt.passed ? 'Aprovado' : 'Reprovado' }}
+                                </Badge>
+                            </span>
+                        </router-link>
+                    </div>
+                    <div v-else class="sd-notice mt-3">
+                        Sem tentativas avaliativas registradas ainda.
+                    </div>
+                </div>
+                <div v-else class="sd-notice mt-4">
+                    Entre como aluno para acompanhar suas métricas de desempenho em atividades.
+                </div>
+            </section>
+
+            <section class="mt-8">
                 <h2 class="sd-section-title">Conquistas</h2>
                 <div class="mt-4 grid gap-4 md:grid-cols-3">
                     <article
@@ -227,6 +276,7 @@ const leaderboard = ref([]);
 const loadingAction = ref(false);
 const notice = ref('');
 const errorMessage = ref('');
+const assessmentAttempts = ref([]);
 const isShowcase = computed(() => !auth.isAuthenticated);
 
 const levelPercent = computed(() => {
@@ -239,6 +289,26 @@ function missionPercent(mission) {
     if (!mission?.target) return 0;
     return Math.min(100, Math.round((mission.progress / mission.target) * 100));
 }
+
+const assessmentStats = computed(() => {
+    const attempts = assessmentAttempts.value;
+    if (!attempts.length) {
+        return { averageScore: 0, passRate: 0, totalAttempts: 0, distinctActivities: 0 };
+    }
+    const withScore = attempts.filter((item) => Number.isFinite(Number(item.score)));
+    const averageScore = withScore.length
+        ? Math.round(withScore.reduce((sum, item) => sum + Number(item.score), 0) / withScore.length)
+        : 0;
+    const passedCount = attempts.filter((item) => item.passed).length;
+    const passRate = Math.round((passedCount / attempts.length) * 100);
+    const distinctActivities = new Set(attempts.map((item) => item.episodeId)).size;
+    return {
+        averageScore,
+        passRate,
+        totalAttempts: attempts.length,
+        distinctActivities
+    };
+});
 
 function goToStudentAuth() {
     router.push('/aluno');
@@ -272,10 +342,17 @@ function rewardHelpText(rewardKey) {
 
 async function loadData() {
     const endpoint = auth.isAuthenticated ? '/gamification/me' : '/gamification/preview';
-    const [{ data: snapshot }, { data: ranking }] = await Promise.all([
+    const requests = [
         api.get(endpoint),
         api.get('/gamification/leaderboard')
-    ]);
+    ];
+    if (auth.isAuthenticated) {
+        requests.push(api.get('/gamification/history/me'));
+    }
+    const responses = await Promise.all(requests);
+    const snapshot = responses[0].data;
+    const ranking = responses[1].data;
+    const historyData = auth.isAuthenticated ? responses[2].data : null;
 
     data.value = {
         profile: snapshot.profile,
@@ -283,6 +360,9 @@ async function loadData() {
         badges: snapshot.badges || [],
         rewards: snapshot.rewards || []
     };
+    assessmentAttempts.value = Array.isArray(historyData?.assessmentAttempts)
+        ? historyData.assessmentAttempts
+        : [];
     leaderboard.value = ranking?.length ? ranking : (snapshot.leaderboard || []);
 }
 

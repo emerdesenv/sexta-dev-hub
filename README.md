@@ -194,6 +194,14 @@ Logs de um serviço específico:
 docker compose logs -f backend
 ```
 
+### Aplicar migração manual (episódios avaliativos)
+
+Se seu banco já existia antes da feature de avaliação, rode a migração SQL:
+
+```bash
+docker exec -i sexta_dev_mysql mysql -u root -p"$MYSQL_ROOT_PASSWORD" "$DB_NAME" < backend/src/scripts/migration_assessment_episode.sql
+```
+
 ------------------------------------------------------------------------
 
 # 💾 Backup do Banco de Dados
