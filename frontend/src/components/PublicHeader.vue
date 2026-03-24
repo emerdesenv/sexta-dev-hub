@@ -6,14 +6,7 @@
             </router-link>
 
             <nav class="hidden md:flex items-center gap-2">
-                <button
-                    type="button"
-                    class="sd-button sd-button-secondary px-3 py-2 text-sm"
-                    :title="themeButtonTitle"
-                    @click="toggleTheme"
-                >
-                    {{ themeButtonLabel }}
-                </button>
+                
                 <router-link
                     class="sd-button sd-button-secondary px-3 py-2 text-sm"
                     to="/gamificacao"
@@ -65,14 +58,7 @@
             </nav>
 
             <nav class="md:hidden flex items-center gap-2">
-                <button
-                    type="button"
-                    class="sd-button sd-button-secondary px-3 py-2 text-sm"
-                    :title="themeButtonTitle"
-                    @click="toggleTheme"
-                >
-                    {{ themeButtonLabel }}
-                </button>
+              
                 <router-link
                     class="sd-button sd-button-secondary px-3 py-2 text-sm"
                     to="/gamificacao"
@@ -146,12 +132,6 @@ const themeButtonLabel = computed(() => {
     if (auth.uiTheme === 'light') return 'Tema: Claro';
     if (auth.uiTheme === 'dark') return 'Tema: Escuro';
     return 'Tema: Sistema';
-});
-
-const themeButtonTitle = computed(() => {
-    if (auth.uiTheme === 'light') return 'Trocar para tema escuro';
-    if (auth.uiTheme === 'dark') return 'Trocar para tema do sistema';
-    return 'Trocar para tema claro';
 });
 
 function closeMenu() {
