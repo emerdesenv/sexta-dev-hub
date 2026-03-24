@@ -5,7 +5,7 @@
             <section class="sd-card p-6 md:p-7">
                 <div class="flex items-start justify-between gap-4 flex-wrap">
                     <div>
-                        <Badge tone="primary">Gamificacao</Badge>
+                        <Badge tone="primary">Gamificação</Badge>
                         <Badge v-if="isShowcase" tone="pdf" class="ml-2">Modo vitrine</Badge>
                         <h1 class="mt-3 text-3xl sm:text-4xl font-extrabold">Sua jornada de evolução</h1>
                         <p class="mt-3 text-muted max-w-3xl">

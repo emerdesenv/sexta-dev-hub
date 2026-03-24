@@ -10,14 +10,14 @@
                     class="sd-button sd-button-secondary px-3 py-2 text-sm"
                     to="/gamificacao"
                 >
-                    Gamificacao
+                    Gamificação
                 </router-link>
                 <router-link
                     v-if="!auth.isAuthenticated"
                     class="sd-button sd-button-secondary px-3 py-2 text-sm"
                     to="/aluno"
                 >
-                    Entrar aluno
+                    Aluno
                 </router-link>
                 <div v-if="auth.isAuthenticated" class="relative" ref="menuRef">
                     <button
@@ -61,14 +61,14 @@
                     class="sd-button sd-button-secondary px-3 py-2 text-sm"
                     to="/gamificacao"
                 >
-                    Gamificacao
+                    Gamificação
                 </router-link>
                 <router-link
                     v-if="!auth.isAuthenticated"
                     class="sd-button sd-button-secondary px-3 py-2 text-sm"
                     to="/aluno"
                 >
-                    Entrar aluno
+                    Aluno
                 </router-link>
                 <div v-if="auth.isAuthenticated" class="relative" ref="menuRef">
                     <button
