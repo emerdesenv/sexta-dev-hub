@@ -37,15 +37,20 @@
                         <input class="sd-input" v-model="form.username" required />
                     </label>
 
-                    <label class="flex flex-col gap-2">
-                        <span class="sd-label">Senha</span>
-                        <input class="sd-input" type="password" v-model="form.password" required />
-                    </label>
+                    <PasswordInput
+                        v-model="form.password"
+                        label="Senha"
+                        required
+                        :autocomplete="tab === 'login' ? 'current-password' : 'new-password'"
+                    />
 
-                    <label v-if="tab === 'register'" class="flex flex-col gap-2">
-                        <span class="sd-label">Confirmar senha</span>
-                        <input class="sd-input" type="password" v-model="form.confirmPassword" required />
-                    </label>
+                    <PasswordInput
+                        v-if="tab === 'register'"
+                        v-model="form.confirmPassword"
+                        label="Confirmar senha"
+                        required
+                        autocomplete="new-password"
+                    />
 
                     <p v-if="tab === 'register'" class="text-xs text-muted">
                         Use ao menos 8 caracteres com letras e números.
@@ -69,6 +74,7 @@ import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import PublicHeader from '../components/PublicHeader.vue';
 import Footer from '../components/layout/Footer.vue';
+import PasswordInput from '../components/ui/PasswordInput.vue';
 import api from '../services/api';
 import { useAuthStore } from '../stores/auth';
 

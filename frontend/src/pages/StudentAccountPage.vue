@@ -37,18 +37,24 @@
                 <div v-if="notice" class="sd-notice mt-3">{{ notice }}</div>
                 <div v-if="error" class="sd-error mt-3">{{ error }}</div>
                 <form class="mt-4 grid gap-4 max-w-lg" @submit.prevent="updatePassword">
-                    <label class="flex flex-col gap-2">
-                        <span class="sd-label">Senha atual</span>
-                        <input class="sd-input" type="password" v-model="passwordForm.currentPassword" required />
-                    </label>
-                    <label class="flex flex-col gap-2">
-                        <span class="sd-label">Nova senha</span>
-                        <input class="sd-input" type="password" v-model="passwordForm.newPassword" required />
-                    </label>
-                    <label class="flex flex-col gap-2">
-                        <span class="sd-label">Confirmar nova senha</span>
-                        <input class="sd-input" type="password" v-model="passwordForm.confirmPassword" required />
-                    </label>
+                    <PasswordInput
+                        v-model="passwordForm.currentPassword"
+                        label="Senha atual"
+                        required
+                        autocomplete="current-password"
+                    />
+                    <PasswordInput
+                        v-model="passwordForm.newPassword"
+                        label="Nova senha"
+                        required
+                        autocomplete="new-password"
+                    />
+                    <PasswordInput
+                        v-model="passwordForm.confirmPassword"
+                        label="Confirmar nova senha"
+                        required
+                        autocomplete="new-password"
+                    />
                     <p class="text-xs text-muted">Use ao menos 8 caracteres com letras e números.</p>
                     <button class="sd-button sd-button-primary w-fit" type="submit" :disabled="loadingPassword">
                         {{ loadingPassword ? 'Salvando...' : 'Salvar nova senha' }}
@@ -104,6 +110,7 @@ import PublicHeader from '../components/PublicHeader.vue';
 import PageContainer from '../components/layout/PageContainer.vue';
 import Footer from '../components/layout/Footer.vue';
 import Badge from '../components/ui/Badge.vue';
+import PasswordInput from '../components/ui/PasswordInput.vue';
 import api from '../services/api';
 
 const profile = ref({ username: '' });

@@ -18,15 +18,12 @@
                         <input class="sd-input" v-model="form.username" required />
                     </label>
 
-                    <label class="flex flex-col gap-2">
-                        <span class="sd-label">Senha</span>
-                        <input
-                            class="sd-input"
-                            type="password"
-                            v-model="form.password"
-                            required
-                        />
-                    </label>
+                    <PasswordInput
+                        v-model="form.password"
+                        label="Senha"
+                        required
+                        autocomplete="current-password"
+                    />
 
                     <div class="pt-2">
                         <Button
@@ -59,6 +56,7 @@ import { useRouter } from 'vue-router';
 import PublicHeader from '../components/PublicHeader.vue';
 import { useAuthStore } from '../stores/auth';
 import Button from '../components/ui/Button.vue';
+import PasswordInput from '../components/ui/PasswordInput.vue';
 import Footer from '../components/layout/Footer.vue';
 
 const router = useRouter();

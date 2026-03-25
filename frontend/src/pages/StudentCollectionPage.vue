@@ -28,8 +28,14 @@
                                         {{ rarityLabel(entry.item?.rarity) }} • {{ typeLabel(entry.item?.type) }}
                                     </p>
                                 </div>
-                                <span class="text-2xl" aria-hidden="true">
-                                    <template v-if="entry.item?.icon">
+                                <span class="text-2xl inline-flex items-center justify-center min-h-7 min-w-7" aria-hidden="true">
+                                    <img
+                                        v-if="isImageIcon(entry.item?.icon)"
+                                        :src="entry.item?.icon"
+                                        alt=""
+                                        class="h-7 w-7 rounded object-contain"
+                                    />
+                                    <template v-else-if="entry.item?.icon">
                                         {{ entry.item.icon }}
                                     </template>
                                     <svg
@@ -104,6 +110,7 @@ import PageContainer from '../components/layout/PageContainer.vue';
 import Footer from '../components/layout/Footer.vue';
 import Badge from '../components/ui/Badge.vue';
 import api from '../services/api';
+import { isImageIcon } from '../constants/collectibleIcons';
 
 const loading = ref(false);
 const error = ref('');

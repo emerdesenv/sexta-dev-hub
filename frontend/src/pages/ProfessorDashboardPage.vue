@@ -251,9 +251,32 @@
                                             </label>
                                         </div>
                                         <label class="flex flex-col gap-2">
-                                            <span class="sd-label">Ícone (emoji ou texto curto)</span>
-                                            <input class="sd-input" v-model="itemForm.icon" placeholder="🧢" />
+                                            <span class="sd-label">Ícone do catálogo</span>
+                                            <select class="sd-input" v-model="itemForm.icon">
+                                                <option value="">Sem ícone</option>
+                                                <option
+                                                    v-for="opt in iconCatalog"
+                                                    :key="opt.value"
+                                                    :value="opt.value"
+                                                >
+                                                    {{ opt.label }}
+                                                </option>
+                                            </select>
                                         </label>
+                                        <label class="flex flex-col gap-2">
+                                            <span class="sd-label">Ou informe emoji/texto curto (opcional)</span>
+                                            <input class="sd-input" v-model="itemForm.icon" placeholder="/assets/collectibles/cap.svg ou 🧢" />
+                                        </label>
+                                        <div v-if="itemForm.icon" class="flex items-center gap-2 text-sm text-muted">
+                                            <img
+                                                v-if="isImageIcon(itemForm.icon)"
+                                                :src="itemForm.icon"
+                                                alt="Prévia do ícone"
+                                                class="h-7 w-7 rounded object-contain"
+                                            />
+                                            <span v-else class="text-xl leading-none">{{ itemForm.icon }}</span>
+                                            <span>Prévia do item</span>
+                                        </div>
                                         <button class="sd-button sd-button-primary w-fit" type="submit" :disabled="savingLimited">
                                             {{ savingLimited ? 'Salvando...' : 'Criar item' }}
                                         </button>
@@ -303,7 +326,7 @@
                                             <select class="sd-input" v-model="eventForm.rewardItemId" required>
                                                 <option value="" disabled>Selecione um item</option>
                                                 <option v-for="item in collectibleItems" :key="item.id" :value="String(item.id)">
-                                                    {{ item.icon || '🎁' }} {{ item.title }} ({{ item.rarity }})
+                                                    {{ item.title }} ({{ item.rarity }})
                                                 </option>
                                             </select>
                                         </label>
@@ -338,7 +361,16 @@
                                                     </span>
                                                 </td>
                                                 <td class="text-sm">
-                                                    {{ ev.reward?.icon || '🎁' }} {{ ev.reward?.title || '-' }}
+                                                    <span class="inline-flex items-center gap-2">
+                                                        <img
+                                                            v-if="isImageIcon(ev.reward?.icon)"
+                                                            :src="ev.reward?.icon"
+                                                            alt=""
+                                                            class="h-5 w-5 rounded object-contain"
+                                                        />
+                                                        <span v-else>{{ ev.reward?.icon || '🎁' }}</span>
+                                                        <span>{{ ev.reward?.title || '-' }}</span>
+                                                    </span>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -617,6 +649,7 @@ import api from '../services/api';
 import { useAuthStore } from '../stores/auth';
 import PageContainer from '../components/layout/PageContainer.vue';
 import Footer from '../components/layout/Footer.vue';
+import { collectibleIconCatalog, isImageIcon } from '../constants/collectibleIcons';
 const auth = useAuthStore();
 const episodes = ref([]);
 const showForm = ref(false);
@@ -660,13 +693,14 @@ const students = ref([]);
 const loadingStudents = ref(false);
 const studentsError = ref('');
 const mutatingStudentId = ref(null);
+const iconCatalog = collectibleIconCatalog;
 
 const itemForm = ref({
     key: '',
     title: '',
     type: 'badge',
     rarity: 'rare',
-    icon: ''
+    icon: collectibleIconCatalog[0]?.value || ''
 });
 
 const eventForm = ref({
@@ -750,7 +784,13 @@ async function createItem() {
             icon: itemForm.value.icon ? String(itemForm.value.icon).trim() : null
         });
         limitedNotice.value = 'Item criado com sucesso.';
-        itemForm.value = { key: '', title: '', type: 'badge', rarity: 'rare', icon: '' };
+        itemForm.value = {
+            key: '',
+            title: '',
+            type: 'badge',
+            rarity: 'rare',
+            icon: collectibleIconCatalog[0]?.value || ''
+        };
         await loadLimitedData();
     } catch (e) {
         limitedError.value = e?.response?.data?.message || 'Não foi possível criar o item.';
