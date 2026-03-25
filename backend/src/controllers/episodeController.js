@@ -2,7 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import slugify from 'slugify';
 import { z } from 'zod';
-import { Episode, EpisodeAttempt, UserGamification } from '../models/index.js';
+import { Episode, EpisodeAttempt, UserEpisodeAttemptCredit, UserEpisodeProgress, UserGamification } from '../models/index.js';
+
+const TROPHY_TIER_VALUES = ['bronze', 'silver', 'gold', 'platinum'];
 
 const episodeSchema = z.object({
     ordering: z.coerce.number().int().min(0).optional().default(0),
@@ -17,11 +19,25 @@ const episodeSchema = z.object({
     passing_score: z.coerce.number().int().min(0).max(100).optional().default(60),
     time_limit_sec: z.coerce.number().int().min(30).max(7200).optional().nullable(),
     xp_reward: z.coerce.number().int().min(0).max(1000).optional().default(40),
+    trophy_tier: z.enum(TROPHY_TIER_VALUES).nullable().optional().default(null),
     is_published: z.coerce.boolean().optional().default(false),
     early_access_only: z.coerce.boolean().optional().default(false),
     duration_label: z.string().max(40).optional().or(z.literal('')),
     tags: z.string().optional().default('')
 });
+
+function normalizeTrophyTierInBody(body) {
+    if (!body || typeof body !== 'object' || !Object.prototype.hasOwnProperty.call(body, 'trophy_tier')) {
+        return;
+    }
+    const raw = body.trophy_tier;
+    if (raw === '' || raw === null || raw === undefined) {
+        body.trophy_tier = null;
+        return;
+    }
+    const s = String(raw).toLowerCase();
+    body.trophy_tier = TROPHY_TIER_VALUES.includes(s) ? s : null;
+}
 
 function parseAssessmentConfig(input) {
     if (input === null || input === undefined || input === '') return null;
@@ -151,13 +167,28 @@ async function enrichAssessmentProgressForUser(episodes, userId) {
         .map((episode) => episode.id);
     if (!assessmentIds.length) return episodes.map((episode) => toEpisodeResponse(episode));
 
-    const attempts = await EpisodeAttempt.findAll({
-        where: { user_id: userId, episode_id: assessmentIds },
-        attributes: ['episode_id', 'score', 'passed']
-    });
+    const [attemptRows, credits] = await Promise.all([
+        EpisodeAttempt.findAll({
+            where: { user_id: userId, episode_id: assessmentIds },
+            attributes: ['episode_id', 'score', 'passed']
+        }),
+        UserEpisodeAttemptCredit.findAll({
+            where: { user_id: userId, episode_id: assessmentIds },
+            attributes: ['episode_id', 'extra_attempts'],
+            raw: true
+        })
+    ]);
+
+    const extraAttemptsByEpisodeId = new Map(
+        credits.map((row) => [Number(row.episode_id), Number(row.extra_attempts || 0)])
+    );
+
+    const effectiveMaxForEpisode = (episode) => (
+        Number(episode.max_attempts || 1) + Math.max(0, extraAttemptsByEpisodeId.get(Number(episode.id)) || 0)
+    );
 
     const grouped = new Map();
-    for (const attempt of attempts) {
+    for (const attempt of attemptRows) {
         const episodeId = Number(attempt.episode_id);
         const list = grouped.get(episodeId) || [];
         list.push({
@@ -176,14 +207,31 @@ async function enrichAssessmentProgressForUser(episodes, userId) {
         ), 0);
         const passed = episodeAttempts.some((item) => item.passed);
         const attemptsUsed = episodeAttempts.length;
+        const effectiveMaxAttempts = effectiveMaxForEpisode(episode);
         return {
             ...payload,
             assessment_attempts_used: attemptsUsed,
             assessment_best_score: attemptsUsed ? bestScore : null,
             assessment_passed: passed,
-            assessment_locked: !passed && attemptsUsed >= Number(episode.max_attempts || 1)
+            assessment_locked: !passed && attemptsUsed >= effectiveMaxAttempts,
+            assessment_max_attempts_effective: effectiveMaxAttempts
         };
     });
+}
+
+async function enrichCompletionForUser(payloads, userId) {
+    const ids = payloads.map((episode) => Number(episode.id)).filter((id) => Number.isInteger(id) && id > 0);
+    if (!ids.length) return payloads.map((episode) => ({ ...episode, completed: false }));
+    const progressRows = await UserEpisodeProgress.findAll({
+        where: { user_id: userId, episode_id: ids },
+        attributes: ['episode_id'],
+        raw: true
+    });
+    const completedIds = new Set(progressRows.map((row) => Number(row.episode_id)));
+    return payloads.map((episode) => ({
+        ...episode,
+        completed: completedIds.has(Number(episode.id))
+    }));
 }
 
 export async function listPublic(req, res) {
@@ -210,7 +258,9 @@ export async function listPublic(req, res) {
         ],
     });
     if (req.user?.id) {
-        return res.json(await enrichAssessmentProgressForUser(episodes, req.user.id));
+        const withAssessment = await enrichAssessmentProgressForUser(episodes, req.user.id);
+        const withCompleted = await enrichCompletionForUser(withAssessment, req.user.id);
+        return res.json(withCompleted);
     }
     return res.json(episodes.map((ep) => toEpisodeResponse(ep)));
 }
@@ -238,6 +288,10 @@ export async function getPublicBySlug(req, res) {
     if (!req.user?.id || episode.episode_type !== 'assessment') {
         return res.json(toEpisodeResponse(episode));
     }
+    const viewerProfile = await UserGamification.findOne({
+        where: { user_id: req.user.id },
+        attributes: ['xp_total']
+    });
     const attempts = await EpisodeAttempt.findAll({
         where: { user_id: req.user.id, episode_id: episode.id },
         attributes: ['id', 'attempt_number', 'score', 'passed', 'answers', 'submitted_at']
@@ -248,6 +302,11 @@ export async function getPublicBySlug(req, res) {
     }, 0);
     const passed = attempts.some((item) => Boolean(item.passed));
     const attemptsUsed = attempts.length;
+    const credit = await UserEpisodeAttemptCredit.findOne({
+        where: { user_id: req.user.id, episode_id: episode.id },
+        attributes: ['extra_attempts']
+    });
+    const effectiveMaxAttempts = Number(episode.max_attempts || 1) + Math.max(0, Number(credit?.extra_attempts || 0));
     const latestAttempt = [...attempts]
         .sort((a, b) => {
             const left = new Date(a.submitted_at || 0).getTime();
@@ -265,13 +324,15 @@ export async function getPublicBySlug(req, res) {
             passed: Boolean(item.passed),
             submittedAt: item.submitted_at || null
         }));
-    const locked = !passed && attemptsUsed >= Number(episode.max_attempts || 1);
+    const locked = !passed && attemptsUsed >= effectiveMaxAttempts;
     return res.json({
         ...toEpisodeResponse(episode),
+        viewer_xp_total: Number(viewerProfile?.xp_total || 0),
         assessment_attempts_used: attemptsUsed,
         assessment_best_score: attemptsUsed ? bestScore : null,
         assessment_passed: passed,
         assessment_locked: locked,
+        assessment_max_attempts_effective: effectiveMaxAttempts,
         assessment_wrong_answers: locked ? [] : wrongAnswersReview,
         assessment_attempt_history: attemptHistory
     });
@@ -284,6 +345,7 @@ function removeFileIfExists(relativePath) {
 }
 
 export async function createEpisode(req, res) {
+    normalizeTrophyTierInBody(req.body);
     const data = episodeSchema.parse(req.body);
     const parsedAssessmentConfig = parseAssessmentConfig(data.assessment_config);
     if (data.episode_type === 'assessment' && !data.assessment_mode) {
@@ -310,6 +372,7 @@ export async function updateEpisode(req, res) {
     const episode = await Episode.findByPk(req.params.id);
     if (!episode) return res.status(404).json({ message: 'Episódio não encontrado.' });
 
+    normalizeTrophyTierInBody(req.body);
     const data = episodeSchema.partial().parse(req.body);
     const parsedAssessmentConfig = data.assessment_config === undefined
         ? undefined

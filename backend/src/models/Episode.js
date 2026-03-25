@@ -16,6 +16,11 @@ export const Episode = sequelize.define('episode', {
     passing_score: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 60 },
     time_limit_sec: { type: DataTypes.INTEGER, allowNull: true },
     xp_reward: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 40 },
+    trophy_tier: {
+        type: DataTypes.ENUM('bronze', 'silver', 'gold', 'platinum'),
+        allowNull: true,
+        defaultValue: null
+    },
     is_published: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     early_access_only: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     cover_path: { type: DataTypes.STRING(255) },

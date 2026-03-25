@@ -11,12 +11,14 @@
         </div>
 
         <div class="p-5 flex flex-col gap-3 flex-1">
-            <div class="flex flex-wrap gap-2">
+            <!-- Linha 1: decisão (poucos sinais com alto destaque) -->
+            <div class="flex flex-wrap gap-2 items-center">
                 <Badge
                     v-if="episode.completed"
                     tone="success"
                     aria-label="Episódio concluído"
                     title="Episódio concluído"
+                    class="!inline-flex !items-center !gap-1"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -31,29 +33,67 @@
                             clip-rule="evenodd"
                         />
                     </svg>
+                    <span class="hidden sm:inline">Concluído</span>
                 </Badge>
-                <Badge tone="primary">+{{ episode.xp_reward || 40 }} XP</Badge>
+
+                <Badge
+                    v-if="episode.trophy_tier"
+                    tone="warning"
+                    class="!inline-flex !items-center !gap-2"
+                    :title="`Este episódio concede troféu ${trophyTierMeta(episode.trophy_tier).label}`"
+                >
+                    <span
+                        class="trophy-pill-dot flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-extrabold text-slate-900 shadow-inner"
+                        :class="trophyTierMeta(episode.trophy_tier).dotClass"
+                        aria-hidden="true"
+                    >
+                        {{ trophyTierMeta(episode.trophy_tier).short }}
+                    </span>
+                    <span class="font-semibold">{{ trophyTierMeta(episode.trophy_tier).label }}</span>
+                </Badge>
+                <Badge
+                    v-else
+                    tone="neutral"
+                    title="Este episódio não concede troféu na coleção"
+                >
+                    Sem troféu
+                </Badge>
+
                 <Badge v-if="episode.episode_type === 'assessment'" tone="audio">Avaliativo</Badge>
-                <Badge>{{ episode.year_target }}º ano</Badge>
-                <Badge>{{ episode.category }}</Badge>
-                <Badge v-if="episode.duration_label">{{ episode.duration_label }}</Badge>
-                <Badge v-if="episode.audio_url" tone="audio">Áudio</Badge>
-                <Badge v-if="episode.pdf_url" tone="pdf">PDF</Badge>
+
+                <Badge tone="primary">+{{ episode.xp_reward || 40 }} XP</Badge>
+
                 <Badge
                     v-if="episode.episode_type === 'assessment' && episode.assessment_best_score !== null && episode.assessment_best_score !== undefined"
                     :tone="episode.assessment_best_score >= (episode.passing_score || 60) ? 'success' : 'neutral'"
                 >
-                    Nota: {{ Math.round(episode.assessment_best_score) }}%
+                    Nota {{ Math.round(episode.assessment_best_score) }}%
                 </Badge>
                 <Badge v-if="episode.episode_type === 'assessment'" tone="neutral">
-                    Tentativas: {{ attemptsUsed }}/{{ maxAttempts }}
+                    {{ attemptsUsed }}/{{ maxAttempts }} tentativas
+                </Badge>
+            </div>
+
+            <!-- Linha 2: contexto (baixo destaque) -->
+            <div class="episode-card-meta flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
+                <span v-for="item in contextItemsVisible" :key="item" class="episode-card-meta-item">
+                    {{ item }}
+                </span>
+                <Badge
+                    v-if="contextItemsOverflowCount > 0"
+                    tone="neutral"
+                    class="!text-xs"
+                    :title="`${contextItemsOverflowCount} detalhe(s) a mais`"
+                    aria-label="Mais detalhes"
+                >
+                    +{{ contextItemsOverflowCount }} mais
                 </Badge>
             </div>
 
             <h3 class="sd-card-title">
                 {{ episode.title }}
             </h3>
-            <p class="sd-card-meta leading-relaxed">
+            <p class="sd-card-meta leading-relaxed episode-card-summary">
                 {{ episode.summary }}
             </p>
 
@@ -120,7 +160,45 @@ const auth = useAuthStore();
 const router = useRouter();
 const showLoginPrompt = ref(false);
 const attemptsUsed = computed(() => Number(props.episode?.assessment_attempts_used || 0));
-const maxAttempts = computed(() => Number(props.episode?.max_attempts || 1));
+const maxAttempts = computed(() => Number(props.episode?.assessment_max_attempts_effective || props.episode?.max_attempts || 1));
+const contextItems = computed(() => {
+    const e = props.episode || {};
+    const items = [];
+    if (e.year_target) items.push(`${e.year_target}º ano`);
+    if (e.category) items.push(String(e.category));
+    if (e.duration_label) items.push(String(e.duration_label));
+    if (e.pdf_url) items.push('PDF');
+    if (e.audio_url) items.push('Áudio');
+    return items;
+});
+
+const CONTEXT_ITEMS_LIMIT = 3;
+const contextItemsVisible = computed(() => contextItems.value.slice(0, CONTEXT_ITEMS_LIMIT));
+const contextItemsOverflowCount = computed(() => Math.max(0, contextItems.value.length - CONTEXT_ITEMS_LIMIT));
+
+const TROPHY_LABELS = {
+    bronze: 'Bronze',
+    silver: 'Prata',
+    gold: 'Ouro',
+    platinum: 'Platina'
+};
+
+function trophyTierLabel(tier) {
+    const t = typeof tier === 'string' ? tier.toLowerCase() : '';
+    return TROPHY_LABELS[t] || tier;
+}
+
+function trophyTierMeta(tier) {
+    const t = typeof tier === 'string' ? tier.toLowerCase() : '';
+    const label = trophyTierLabel(t);
+    const short = t === 'platinum' ? 'P' : (t === 'gold' ? 'G' : (t === 'silver' ? 'S' : 'B'));
+    const dotClass = t === 'platinum'
+        ? 'trophy-pill-dot--platinum'
+        : (t === 'gold'
+            ? 'trophy-pill-dot--gold'
+            : (t === 'silver' ? 'trophy-pill-dot--silver' : 'trophy-pill-dot--bronze'));
+    return { label, short, dotClass };
+}
 
 function goToStudentAuth() {
     closeLoginPrompt();
@@ -137,6 +215,19 @@ function closeLoginPrompt() {
     transform: translateY(-3px);
     box-shadow: 0 18px 36px rgba(0, 0, 0, 0.3);
     border-color: rgba(147, 197, 253, 0.35);
+}
+
+.episode-card-meta-item:not(:last-child)::after {
+    content: '•';
+    margin-left: 0.75rem;
+    color: color-mix(in srgb, var(--text-muted) 65%, transparent);
+}
+
+.episode-card-summary {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .episode-gate-overlay {
@@ -158,5 +249,21 @@ function closeLoginPrompt() {
     background: #111a2f;
     padding: 18px;
     box-shadow: 0 24px 50px rgba(0, 0, 0, 0.38);
+}
+
+.trophy-pill-dot--platinum {
+    background: linear-gradient(145deg, #e2e8f0, #38bdf8, #64748b);
+}
+
+.trophy-pill-dot--gold {
+    background: linear-gradient(145deg, #fde68a, #f59e0b);
+}
+
+.trophy-pill-dot--silver {
+    background: linear-gradient(145deg, #f1f5f9, #94a3b8);
+}
+
+.trophy-pill-dot--bronze {
+    background: linear-gradient(145deg, #fdba74, #b45309);
 }
 </style>

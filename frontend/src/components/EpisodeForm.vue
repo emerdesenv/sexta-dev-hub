@@ -56,6 +56,20 @@
             Disponível apenas para quem resgatou acesso antecipado
         </label>
 
+        <label class="flex flex-col gap-2 max-w-md">
+            <span class="sd-label">Troféu ao concluir (coleção)</span>
+            <select class="sd-input" v-model="form.trophy_tier">
+                <option value="">Nenhum — contagem só por XP/moedas neste episódio</option>
+                <option value="bronze">Bronze</option>
+                <option value="silver">Prata</option>
+                <option value="gold">Ouro</option>
+                <option value="platinum">Platina</option>
+            </select>
+            <span class="text-xs text-muted">
+                Troféus entram na barra da gamificação; não alteram XP ou moedas além do que o episódio já concede.
+            </span>
+        </label>
+
         <label class="flex flex-col gap-2">
             <span class="sd-label">Resumo</span>
             <textarea class="sd-input" rows="5" v-model="form.summary" required />
@@ -211,6 +225,7 @@ const defaults = {
     year_target: 1,
     duration_label: '',
     tags: '',
+    trophy_tier: '',
     is_published: false,
     early_access_only: false,
     summary: '',
@@ -229,6 +244,7 @@ const form = reactive({ ...defaults });
 
 watch(() => props.modelValue, (value) => {
     Object.assign(form, { ...defaults }, value || {});
+    form.trophy_tier = value?.trophy_tier ? String(value.trophy_tier) : '';
     if (Array.isArray(value?.tags)) form.tags = value.tags.join(', ');
     if (value?.assessment_config && typeof value.assessment_config === 'object') {
         form.assessment_config = JSON.parse(JSON.stringify(value.assessment_config));
@@ -293,6 +309,10 @@ function addOrderingItem() {
 function submitForm() {
     const payload = new FormData();
     Object.entries(form).forEach(([key, value]) => {
+        if (key === 'trophy_tier') {
+            payload.append('trophy_tier', value === null || value === undefined || value === '' ? '' : value);
+            return;
+        }
         if (value === null || value === undefined) return;
         if (key === 'assessment_config') {
             if (form.episode_type === 'assessment') {

@@ -141,7 +141,7 @@ function applyCompletionState(list) {
 
     return list.map((episode) => ({
         ...episode,
-        completed: completedEpisodeSlugs.value.has(episode.slug),
+        completed: Boolean(episode.completed) || completedEpisodeSlugs.value.has(episode.slug),
     }));
 }
 

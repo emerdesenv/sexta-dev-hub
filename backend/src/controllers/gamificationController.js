@@ -1,9 +1,11 @@
 import { Op } from 'sequelize';
+import { sequelize } from '../config/database.js';
 import {
     Episode,
     EpisodeAttempt,
     GamificationEvent,
     User,
+    UserEpisodeAttemptCredit,
     UserEpisodeProgress,
     UserGamification,
     UserMissionClaim,
@@ -14,12 +16,68 @@ const XP_PER_EPISODE = 40;
 const COINS_PER_EPISODE = 12;
 const DAILY_LOGIN_XP = 10;
 const DAILY_LOGIN_COINS = 5;
+const ATTEMPT_RESET_XP_COST = 50;
 const REWARDS = [
     { key: 'theme_neon', title: 'Tema Neon', costCoins: 120, category: 'visual' },
     { key: 'profile_pro', title: 'Selo Perfil Pro', costCoins: 220, category: 'visual' },
     { key: 'streak_shield', title: 'Proteção de streak', costCoins: 250, category: 'benefit' },
     { key: 'early_access', title: 'Acesso antecipado', costCoins: 500, category: 'content' }
 ];
+
+function emptyTrophyTierCounts() {
+    return { platinum: 0, gold: 0, silver: 0, bronze: 0 };
+}
+
+function mergeTrophyTierCounts(a, b) {
+    return {
+        platinum: a.platinum + b.platinum,
+        gold: a.gold + b.gold,
+        silver: a.silver + b.silver,
+        bronze: a.bronze + b.bronze
+    };
+}
+
+function countUnlockedBadgeTiers(badges) {
+    const c = emptyTrophyTierCounts();
+    for (const b of badges) {
+        if (!b.unlocked) continue;
+        const raw = typeof b.tier === 'string' ? b.tier.toLowerCase() : '';
+        const t = Object.prototype.hasOwnProperty.call(c, raw) ? raw : 'bronze';
+        c[t] += 1;
+    }
+    return c;
+}
+
+function trophyTierEarnedFromEpisode(episode) {
+    if (!episode?.trophy_tier) return null;
+    const s = String(episode.trophy_tier).toLowerCase();
+    const c = emptyTrophyTierCounts();
+    return Object.prototype.hasOwnProperty.call(c, s) ? s : null;
+}
+
+async function countEpisodeTrophiesByTier(userId) {
+    const rows = await UserEpisodeProgress.findAll({
+        where: {
+            user_id: userId,
+            trophy_tier_earned: { [Op.ne]: null }
+        },
+        attributes: ['trophy_tier_earned'],
+        raw: true
+    });
+    const tallies = emptyTrophyTierCounts();
+    for (const r of rows) {
+        const t = r.trophy_tier_earned;
+        if (t && Object.prototype.hasOwnProperty.call(tallies, t)) tallies[t] += 1;
+    }
+    return tallies;
+}
+
+function buildTrophyCollection(badges, episodeTierCounts) {
+    const fromBadges = countUnlockedBadgeTiers(badges);
+    const byTier = mergeTrophyTierCounts(fromBadges, episodeTierCounts);
+    const totalItems = Object.values(byTier).reduce((sum, n) => sum + n, 0);
+    return { byTier, totalItems };
+}
 
 function formatDateOnly(date) {
     return date.toISOString().slice(0, 10);
@@ -145,11 +203,13 @@ function buildBadges(counters, streakDays) {
         {
             key: 'first_episode',
             title: 'Primeiro Episodio',
+            tier: 'bronze',
             unlocked: counters.completedEpisodes >= 1
         },
         {
             key: 'constancy',
             title: 'Constancia',
+            tier: 'gold',
             unlocked: streakDays >= 7,
             progress: Math.min(streakDays, 7),
             target: 7
@@ -157,6 +217,7 @@ function buildBadges(counters, streakDays) {
         {
             key: 'marathon',
             title: 'Maratonista',
+            tier: 'silver',
             unlocked: counters.weekCompleted >= 5,
             progress: Math.min(counters.weekCompleted, 5),
             target: 5
@@ -183,6 +244,9 @@ async function buildGamificationSnapshot(userId) {
         await profile.update({ level: levelState.level });
     }
 
+    const badges = buildBadges(counters, profile.streak_days);
+    const episodeTrophyTiers = await countEpisodeTrophiesByTier(userId);
+
     return {
         profile: {
             level: levelState.level,
@@ -198,7 +262,8 @@ async function buildGamificationSnapshot(userId) {
         },
         counters,
         missions: buildMissions(counters, claimState),
-        badges: buildBadges(counters, profile.streak_days),
+        badges,
+        trophyCollection: buildTrophyCollection(badges, episodeTrophyTiers),
         rewards: REWARDS.map((reward) => ({
             ...reward,
             affordable: profile.coins >= reward.costCoins,
@@ -391,6 +456,17 @@ async function applyDailyLoginBonus(profile) {
     return { bonusXp, bonusCoins, streakDays };
 }
 
+async function getEffectiveMaxAttempts(userId, episode) {
+    const base = Number(episode?.max_attempts || 1);
+    if (!userId || !episode?.id) return base;
+    const credit = await UserEpisodeAttemptCredit.findOne({
+        where: { user_id: userId, episode_id: Number(episode.id) },
+        attributes: ['extra_attempts']
+    });
+    const extra = Number(credit?.extra_attempts || 0);
+    return base + Math.max(0, extra);
+}
+
 export async function getMyGamification(req, res) {
     const profile = await ensureProfile(req.user.id);
     const daily = await applyDailyLoginBonus(profile);
@@ -425,10 +501,18 @@ export async function getPreviewGamification(req, res) {
             { key: 'collector_five_episodes', title: `Concluir ${Math.min(5, publishedEpisodes)} episódios`, progress: Math.min(5, publishedEpisodes), target: 5, rewardXp: 180, rewardCoins: 30, status: publishedEpisodes >= 5 ? 'completed' : 'in_progress', periodKey: 'lifetime', claimed: false }
         ],
         badges: [
-            { key: 'first_episode', title: 'Primeiro Episodio', unlocked: true },
-            { key: 'constancy', title: 'Constancia', unlocked: true, progress: 7, target: 7 },
-            { key: 'marathon', title: 'Maratonista', unlocked: false, progress: 3, target: 5 }
+            { key: 'first_episode', title: 'Primeiro Episodio', tier: 'bronze', unlocked: true },
+            { key: 'constancy', title: 'Constancia', tier: 'gold', unlocked: true, progress: 7, target: 7 },
+            { key: 'marathon', title: 'Maratonista', tier: 'silver', unlocked: false, progress: 3, target: 5 }
         ],
+        trophyCollection: buildTrophyCollection(
+            [
+                { key: 'first_episode', title: 'Primeiro Episodio', tier: 'bronze', unlocked: true },
+                { key: 'constancy', title: 'Constancia', tier: 'gold', unlocked: true, progress: 7, target: 7 },
+                { key: 'marathon', title: 'Maratonista', tier: 'silver', unlocked: false, progress: 3, target: 5 }
+            ],
+            { platinum: 0, gold: 1, silver: 2, bronze: 1 }
+        ),
         leaderboard: [
             { username: 'ana.silva', level: 8, xpTotal: 3420 },
             { username: 'lucas.rocha', level: 7, xpTotal: 3110 },
@@ -464,7 +548,8 @@ export async function completeEpisode(req, res) {
 
     await UserEpisodeProgress.create({
         user_id: req.user.id,
-        episode_id: episodeId
+        episode_id: episodeId,
+        trophy_tier_earned: trophyTierEarnedFromEpisode(episode)
     });
 
     const profile = await ensureProfile(req.user.id);
@@ -517,7 +602,8 @@ export async function startAssessmentAttempt(req, res) {
     const attemptsCount = await EpisodeAttempt.count({
         where: { user_id: req.user.id, episode_id: episodeId }
     });
-    if (attemptsCount >= episode.max_attempts) {
+    const effectiveMaxAttempts = await getEffectiveMaxAttempts(req.user.id, episode);
+    if (attemptsCount >= effectiveMaxAttempts) {
         return res.status(409).json({ message: 'Você atingiu o limite de tentativas desse episódio.' });
     }
 
@@ -529,7 +615,7 @@ export async function startAssessmentAttempt(req, res) {
     return res.status(201).json({
         attemptId: attempt.id,
         attemptNumber: attempt.attempt_number,
-        maxAttempts: episode.max_attempts
+        maxAttempts: effectiveMaxAttempts
     });
 }
 
@@ -573,13 +659,14 @@ export async function submitAssessmentAttempt(req, res) {
         const attemptsCount = await EpisodeAttempt.count({
             where: { user_id: req.user.id, episode_id: episodeId }
         });
+        const effectiveMaxAttempts = await getEffectiveMaxAttempts(req.user.id, episode);
         return res.json({
             score,
             passed,
             xpEarned: 0,
             attemptsUsed: attemptsCount,
-            maxAttempts: episode.max_attempts,
-            locked: attemptsCount >= episode.max_attempts,
+            maxAttempts: effectiveMaxAttempts,
+            locked: attemptsCount >= effectiveMaxAttempts,
             feedback
         });
     }
@@ -590,7 +677,8 @@ export async function submitAssessmentAttempt(req, res) {
     if (!existingProgress) {
         await UserEpisodeProgress.create({
             user_id: req.user.id,
-            episode_id: episodeId
+            episode_id: episodeId,
+            trophy_tier_earned: trophyTierEarnedFromEpisode(episode)
         });
 
         const profile = await ensureProfile(req.user.id);
@@ -610,12 +698,13 @@ export async function submitAssessmentAttempt(req, res) {
         const attemptsCount = await EpisodeAttempt.count({
             where: { user_id: req.user.id, episode_id: episodeId }
         });
+        const effectiveMaxAttempts = await getEffectiveMaxAttempts(req.user.id, episode);
         return res.json({
             score,
             passed,
             xpEarned: xpReward,
             attemptsUsed: attemptsCount,
-            maxAttempts: episode.max_attempts,
+            maxAttempts: effectiveMaxAttempts,
             locked: false,
             feedback,
             snapshot
@@ -625,14 +714,80 @@ export async function submitAssessmentAttempt(req, res) {
     const attemptsCount = await EpisodeAttempt.count({
         where: { user_id: req.user.id, episode_id: episodeId }
     });
+    const effectiveMaxAttempts = await getEffectiveMaxAttempts(req.user.id, episode);
     return res.json({
         score,
         passed,
         xpEarned: 0,
         attemptsUsed: attemptsCount,
-        maxAttempts: episode.max_attempts,
+        maxAttempts: effectiveMaxAttempts,
         locked: false,
         feedback
+    });
+}
+
+export async function resetAssessmentAttempts(req, res) {
+    const episodeId = Number(req.params.episodeId);
+    if (!Number.isInteger(episodeId) || episodeId <= 0) {
+        return res.status(400).json({ message: 'ID de episódio inválido.' });
+    }
+
+    const episode = await Episode.findByPk(episodeId);
+    if (!episode || !episode.is_published || episode.episode_type !== 'assessment') {
+        return res.status(404).json({ message: 'Episódio avaliativo não encontrado.' });
+    }
+
+    const existingProgress = await UserEpisodeProgress.findOne({
+        where: { user_id: req.user.id, episode_id: episodeId }
+    });
+    if (existingProgress) {
+        return res.status(409).json({ message: 'Esse episódio avaliativo já foi concluído.' });
+    }
+
+    const attemptsCount = await EpisodeAttempt.count({
+        where: { user_id: req.user.id, episode_id: episodeId }
+    });
+    const effectiveMaxAttempts = await getEffectiveMaxAttempts(req.user.id, episode);
+    if (attemptsCount < effectiveMaxAttempts) {
+        return res.status(409).json({ message: 'Você ainda possui tentativas disponíveis para este episódio.' });
+    }
+
+    const profile = await ensureProfile(req.user.id);
+    if (profile.xp_total < ATTEMPT_RESET_XP_COST) {
+        return res.status(400).json({ message: 'XP insuficiente para desbloquear novas tentativas.' });
+    }
+
+    const grant = Number(episode.max_attempts || 1);
+    const credit = await UserEpisodeAttemptCredit.findOne({
+        where: { user_id: req.user.id, episode_id: episodeId }
+    });
+    if (credit) {
+        await credit.update({ extra_attempts: Number(credit.extra_attempts || 0) + grant });
+    } else {
+        await UserEpisodeAttemptCredit.create({
+            user_id: req.user.id,
+            episode_id: episodeId,
+            extra_attempts: grant
+        });
+    }
+
+    const nextXpTotal = profile.xp_total - ATTEMPT_RESET_XP_COST;
+    await profile.update({ xp_total: nextXpTotal });
+    await registerEvent({
+        userId: req.user.id,
+        eventType: 'assessment_attempts_reset',
+        referenceId: String(episodeId),
+        xpDelta: -ATTEMPT_RESET_XP_COST,
+        coinsDelta: 0,
+        metadata: { grantAttempts: grant }
+    });
+
+    const updatedEffectiveMaxAttempts = effectiveMaxAttempts + grant;
+    return res.json({
+        ok: true,
+        xpCost: ATTEMPT_RESET_XP_COST,
+        xpTotal: nextXpTotal,
+        maxAttempts: updatedEffectiveMaxAttempts
     });
 }
 
@@ -643,12 +798,29 @@ export async function getLeaderboard(req, res) {
         limit: 20
     });
 
+    const userIds = rows.map((row) => Number(row.user_id)).filter((id) => Number.isInteger(id) && id > 0);
+    const trophyCounts = userIds.length
+        ? await UserEpisodeProgress.findAll({
+            where: {
+                user_id: userIds,
+                trophy_tier_earned: { [Op.ne]: null }
+            },
+            attributes: ['user_id', [sequelize.fn('COUNT', sequelize.col('id')), 'trophyTotal']],
+            group: ['user_id'],
+            raw: true
+        })
+        : [];
+    const trophyTotalByUserId = new Map(
+        trophyCounts.map((row) => [Number(row.user_id), Number(row.trophyTotal || 0)])
+    );
+
     return res.json(rows.map((row) => ({
         username: row.user?.username || 'usuário',
         level: row.level,
         xpTotal: row.xp_total,
         coins: row.coins,
-        profileProEnabled: Boolean(row.profile_pro_enabled)
+        profileProEnabled: Boolean(row.profile_pro_enabled),
+        trophyTotal: trophyTotalByUserId.get(Number(row.user_id)) || 0
     })));
 }
 

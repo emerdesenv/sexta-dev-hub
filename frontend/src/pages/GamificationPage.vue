@@ -9,7 +9,8 @@
                         <Badge v-if="isShowcase" tone="pdf" class="ml-2">Modo vitrine</Badge>
                         <h1 class="mt-3 text-3xl sm:text-4xl font-extrabold">Sua jornada de evolução</h1>
                         <p class="mt-3 text-muted max-w-3xl">
-                            Complete episódios, cumpra missões e acumule XP para subir de nível.
+                            Complete episódios para ganhar XP e moedas, cumpra missões e colecione troféus por
+                            atividade — a barra abaixo soma conquistas globais e troféus de episódios.
                         </p>
                     </div>
                     <router-link
@@ -27,12 +28,27 @@
                     Você está vendo dados de exemplo. Entre como aluno para ativar progresso real, resgates e histórico.
                 </div>
 
-                <div class="mt-6 grid gap-4 sm:grid-cols-3">
-                    <div class="sd-card-item p-4">
-                        <div class="text-muted text-sm">Nivel atual</div>
-                        <strong class="text-3xl font-extrabold">{{ data.profile.level }}</strong>
-                        <div class="text-muted text-sm mt-1">{{ data.profile.xpTotal }} XP total</div>
+                <div class="mt-6">
+                    <GamificationTrophyBar
+                        :level="data.profile.level"
+                        :level-percent="levelPercent"
+                        :xp-current-level="data.profile.xpCurrentLevel"
+                        :xp-next-level="data.profile.xpNextLevel"
+                        :trophy-by-tier="data.trophyCollection?.byTier || emptyTrophyByTier"
+                        :total-items="data.trophyCollection?.totalItems ?? 0"
+                    />
+                    <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
+                        <span>{{ data.profile.xpTotal }} XP total</span>
+                        <span
+                            v-if="(data.profile.streakShieldCount || 0) > 0"
+                            class="text-info"
+                        >
+                            Proteção de streak ativa
+                        </span>
                     </div>
+                </div>
+
+                <div class="mt-5 grid gap-4 sm:grid-cols-2">
                     <div class="sd-card-item p-4">
                         <div class="text-muted text-sm">Streak</div>
                         <strong class="text-3xl font-extrabold">{{ data.profile.streakDays }} dias</strong>
@@ -45,23 +61,6 @@
                         <div class="text-muted text-sm">Moedas</div>
                         <strong class="text-3xl font-extrabold">{{ data.profile.coins }}</strong>
                         <div class="text-muted text-sm mt-1">Para trocar por recompensas</div>
-                    </div>
-                </div>
-
-                <div class="mt-5">
-                    <div class="text-sm text-muted">Progresso do nível</div>
-                    <div class="sd-progress">
-                        <div class="sd-progress-fill sd-progress-fill-level" :style="{ width: levelPercent + '%' }"></div>
-                    </div>
-                    <div class="text-xs text-muted mt-2">
-                        {{ levelPercent }}% •
-                        {{ data.profile.xpCurrentLevel }} / {{ data.profile.xpNextLevel }} XP para o próximo nível
-                    </div>
-                    <div
-                        v-if="(data.profile.streakShieldCount || 0) > 0"
-                        class="text-xs text-info mt-1"
-                    >
-                        Você possui proteção ativa para manter sua sequência.
                     </div>
                 </div>
             </section>
@@ -173,7 +172,12 @@
                         :key="badge.key"
                         class="sd-card sd-card-item p-5"
                     >
-                        <h3 class="sd-card-title">{{ badge.title }}</h3>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <h3 class="sd-card-title">{{ badge.title }}</h3>
+                            <Badge v-if="badgeTierLabel(badge)" tone="neutral" class="!text-xs !py-0.5">
+                                {{ badgeTierLabel(badge) }}
+                            </Badge>
+                        </div>
                         <p class="sd-card-meta" v-if="badge.target">
                             {{ badge.progress || 0 }}/{{ badge.target }}
                         </p>
@@ -197,7 +201,10 @@
                                 <span>#{{ index + 1 }} • {{ player.username }}</span>
                                 <Badge v-if="player.profileProEnabled" tone="pro">PRO</Badge>
                             </span>
-                            <span class="text-sm text-muted">N{{ player.level }} • {{ player.xpTotal }} XP</span>
+                            <span class="inline-flex items-center gap-3 text-sm text-muted">
+                                <span title="Total de troféus na coleção">🏆 {{ player.trophyTotal ?? 0 }}</span>
+                                <span>N{{ player.level }} • {{ player.xpTotal }} XP</span>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -252,12 +259,14 @@ import PublicHeader from '../components/PublicHeader.vue';
 import PageContainer from '../components/layout/PageContainer.vue';
 import Footer from '../components/layout/Footer.vue';
 import Badge from '../components/ui/Badge.vue';
+import GamificationTrophyBar from '../components/GamificationTrophyBar.vue';
 import api from '../services/api';
 import { useAuthStore } from '../stores/auth';
 import { useRouter } from 'vue-router';
 
 const auth = useAuthStore();
 const router = useRouter();
+const emptyTrophyByTier = { platinum: 0, gold: 0, silver: 0, bronze: 0 };
 const data = ref({
     profile: {
         level: 1,
@@ -270,7 +279,11 @@ const data = ref({
     },
     missions: [],
     badges: [],
-    rewards: []
+    rewards: [],
+    trophyCollection: {
+        byTier: { ...emptyTrophyByTier },
+        totalItems: 0
+    }
 });
 const leaderboard = ref([]);
 const loadingAction = ref(false);
@@ -288,6 +301,18 @@ const levelPercent = computed(() => {
 function missionPercent(mission) {
     if (!mission?.target) return 0;
     return Math.min(100, Math.round((mission.progress / mission.target) * 100));
+}
+
+const TIER_LABELS = {
+    platinum: 'Platina',
+    gold: 'Ouro',
+    silver: 'Prata',
+    bronze: 'Bronze'
+};
+
+function badgeTierLabel(badge) {
+    const t = typeof badge?.tier === 'string' ? badge.tier.toLowerCase() : '';
+    return TIER_LABELS[t] || '';
 }
 
 const assessmentStats = computed(() => {
@@ -358,7 +383,11 @@ async function loadData() {
         profile: snapshot.profile,
         missions: snapshot.missions || [],
         badges: snapshot.badges || [],
-        rewards: snapshot.rewards || []
+        rewards: snapshot.rewards || [],
+        trophyCollection: snapshot.trophyCollection || {
+            byTier: { ...emptyTrophyByTier },
+            totalItems: 0
+        }
     };
     assessmentAttempts.value = Array.isArray(historyData?.assessmentAttempts)
         ? historyData.assessmentAttempts

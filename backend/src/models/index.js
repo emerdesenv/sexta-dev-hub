@@ -6,6 +6,7 @@ import { GamificationEvent } from './GamificationEvent.js';
 import { UserMissionClaim } from './UserMissionClaim.js';
 import { UserRewardRedemption } from './UserRewardRedemption.js';
 import { EpisodeAttempt } from './EpisodeAttempt.js';
+import { UserEpisodeAttemptCredit } from './UserEpisodeAttemptCredit.js';
 
 User.hasOne(UserGamification, { foreignKey: 'user_id', onDelete: 'CASCADE' });
 UserGamification.belongsTo(User, { foreignKey: 'user_id' });
@@ -23,6 +24,11 @@ Episode.belongsToMany(User, {
 
 UserEpisodeProgress.belongsTo(User, { foreignKey: 'user_id' });
 UserEpisodeProgress.belongsTo(Episode, { foreignKey: 'episode_id' });
+
+UserEpisodeAttemptCredit.belongsTo(User, { foreignKey: 'user_id' });
+UserEpisodeAttemptCredit.belongsTo(Episode, { foreignKey: 'episode_id' });
+User.hasMany(UserEpisodeAttemptCredit, { foreignKey: 'user_id', onDelete: 'CASCADE' });
+Episode.hasMany(UserEpisodeAttemptCredit, { foreignKey: 'episode_id', onDelete: 'CASCADE' });
 User.hasMany(EpisodeAttempt, { foreignKey: 'user_id', onDelete: 'CASCADE' });
 EpisodeAttempt.belongsTo(User, { foreignKey: 'user_id' });
 Episode.hasMany(EpisodeAttempt, { foreignKey: 'episode_id', onDelete: 'CASCADE' });
@@ -42,6 +48,7 @@ export {
     Episode,
     UserGamification,
     UserEpisodeProgress,
+    UserEpisodeAttemptCredit,
     EpisodeAttempt,
     GamificationEvent,
     UserMissionClaim,
