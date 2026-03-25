@@ -16,10 +16,7 @@
                         Microaulas de ADS
                     </h1>
                     <p class="mt-4 text-base text-muted leading-7">
-                        Plataforma de microlearning com conteúdos do <b>Sexta Dev</b>, desenvolvida para apoiar alunos no aprendizado de desenvolvimento de software.
-                    </p>
-                    <p class="mt-3 text-base text-muted leading-7">
-                        Aqui você encontra <b>episódios curtos com PDF e áudio</b>, abordando temas práticos do mercado de tecnologia como boas práticas de código, versionamento, arquitetura e desenvolvimento profissional.
+                        Conteúdos rápidos do <b>Sexta Dev</b> com <b>PDF e áudio</b>, abordando práticas reais de desenvolvimento de software.
                     </p>
 
                     <div class="mt-6 flex flex-wrap gap-3">
