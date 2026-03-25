@@ -59,7 +59,7 @@
         <label class="flex flex-col gap-2 max-w-md">
             <span class="sd-label">Troféu ao concluir (coleção)</span>
             <select class="sd-input" v-model="form.trophy_tier">
-                <option value="">Nenhum — contagem só por XP/moedas neste episódio</option>
+                <option value="">Nenhum - contagem só por XP/moedas neste episódio</option>
                 <option value="bronze">Bronze</option>
                 <option value="silver">Prata</option>
                 <option value="gold">Ouro</option>

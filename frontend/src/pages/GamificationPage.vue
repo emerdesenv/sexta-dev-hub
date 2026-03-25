@@ -10,7 +10,7 @@
                         <h1 class="mt-3 text-3xl sm:text-4xl font-extrabold">Sua jornada de evolução</h1>
                         <p class="mt-3 text-muted max-w-3xl">
                             Complete episódios para ganhar XP e moedas, cumpra missões e colecione troféus por
-                            atividade — a barra abaixo soma conquistas globais e troféus de episódios.
+                            atividade - a barra abaixo soma conquistas globais e troféus de episódios.
                         </p>
                     </div>
                     <router-link

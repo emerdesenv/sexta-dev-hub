@@ -89,6 +89,13 @@ a {
     padding: 0 1.5rem; /* tailwind: px-6 */
 }
 
+@media (max-width: 767px) {
+    .sd-container {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
+
 .sd-section {
     padding-top: 2.5rem;
     padding-bottom: 2.5rem;

@@ -1,21 +1,30 @@
 <template>
     <header class="sticky top-0 z-50 backdrop-blur bg-bg/75 border-b border-border/40">
-        <div class="sd-container py-3 md:py-4 flex items-center justify-between gap-5">
+        <div class="sd-container py-4 md:py-5 flex items-center justify-between gap-5">
             <router-link to="/" class="text-lg font-extrabold tracking-tight">
-                Sexta <span class="text-primary-2">Dev</span> Hub
+                <span class="md:hidden inline-block mt-1 ml-4 mb-1">Sexta Dev Hub</span>
+                <span class="hidden md:inline">
+                    Sexta <span class="text-primary-2">Dev</span> Hub
+                </span>
             </router-link>
 
             <nav class="hidden md:flex items-center gap-2">
                 
+                <a
+                    class="sd-button sd-button-secondary px-3 py-2 text-sm my-1"
+                    href="/#episodios"
+                >
+                    Conteúdos
+                </a>
                 <router-link
-                    class="sd-button sd-button-secondary px-3 py-2 text-sm"
+                    class="sd-button sd-button-secondary px-3 py-2 text-sm my-1"
                     to="/gamificacao"
                 >
                     Gamificação
                 </router-link>
                 <router-link
                     v-if="!auth.isAuthenticated"
-                    class="sd-button sd-button-secondary px-3 py-2 text-sm"
+                    class="sd-button sd-button-secondary px-3 py-2 text-sm my-1"
                     to="/aluno"
                 >
                     Aluno
@@ -66,20 +75,6 @@
             </nav>
 
             <nav class="md:hidden flex items-center gap-2">
-              
-                <router-link
-                    class="sd-button sd-button-secondary px-3 py-2 text-sm"
-                    to="/gamificacao"
-                >
-                    Gamificação
-                </router-link>
-                <router-link
-                    v-if="!auth.isAuthenticated"
-                    class="sd-button sd-button-secondary px-3 py-2 text-sm"
-                    to="/aluno"
-                >
-                    Aluno
-                </router-link>
                 <div v-if="auth.isAuthenticated" class="relative" ref="menuRef">
                     <button
                         type="button"

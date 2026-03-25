@@ -1,7 +1,7 @@
 <template>
     <div class="min-h-screen flex flex-col">
         <PublicHeader />
-        <PageContainer class="pt-8 md:pt-10">
+        <PageContainer class="pt-10 md:pt-10">
             <section class="sd-card sd-card-section p-7 md:grid md:grid-cols-[1.35fr_0.9fr] md:items-center md:gap-6">
                 <div>
                     <Badge tone="primary">Conteúdo aberto para alunos</Badge>
@@ -25,15 +25,6 @@
                     <div class="mt-6 flex flex-wrap gap-3">
                         <a href="#episodios" class="sd-button sd-button-primary">
                             Explorar episódios
-                        </a>
-                        <a
-                            v-if="githubUrl"
-                            :href="githubUrl"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="sd-button sd-button-secondary"
-                        >
-                            Ver no GitHub
                         </a>
                     </div>
                 </div>

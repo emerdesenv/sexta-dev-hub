@@ -88,7 +88,7 @@
                                     :class="{ 'text-center mx-auto': isAssessmentEpisode }"
                                 >
                                     Troféu <strong>{{ trophyTierMeta(episode.trophy_tier).label }}</strong> na coleção ao concluir
-                                    com sucesso — não altera XP ou moedas além do que este episódio já oferece.
+                                    com sucesso - não altera XP ou moedas além do que este episódio já oferece.
                                 </p>
                             </div>
 
