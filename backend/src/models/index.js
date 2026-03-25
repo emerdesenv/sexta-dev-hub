@@ -7,6 +7,10 @@ import { UserMissionClaim } from './UserMissionClaim.js';
 import { UserRewardRedemption } from './UserRewardRedemption.js';
 import { EpisodeAttempt } from './EpisodeAttempt.js';
 import { UserEpisodeAttemptCredit } from './UserEpisodeAttemptCredit.js';
+import { CollectibleItem } from './CollectibleItem.js';
+import { LimitedEvent } from './LimitedEvent.js';
+import { UserCollectible } from './UserCollectible.js';
+import { UserLimitedEventClaim } from './UserLimitedEventClaim.js';
 
 User.hasOne(UserGamification, { foreignKey: 'user_id', onDelete: 'CASCADE' });
 UserGamification.belongsTo(User, { foreignKey: 'user_id' });
@@ -29,6 +33,21 @@ UserEpisodeAttemptCredit.belongsTo(User, { foreignKey: 'user_id' });
 UserEpisodeAttemptCredit.belongsTo(Episode, { foreignKey: 'episode_id' });
 User.hasMany(UserEpisodeAttemptCredit, { foreignKey: 'user_id', onDelete: 'CASCADE' });
 Episode.hasMany(UserEpisodeAttemptCredit, { foreignKey: 'episode_id', onDelete: 'CASCADE' });
+
+LimitedEvent.belongsTo(Episode, { foreignKey: 'episode_id' });
+LimitedEvent.belongsTo(CollectibleItem, { foreignKey: 'reward_item_id', as: 'rewardItem' });
+
+UserLimitedEventClaim.belongsTo(User, { foreignKey: 'user_id' });
+UserLimitedEventClaim.belongsTo(LimitedEvent, { foreignKey: 'event_id' });
+User.hasMany(UserLimitedEventClaim, { foreignKey: 'user_id', onDelete: 'CASCADE' });
+LimitedEvent.hasMany(UserLimitedEventClaim, { foreignKey: 'event_id', onDelete: 'CASCADE' });
+
+UserCollectible.belongsTo(User, { foreignKey: 'user_id' });
+UserCollectible.belongsTo(CollectibleItem, { foreignKey: 'item_id' });
+UserCollectible.belongsTo(LimitedEvent, { foreignKey: 'source_event_id' });
+User.hasMany(UserCollectible, { foreignKey: 'user_id', onDelete: 'CASCADE' });
+CollectibleItem.hasMany(UserCollectible, { foreignKey: 'item_id', onDelete: 'CASCADE' });
+LimitedEvent.hasMany(UserCollectible, { foreignKey: 'source_event_id', onDelete: 'SET NULL' });
 User.hasMany(EpisodeAttempt, { foreignKey: 'user_id', onDelete: 'CASCADE' });
 EpisodeAttempt.belongsTo(User, { foreignKey: 'user_id' });
 Episode.hasMany(EpisodeAttempt, { foreignKey: 'episode_id', onDelete: 'CASCADE' });
@@ -49,6 +68,10 @@ export {
     UserGamification,
     UserEpisodeProgress,
     UserEpisodeAttemptCredit,
+    CollectibleItem,
+    LimitedEvent,
+    UserCollectible,
+    UserLimitedEventClaim,
     EpisodeAttempt,
     GamificationEvent,
     UserMissionClaim,

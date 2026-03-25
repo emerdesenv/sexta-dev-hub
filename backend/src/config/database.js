@@ -12,10 +12,15 @@ export const sequelize = new Sequelize(
         port: Number(process.env.DB_PORT),
         dialect: 'mysql',
         logging: false,
+        dialectOptions: {
+            charset: 'utf8mb4'
+        },
         define: {
             underscored: true,
             freezeTableName: true,
-            timestamps: true
+            timestamps: true,
+            charset: 'utf8mb4',
+            collate: 'utf8mb4_unicode_ci'
         }
     }
 );

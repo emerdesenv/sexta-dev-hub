@@ -7,12 +7,14 @@ import ProfessorDashboardPage from '../pages/ProfessorDashboardPage.vue';
 import GamificationPage from '../pages/GamificationPage.vue';
 import StudentAuthPage from '../pages/StudentAuthPage.vue';
 import StudentAccountPage from '../pages/StudentAccountPage.vue';
+import StudentCollectionPage from '../pages/StudentCollectionPage.vue';
 
 const routes = [
     { path: '/', name: 'home', component: PublicHomePage },
     { path: '/gamificacao', name: 'gamification', component: GamificationPage },
     { path: '/aluno', name: 'student-auth', component: StudentAuthPage },
     { path: '/aluno/conta', name: 'student-account', component: StudentAccountPage, meta: { requiresAuth: true, requiresRole: 'student' } },
+    { path: '/aluno/colecao', name: 'student-collection', component: StudentCollectionPage, meta: { requiresAuth: true, requiresRole: 'student' } },
     { path: '/episodio/:slug', name: 'episode-detail', component: EpisodeDetailPage },
     { path: '/professor', name: 'professor-login', component: ProfessorLoginPage },
     { path: '/professor/dashboard', name: 'professor-dashboard', component: ProfessorDashboardPage, meta: { requiresAuth: true, requiresRole: 'professor' } },

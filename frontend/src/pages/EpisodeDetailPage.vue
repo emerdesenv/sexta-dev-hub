@@ -167,6 +167,15 @@
                                         {{ assessmentState.loading ? 'Iniciando...' : 'Iniciar avaliação' }}
                                     </button>
                                 </div>
+                                <div
+                                    v-if="!assessmentState.attemptId && !assessmentState.completed && assessmentState.locked"
+                                    class="inline-flex flex-wrap items-center gap-2"
+                                >
+                                    <Badge tone="neutral">Bloqueado • tentativas esgotadas</Badge>
+                                    <span class="text-xs text-muted">
+                                        Use XP para liberar novas tentativas ou tente outro episódio.
+                                    </span>
+                                </div>
                                 <button
                                     v-if="!assessmentState.attemptId && !assessmentState.completed && assessmentState.locked"
                                     class="sd-button sd-button-primary w-fit"

@@ -46,6 +46,10 @@
                             Proteção de streak ativa
                         </span>
                     </div>
+                    <div class="mt-3 text-xs text-muted max-w-3xl leading-relaxed">
+                        <b>Troféus</b> são coleção (não aumentam XP). <b>XP</b> representa progresso e pode ser usado em mecânicas do aluno.
+                        <b>Moedas</b> são para resgatar recompensas na loja. <b>Itens</b> colecionáveis vêm de eventos relâmpago por tempo limitado.
+                    </div>
                 </div>
 
                 <div class="mt-5 grid gap-4 sm:grid-cols-2">

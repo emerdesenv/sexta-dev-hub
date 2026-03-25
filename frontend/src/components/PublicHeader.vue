@@ -39,6 +39,14 @@
                             Minha conta
                         </router-link>
                         <router-link
+                            v-if="auth.user?.role === 'student'"
+                            class="user-menu-item"
+                            to="/aluno/colecao"
+                            @click="closeMenu"
+                        >
+                            Minha coleção
+                        </router-link>
+                        <router-link
                             v-else-if="auth.user?.role === 'professor'"
                             class="user-menu-item"
                             to="/professor/dashboard"
@@ -89,6 +97,14 @@
                             @click="closeMenu"
                         >
                             Minha conta
+                        </router-link>
+                        <router-link
+                            v-if="auth.user?.role === 'student'"
+                            class="user-menu-item"
+                            to="/aluno/colecao"
+                            @click="closeMenu"
+                        >
+                            Minha coleção
                         </router-link>
                         <router-link
                             v-else-if="auth.user?.role === 'professor'"

@@ -54,6 +54,89 @@
                 </div>
             </section>
 
+            <section v-if="activeEvent" class="mt-8">
+                <div class="sd-card sd-card-section p-6 md:p-7 event-banner">
+                    <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                        <div class="min-w-0">
+                            <Badge tone="warning">Evento relâmpago</Badge>
+                            <h2 class="mt-3 text-2xl sm:text-3xl font-extrabold leading-tight">
+                                {{ activeEvent.title }}
+                            </h2>
+                            <p v-if="activeEvent.description" class="mt-2 text-sm text-muted max-w-3xl">
+                                {{ activeEvent.description }}
+                            </p>
+                            <p class="mt-3 text-xs text-muted">
+                                Expira em <strong>{{ eventRemainingLabel }}</strong>
+                            </p>
+                            <div class="mt-4 flex flex-wrap items-center gap-2">
+                                <div
+                                    v-if="activeEvent.reward"
+                                    class="inline-flex items-center gap-2 rounded-2xl border border-border/50 bg-surface/40 px-3 py-2"
+                                >
+                                    <span class="text-lg" aria-hidden="true">🎁</span>
+                                    <span class="text-sm">
+                                        Recompensa: <strong>{{ activeEvent.reward.title }}</strong>
+                                    </span>
+                                </div>
+                                <div
+                                    v-if="activeEvent.requiresCompletion"
+                                    class="inline-flex items-center gap-2 text-xs"
+                                >
+                                    <span
+                                        class="sd-badge"
+                                        :class="activeEvent.eligible ? 'sd-badge-published' : 'sd-badge-draft'"
+                                    >
+                                        Tarefa: {{ activeEvent.eligible ? 'concluída' : 'pendente' }}
+                                    </span>
+                                    <span class="text-muted">
+                                        Conclua o episódio do evento para liberar o resgate.
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="shrink-0 flex flex-col gap-2">
+                            <router-link
+                                v-if="activeEvent.episodeSlug"
+                                class="sd-button sd-button-primary"
+                                :to="`/episodio/${activeEvent.episodeSlug}`"
+                            >
+                                Fazer tarefa
+                            </router-link>
+                            <button
+                                v-if="auth.isAuthenticated"
+                                class="sd-button"
+                                :class="(activeEvent.claimed || (activeEvent.requiresCompletion && !activeEvent.eligible)) ? 'sd-button-secondary cursor-not-allowed opacity-80' : 'sd-button-primary'"
+                                :disabled="activeEvent.claimed || claimingEvent || (activeEvent.requiresCompletion && !activeEvent.eligible)"
+                                type="button"
+                                @click="claimActiveEvent"
+                            >
+                                {{
+                                    activeEvent.claimed
+                                        ? 'Já resgatado'
+                                        : (
+                                            activeEvent.requiresCompletion && !activeEvent.eligible
+                                                ? 'Conclua a tarefa para resgatar'
+                                                : (claimingEvent ? 'Resgatando...' : 'Resgatar item')
+                                        )
+                                }}
+                            </button>
+                            <button
+                                v-else
+                                class="sd-button sd-button-secondary"
+                                type="button"
+                                @click="goToStudentAuth"
+                            >
+                                Entrar para resgatar
+                            </button>
+                            <div v-if="eventNotice" class="text-xs" :class="eventNoticeToneClass">
+                                {{ eventNotice }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <section id="episodios" class="mt-10">
                 <div class="flex flex-col md:flex-row md:items-end gap-4">
                     <label class="flex-1">
@@ -157,7 +240,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 import PublicHeader from '../components/PublicHeader.vue';
 import EpisodeCard from '../components/EpisodeCard.vue';
 import api from '../services/api';
@@ -165,6 +248,7 @@ import PageContainer from '../components/layout/PageContainer.vue';
 import Badge from '../components/ui/Badge.vue';
 import Footer from '../components/layout/Footer.vue';
 import { useAuthStore } from '../stores/auth';
+import { useRouter } from 'vue-router';
 
 const episodes = ref([]);
 const loading = ref(false);
@@ -173,10 +257,61 @@ const filters = reactive({ year: '', category: '' });
 const githubUrl = import.meta.env.VITE_GITHUB_URL || '';
 const streakShieldCount = ref(0);
 const auth = useAuthStore();
+const router = useRouter();
 const completedEpisodeSlugs = ref(new Set());
 const activeTab = ref('study'); // 'study' | 'assessment'
 
 const NEW_DAYS_WINDOW = 7;
+
+const activeEvent = ref(null);
+const claimingEvent = ref(false);
+const eventNotice = ref('');
+
+const eventNoticeToneClass = computed(() => (
+    String(eventNotice.value || '').toLowerCase().includes('sucesso')
+        ? 'text-success'
+        : 'text-muted'
+));
+
+const eventRemainingLabel = computed(() => {
+    const end = activeEvent.value?.endAt ? new Date(activeEvent.value.endAt) : null;
+    if (!end || Number.isNaN(end.getTime())) return '-';
+    const diffMs = end.getTime() - Date.now();
+    if (diffMs <= 0) return '0min';
+    const totalMin = Math.ceil(diffMs / 60000);
+    if (totalMin < 60) return `${totalMin}min`;
+    const h = Math.floor(totalMin / 60);
+    const m = totalMin % 60;
+    return m ? `${h}h${m}m` : `${h}h`;
+});
+
+function goToStudentAuth() {
+    router.push('/aluno');
+}
+
+async function loadActiveEvent() {
+    try {
+        const { data } = await api.get('/events/active');
+        activeEvent.value = data?.event || null;
+    } catch {
+        activeEvent.value = null;
+    }
+}
+
+async function claimActiveEvent() {
+    if (!activeEvent.value?.id || claimingEvent.value) return;
+    eventNotice.value = '';
+    claimingEvent.value = true;
+    try {
+        const { data } = await api.post(`/events/${activeEvent.value.id}/claim`);
+        activeEvent.value = data?.event || { ...activeEvent.value, claimed: true };
+        eventNotice.value = 'Sucesso: item resgatado e salvo na sua coleção.';
+    } catch (e) {
+        eventNotice.value = e?.response?.data?.message || 'Não foi possível resgatar o item do evento.';
+    } finally {
+        claimingEvent.value = false;
+    }
+}
 
 function parseEpisodeDate(value) {
     if (!value) return null;
@@ -280,8 +415,22 @@ async function loadStudentPerks() {
     }
 }
 
+let activeEventInterval = null;
+function handleVisibilityChange() {
+    if (document.visibilityState === 'visible') {
+        loadActiveEvent();
+    }
+}
+
 onMounted(async () => {
-    await Promise.all([loadEpisodes(), loadStudentPerks()]);
+    await Promise.all([loadEpisodes(), loadStudentPerks(), loadActiveEvent()]);
+    activeEventInterval = window.setInterval(loadActiveEvent, 60_000);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+});
+
+onBeforeUnmount(() => {
+    if (activeEventInterval) window.clearInterval(activeEventInterval);
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
 });
 </script>
 
@@ -320,5 +469,14 @@ onMounted(async () => {
 .episode-tab-btn:focus-visible {
     outline: 2px solid color-mix(in srgb, var(--primary) 55%, transparent);
     outline-offset: 2px;
+}
+
+.event-banner {
+    background: linear-gradient(
+        120deg,
+        color-mix(in srgb, var(--primary) 22%, var(--surface-elevated)) 0%,
+        color-mix(in srgb, #f59e0b 16%, var(--surface-elevated)) 100%
+    );
+    border-color: color-mix(in srgb, #f59e0b 26%, var(--border));
 }
 </style>

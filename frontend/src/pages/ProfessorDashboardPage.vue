@@ -53,6 +53,14 @@
                             >
                                 Episódios cadastrados
                             </button>
+                            <button
+                                type="button"
+                                class="sd-button px-3 py-2 text-sm"
+                                :class="activeSection === 'limited-events' ? 'sd-button-primary' : 'sd-button-secondary'"
+                                @click="activeSection = 'limited-events'"
+                            >
+                                Eventos relâmpago
+                            </button>
                         </div>
 
                         <div v-if="activeSection === 'metrics'" class="sd-card p-6">
@@ -235,6 +243,152 @@
                                     Sem eventos de gamificação ainda.
                                 </div>
                             </div>
+                        </div>
+
+                        <div v-if="activeSection === 'limited-events'" class="sd-card p-6">
+                            <div class="flex justify-between items-center gap-3 flex-wrap">
+                                <h2 class="sd-section-title">Eventos relâmpago</h2>
+                                <div class="flex flex-wrap gap-2">
+                                    <button
+                                        class="sd-button sd-button-secondary px-3 py-2 text-sm"
+                                        type="button"
+                                        :disabled="loadingLimited"
+                                        @click="loadLimitedData"
+                                    >
+                                        {{ loadingLimited ? 'Atualizando...' : 'Atualizar' }}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div v-if="limitedError" class="sd-error mt-4">{{ limitedError }}</div>
+                            <div v-if="limitedNotice" class="sd-notice mt-4">{{ limitedNotice }}</div>
+
+                            <div class="mt-6 grid gap-6 lg:grid-cols-2">
+                                <section class="sd-card sd-card-item p-5">
+                                    <h3 class="sd-card-title">Criar item colecionável</h3>
+                                    <form class="mt-4 grid gap-3" @submit.prevent="createItem">
+                                        <label class="flex flex-col gap-2">
+                                            <span class="sd-label">Key</span>
+                                            <input class="sd-input" v-model="itemForm.key" placeholder="bone_sextadev" required />
+                                        </label>
+                                        <label class="flex flex-col gap-2">
+                                            <span class="sd-label">Título</span>
+                                            <input class="sd-input" v-model="itemForm.title" placeholder="Boné SextaDev" required />
+                                        </label>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            <label class="flex flex-col gap-2">
+                                                <span class="sd-label">Tipo</span>
+                                                <select class="sd-input" v-model="itemForm.type">
+                                                    <option value="badge">Badge</option>
+                                                    <option value="avatar_item">Item de avatar</option>
+                                                </select>
+                                            </label>
+                                            <label class="flex flex-col gap-2">
+                                                <span class="sd-label">Raridade</span>
+                                                <select class="sd-input" v-model="itemForm.rarity">
+                                                    <option value="common">Comum</option>
+                                                    <option value="rare">Raro</option>
+                                                    <option value="epic">Épico</option>
+                                                    <option value="legendary">Lendário</option>
+                                                </select>
+                                            </label>
+                                        </div>
+                                        <label class="flex flex-col gap-2">
+                                            <span class="sd-label">Ícone (emoji ou texto curto)</span>
+                                            <input class="sd-input" v-model="itemForm.icon" placeholder="🧢" />
+                                        </label>
+                                        <button class="sd-button sd-button-primary w-fit" type="submit" :disabled="savingLimited">
+                                            {{ savingLimited ? 'Salvando...' : 'Criar item' }}
+                                        </button>
+                                    </form>
+                                </section>
+
+                                <section class="sd-card sd-card-item p-5">
+                                    <h3 class="sd-card-title">Criar evento</h3>
+                                    <form class="mt-4 grid gap-3" @submit.prevent="createEvent">
+                                        <label class="flex flex-col gap-2">
+                                            <span class="sd-label">Key</span>
+                                            <input class="sd-input" v-model="eventForm.key" placeholder="evento_bone_marco" required />
+                                        </label>
+                                        <label class="flex flex-col gap-2">
+                                            <span class="sd-label">Título</span>
+                                            <input class="sd-input" v-model="eventForm.title" placeholder="Drop: Boné do mês" required />
+                                        </label>
+                                        <label class="flex flex-col gap-2">
+                                            <span class="sd-label">Descrição (opcional)</span>
+                                            <input class="sd-input" v-model="eventForm.description" placeholder="Disponível por tempo limitado." />
+                                        </label>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            <label class="flex flex-col gap-2">
+                                                <span class="sd-label">Início</span>
+                                                <input class="sd-input" type="datetime-local" v-model="eventForm.startAt" required />
+                                            </label>
+                                            <label class="flex flex-col gap-2">
+                                                <span class="sd-label">Fim</span>
+                                                <input class="sd-input" type="datetime-local" v-model="eventForm.endAt" required />
+                                            </label>
+                                        </div>
+                                        <label class="flex items-center gap-2 text-sm text-muted">
+                                            <input type="checkbox" v-model="eventForm.isActive" />
+                                            Ativo
+                                        </label>
+                                        <label class="flex flex-col gap-2">
+                                            <span class="sd-label">Episódio (opcional)</span>
+                                            <select class="sd-input" v-model="eventForm.episodeId">
+                                                <option value="">Sem episódio</option>
+                                                <option v-for="ep in episodes" :key="ep.id" :value="String(ep.id)">
+                                                    #{{ ep.id }} • {{ ep.title }}
+                                                </option>
+                                            </select>
+                                        </label>
+                                        <label class="flex flex-col gap-2">
+                                            <span class="sd-label">Recompensa</span>
+                                            <select class="sd-input" v-model="eventForm.rewardItemId" required>
+                                                <option value="" disabled>Selecione um item</option>
+                                                <option v-for="item in collectibleItems" :key="item.id" :value="String(item.id)">
+                                                    {{ item.icon || '🎁' }} {{ item.title }} ({{ item.rarity }})
+                                                </option>
+                                            </select>
+                                        </label>
+                                        <button class="sd-button sd-button-primary w-fit" type="submit" :disabled="savingLimited">
+                                            {{ savingLimited ? 'Salvando...' : 'Criar evento' }}
+                                        </button>
+                                    </form>
+                                </section>
+                            </div>
+
+                            <section class="mt-6">
+                                <h3 class="sd-card-title">Eventos cadastrados</h3>
+                                <div v-if="limitedEvents.length" class="mt-3 overflow-auto">
+                                    <table class="sd-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Evento</th>
+                                                <th>Janela</th>
+                                                <th>Status</th>
+                                                <th>Recompensa</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="ev in limitedEvents" :key="ev.id">
+                                                <td class="font-medium">{{ ev.title }}</td>
+                                                <td class="text-sm text-muted">
+                                                    {{ formatDateTime(ev.startAt) }} → {{ formatDateTime(ev.endAt) }}
+                                                </td>
+                                                <td>
+                                                    <span class="sd-badge" :class="ev.isActive ? 'sd-badge-published' : 'sd-badge-draft'">
+                                                        {{ ev.isActive ? 'Ativo' : 'Inativo' }}
+                                                    </span>
+                                                </td>
+                                                <td class="text-sm">
+                                                    {{ ev.reward?.icon || '🎁' }} {{ ev.reward?.title || '-' }}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div v-else class="sd-notice mt-3">Nenhum evento cadastrado ainda.</div>
+                            </section>
                         </div>
 
                         <div v-if="activeSection === 'episodes' && showForm">
@@ -478,6 +632,31 @@ const selectedAssessment = ref(null);
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
 const perPageOptions = [5, 10, 20, 50];
+const loadingLimited = ref(false);
+const savingLimited = ref(false);
+const limitedError = ref('');
+const limitedNotice = ref('');
+const collectibleItems = ref([]);
+const limitedEvents = ref([]);
+
+const itemForm = ref({
+    key: '',
+    title: '',
+    type: 'badge',
+    rarity: 'rare',
+    icon: ''
+});
+
+const eventForm = ref({
+    key: '',
+    title: '',
+    description: '',
+    startAt: '',
+    endAt: '',
+    isActive: true,
+    episodeId: '',
+    rewardItemId: ''
+});
 
 const totalItems = computed(() => episodes.value.length);
 const totalPages = computed(() => Math.max(1, Math.ceil(totalItems.value / itemsPerPage.value)));
@@ -527,6 +706,80 @@ async function loadEpisodes() {
         episodesError.value = e?.response?.data?.message || 'Não foi possível carregar os episódios.';
     } finally {
         loadingEpisodes.value = false;
+    }
+}
+
+function formatDateTime(value) {
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) ? '-' : d.toLocaleString('pt-BR');
+}
+
+async function loadLimitedData() {
+    loadingLimited.value = true;
+    limitedError.value = '';
+    try {
+        const [itemsRes, eventsRes] = await Promise.all([
+            api.get('/events/admin/items'),
+            api.get('/events/admin/events')
+        ]);
+        collectibleItems.value = Array.isArray(itemsRes.data) ? itemsRes.data : [];
+        limitedEvents.value = Array.isArray(eventsRes.data) ? eventsRes.data : [];
+    } catch (e) {
+        collectibleItems.value = [];
+        limitedEvents.value = [];
+        limitedError.value = e?.response?.data?.message || 'Não foi possível carregar itens/eventos.';
+    } finally {
+        loadingLimited.value = false;
+    }
+}
+
+async function createItem() {
+    savingLimited.value = true;
+    limitedError.value = '';
+    limitedNotice.value = '';
+    try {
+        await api.post('/events/admin/items', {
+            ...itemForm.value,
+            icon: itemForm.value.icon ? String(itemForm.value.icon).trim() : null
+        });
+        limitedNotice.value = 'Item criado com sucesso.';
+        itemForm.value = { key: '', title: '', type: 'badge', rarity: 'rare', icon: '' };
+        await loadLimitedData();
+    } catch (e) {
+        limitedError.value = e?.response?.data?.message || 'Não foi possível criar o item.';
+    } finally {
+        savingLimited.value = false;
+    }
+}
+
+function toIsoFromLocal(value) {
+    if (!value) return null;
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) ? null : d.toISOString();
+}
+
+async function createEvent() {
+    savingLimited.value = true;
+    limitedError.value = '';
+    limitedNotice.value = '';
+    try {
+        await api.post('/events/admin/events', {
+            key: eventForm.value.key,
+            title: eventForm.value.title,
+            description: eventForm.value.description || null,
+            startAt: toIsoFromLocal(eventForm.value.startAt),
+            endAt: toIsoFromLocal(eventForm.value.endAt),
+            isActive: Boolean(eventForm.value.isActive),
+            episodeId: eventForm.value.episodeId ? Number(eventForm.value.episodeId) : null,
+            rewardItemId: Number(eventForm.value.rewardItemId)
+        });
+        limitedNotice.value = 'Evento criado com sucesso.';
+        eventForm.value = { key: '', title: '', description: '', startAt: '', endAt: '', isActive: true, episodeId: '', rewardItemId: '' };
+        await loadLimitedData();
+    } catch (e) {
+        limitedError.value = e?.response?.data?.message || 'Não foi possível criar o evento.';
+    } finally {
+        savingLimited.value = false;
     }
 }
 
@@ -732,7 +985,7 @@ async function removeEpisode(id) {
 
 onMounted(async () => {
     document.addEventListener('click', handleDocumentClick);
-    await Promise.all([loadEpisodes(), loadMetrics()]);
+    await Promise.all([loadEpisodes(), loadMetrics(), loadLimitedData()]);
 });
 
 onBeforeUnmount(() => {
