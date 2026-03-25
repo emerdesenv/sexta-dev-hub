@@ -70,6 +70,11 @@ export async function login(req, res) {
         return res.status(401).json({ message: 'Credenciais inválidas.' });
     }
 
+    if (!user.is_active) {
+        authAudit('login_blocked_inactive_user', { userId: user.id, username: user.username, ip: req.ip });
+        return res.status(403).json({ message: 'Conta inativa. Entre em contato com o professor.' });
+    }
+
     if (user.locked_until && new Date(user.locked_until) > new Date()) {
         authAudit('login_blocked_locked_user', { userId: user.id, username: user.username, ip: req.ip });
         return res.status(423).json({ message: 'Conta temporariamente bloqueada por tentativas inválidas.' });
@@ -143,6 +148,10 @@ const updatePasswordSchema = z.object({
     path: ['confirmPassword']
 });
 
+const updateStudentStatusSchema = z.object({
+    isActive: z.boolean()
+});
+
 export async function getMe(req, res) {
     const user = await User.findByPk(req.user.id, {
         attributes: ['id', 'username', 'role', 'created_at']
@@ -182,4 +191,45 @@ export async function updateMyPassword(req, res) {
     authAudit('password_updated', { userId: user.id, username: user.username, ip: req.ip });
 
     return res.json({ message: 'Senha atualizada com sucesso.' });
+}
+
+export async function listStudents(req, res) {
+    const rows = await User.findAll({
+        where: { role: 'student' },
+        attributes: ['id', 'username', 'role', 'is_active', 'created_at'],
+        order: [['username', 'ASC']]
+    });
+
+    return res.json(rows.map((user) => ({
+        id: user.id,
+        username: user.username,
+        role: user.role,
+        isActive: Boolean(user.is_active),
+        createdAt: user.created_at
+    })));
+}
+
+export async function updateStudentStatus(req, res) {
+    const studentId = Number(req.params.id);
+    if (!Number.isInteger(studentId) || studentId <= 0) {
+        return res.status(400).json({ message: 'ID de aluno inválido.' });
+    }
+
+    const data = updateStudentStatusSchema.parse(req.body);
+    const student = await User.findByPk(studentId);
+    if (!student || student.role !== 'student') {
+        return res.status(404).json({ message: 'Aluno não encontrado.' });
+    }
+
+    await student.update({ is_active: data.isActive });
+
+    return res.json({
+        message: data.isActive ? 'Aluno ativado com sucesso.' : 'Aluno inativado com sucesso.',
+        student: {
+            id: student.id,
+            username: student.username,
+            role: student.role,
+            isActive: Boolean(student.is_active)
+        }
+    });
 }

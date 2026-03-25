@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
+import { User } from '../models/index.js';
 
-export function authRequired(req, res, next) {
+export async function authRequired(req, res, next) {
     const authHeader = req.headers.authorization;
     if (!authHeader?.startsWith('Bearer ')) {
         return res.status(401).json({ message: 'Token não informado.' });
@@ -10,6 +11,11 @@ export function authRequired(req, res, next) {
     
     try {
         req.user = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findByPk(req.user.id, { attributes: ['id', 'role', 'is_active'] });
+        if (!user || !user.is_active) {
+            return res.status(403).json({ message: 'Conta inativa ou removida.' });
+        }
+        req.user.role = user.role;
         next();
     } catch {
         return res.status(401).json({ message: 'Token inválido ou expirado.' });

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
-import { getMe, login, registerStudent, updateMyPassword } from '../controllers/authController.js';
-import { authRequired } from '../middleware/auth.js';
+import { getMe, listStudents, login, registerStudent, updateMyPassword, updateStudentStatus } from '../controllers/authController.js';
+import { authRequired, professorRequired } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -25,4 +25,6 @@ router.post('/login', loginLimiter, login);
 router.post('/register-student', registerLimiter, registerStudent);
 router.get('/me', authRequired, getMe);
 router.patch('/me/password', authRequired, updateMyPassword);
+router.get('/students', authRequired, professorRequired, listStudents);
+router.patch('/students/:id/status', authRequired, professorRequired, updateStudentStatus);
 export default router;
