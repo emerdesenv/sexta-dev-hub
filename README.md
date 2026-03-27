@@ -166,11 +166,11 @@ Esse comando irá:
 
 # 🌐 Acesso à Aplicação
 
-**Frontend:** https://momentodev.com
+**Frontend:** https://app.momentodev.com
 
-**API:** https://momentodev.com/api/health
+**API:** https://app.momentodev.com/api/health
 
-**Healthcheck da API:** https://momentodev.com/health
+**Healthcheck da API:** https://app.momentodev.com/health
 
 ------------------------------------------------------------------------
 

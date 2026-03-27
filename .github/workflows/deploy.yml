@@ -28,69 +28,22 @@ jobs:
 
             PREVIOUS_COMMIT=$(git rev-parse HEAD)
 
-            ensure_acme_permissions() {
-              mkdir -p traefik/letsencrypt
-              touch traefik/letsencrypt/acme.json
-              chmod 600 traefik/letsencrypt/acme.json
-              stat -c "acme.json perms=%a owner=%U:%G path=%n" traefik/letsencrypt/acme.json
-            }
-
             echo "Commit anterior: $PREVIOUS_COMMIT"
             echo "Atualizando repositório..."
             git fetch origin
             git reset --hard origin/main
 
-            echo "Garantindo permissões seguras do ACME..."
-            ensure_acme_permissions
-
             echo "Subindo containers de produção..."
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --remove-orphans
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 
-            echo "Aguardando containers ficarem healthy..."
-            wait_for_healthy() {
-              local container_name="$1"
-              local max_attempts=30
-              local attempt=1
-              while [ $attempt -le $max_attempts ]; do
-                status=$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$container_name" 2>/dev/null || echo "missing")
-                if [ "$status" = "healthy" ] || [ "$status" = "running" ]; then
-                  echo "$container_name está $status"
-                  return 0
-                fi
-                echo "Aguardando $container_name (status: $status) tentativa $attempt/$max_attempts..."
-                sleep 5
-                attempt=$((attempt + 1))
-              done
-              echo "$container_name não ficou saudável a tempo."
-              return 1
-            }
+            echo "Aguardando aplicação subir..."
+            sleep 10
 
-            if ! wait_for_healthy sexta_dev_backend || ! wait_for_healthy sexta_dev_frontend; then
-              echo "Containers não ficaram saudáveis. Executando rollback..."
-              docker compose -f docker-compose.yml -f docker-compose.prod.yml ps
-              docker compose -f docker-compose.yml -f docker-compose.prod.yml logs --tail=120 frontend backend
-              git reset --hard $PREVIOUS_COMMIT
-              ensure_acme_permissions
-              docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --remove-orphans
-              wait_for_healthy sexta_dev_backend || true
-              wait_for_healthy sexta_dev_frontend || true
-              exit 1
-            fi
-
-            echo "Validando frontend e API..."
-            # Temporary: keep deploy stable while LE rate-limit is active.
-            # Once public certificate issuance is normalized, remove -k.
-            if ! curl -kfsS https://${{ secrets.APP_DOMAIN }}/ \
-              || ! curl -kfsS https://${{ secrets.APP_DOMAIN }}/health \
-              || ! curl -kfsS https://${{ secrets.APP_DOMAIN }}/api/health; then
+            echo "Validando healthcheck..."
+            if ! curl -f https://${{ secrets.APP_DOMAIN }}/health; then
               echo "Healthcheck falhou. Executando rollback..."
-              docker compose -f docker-compose.yml -f docker-compose.prod.yml ps
-              docker compose -f docker-compose.yml -f docker-compose.prod.yml logs --tail=120 frontend backend
               git reset --hard $PREVIOUS_COMMIT
-              ensure_acme_permissions
-              docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --remove-orphans
-              wait_for_healthy sexta_dev_backend || true
-              wait_for_healthy sexta_dev_frontend || true
+              docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
               exit 1
             fi
 
