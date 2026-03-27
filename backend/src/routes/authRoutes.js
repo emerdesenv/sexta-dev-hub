@@ -1,6 +1,17 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
-import { deleteMyAccount, getMe, listStudents, login, logout, refreshSession, registerStudent, updateMyPassword, updateStudentStatus } from '../controllers/authController.js';
+import {
+    deleteMyAccount,
+    getMe,
+    listStudents,
+    login,
+    logout,
+    professorResetStudentPassword,
+    refreshSession,
+    registerStudent,
+    updateMyPassword,
+    updateStudentStatus
+} from '../controllers/authController.js';
 import { authRequired, professorRequired } from '../middleware/auth.js';
 
 const router = Router();
@@ -30,4 +41,5 @@ router.delete('/me', authRequired, deleteMyAccount);
 router.patch('/me/password', authRequired, updateMyPassword);
 router.get('/students', authRequired, professorRequired, listStudents);
 router.patch('/students/:id/status', authRequired, professorRequired, updateStudentStatus);
+router.post('/students/:id/reset-password', authRequired, professorRequired, professorResetStudentPassword);
 export default router;

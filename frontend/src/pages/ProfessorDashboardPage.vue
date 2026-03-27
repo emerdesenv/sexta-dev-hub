@@ -414,12 +414,24 @@
                                         </span>
                                     </div>
                                     <div class="text-xs text-muted mt-2">Criado em {{ formatDateTime(student.createdAt) }}</div>
-                                    <div class="mt-3">
+                                    <div class="mt-3 flex flex-col gap-2">
+                                        <button
+                                            class="sd-button sd-button-secondary px-3 py-2 text-sm w-full"
+                                            type="button"
+                                            :disabled="mutatingStudentId === student.id || resettingStudentId === student.id"
+                                            @click="resetStudentPassword(student)"
+                                        >
+                                            {{
+                                                resettingStudentId === student.id
+                                                    ? 'Gerando...'
+                                                    : 'Nova senha'
+                                            }}
+                                        </button>
                                         <button
                                             class="sd-button px-3 py-2 text-sm w-full"
                                             type="button"
                                             :class="student.isActive ? 'sd-button-secondary' : 'sd-button-primary'"
-                                            :disabled="mutatingStudentId === student.id"
+                                            :disabled="mutatingStudentId === student.id || resettingStudentId === student.id"
                                             @click="toggleStudentStatus(student)"
                                         >
                                             {{ mutatingStudentId === student.id ? 'Salvando...' : (student.isActive ? 'Inativar' : 'Ativar') }}
@@ -448,15 +460,29 @@
                                             </td>
                                             <td class="text-right text-sm text-muted">{{ formatDateTime(student.createdAt) }}</td>
                                             <td class="text-center">
-                                                <button
-                                                    class="sd-button px-3 py-2 text-sm"
-                                                    type="button"
-                                                    :class="student.isActive ? 'sd-button-secondary' : 'sd-button-primary'"
-                                                    :disabled="mutatingStudentId === student.id"
-                                                    @click="toggleStudentStatus(student)"
-                                                >
-                                                    {{ mutatingStudentId === student.id ? 'Salvando...' : (student.isActive ? 'Inativar' : 'Ativar') }}
-                                                </button>
+                                                <div class="flex flex-wrap items-center justify-center gap-2">
+                                                    <button
+                                                        class="sd-button sd-button-secondary px-3 py-2 text-sm"
+                                                        type="button"
+                                                        :disabled="mutatingStudentId === student.id || resettingStudentId === student.id"
+                                                        @click="resetStudentPassword(student)"
+                                                    >
+                                                        {{
+                                                            resettingStudentId === student.id
+                                                                ? 'Gerando...'
+                                                                : 'Nova senha'
+                                                        }}
+                                                    </button>
+                                                    <button
+                                                        class="sd-button px-3 py-2 text-sm"
+                                                        type="button"
+                                                        :class="student.isActive ? 'sd-button-secondary' : 'sd-button-primary'"
+                                                        :disabled="mutatingStudentId === student.id || resettingStudentId === student.id"
+                                                        @click="toggleStudentStatus(student)"
+                                                    >
+                                                        {{ mutatingStudentId === student.id ? 'Salvando...' : (student.isActive ? 'Inativar' : 'Ativar') }}
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -737,6 +763,48 @@
                 </table>
             </div>
         </BaseModal>
+        <BaseModal
+            :model-value="Boolean(passwordResetResult)"
+            title="Nova senha do aluno"
+            aria-label="Senha temporária gerada"
+            max-width="lg"
+            @update:model-value="(open) => { if (!open) closePasswordResetModal(); }"
+            @close="closePasswordResetModal"
+        >
+            <template v-if="passwordResetResult">
+                <p class="text-sm text-muted leading-relaxed">{{ passwordResetResult.message }}</p>
+                <p class="mt-3 text-sm">
+                    Aluno:
+                    <strong class="font-mono">{{ passwordResetResult.username }}</strong>
+                </p>
+                <label class="mt-4 block text-xs text-muted">Senha temporária</label>
+                <div class="mt-1 flex flex-col sm:flex-row gap-2 items-stretch">
+                    <input
+                        class="sd-input flex-1 font-mono text-sm"
+                        type="text"
+                        readonly
+                        :value="passwordResetResult.temporaryPassword"
+                    />
+                    <button
+                        class="sd-button sd-button-secondary shrink-0 px-4"
+                        type="button"
+                        @click="copyTemporaryPassword"
+                    >
+                        Copiar
+                    </button>
+                </div>
+                <p
+                    v-if="passwordCopyNotice"
+                    class="text-xs mt-2"
+                    :class="passwordCopyNotice === 'Copiado!' ? 'text-emerald-400' : 'text-muted'"
+                >
+                    {{ passwordCopyNotice }}
+                </p>
+                <p class="text-xs text-muted mt-4 leading-relaxed">
+                    Guarde ou copie agora: esta senha não fica armazenada para consulta depois.
+                </p>
+            </template>
+        </BaseModal>
         <Footer />
     </div>
 </template>
@@ -794,6 +862,9 @@ const students = ref([]);
 const loadingStudents = ref(false);
 const studentsError = ref('');
 const mutatingStudentId = ref(null);
+const resettingStudentId = ref(null);
+const passwordResetResult = ref(null);
+const passwordCopyNotice = ref('');
 const studentsCurrentPage = ref(1);
 const studentsItemsPerPage = ref(10);
 const iconCatalog = collectibleIconCatalog;
@@ -993,6 +1064,49 @@ async function toggleStudentStatus(student) {
         studentsError.value = e?.response?.data?.message || 'Não foi possível atualizar o status do aluno.';
     } finally {
         mutatingStudentId.value = null;
+    }
+}
+
+function closePasswordResetModal() {
+    passwordResetResult.value = null;
+    passwordCopyNotice.value = '';
+}
+
+async function resetStudentPassword(student) {
+    if (!student?.id) return;
+    const ok = window.confirm(
+        `Gerar nova senha para ${student.username}?\n\nA senha atual deixará de funcionar e o aluno será desconectado dos dispositivos em que estiver logado.`
+    );
+    if (!ok) return;
+
+    resettingStudentId.value = student.id;
+    studentsError.value = '';
+    passwordCopyNotice.value = '';
+    try {
+        const { data } = await api.post(`/auth/students/${student.id}/reset-password`);
+        passwordResetResult.value = {
+            message: data?.message || 'Nova senha gerada.',
+            temporaryPassword: data?.temporaryPassword || '',
+            username: data?.student?.username || student.username
+        };
+    } catch (e) {
+        studentsError.value = e?.response?.data?.message || 'Não foi possível gerar nova senha.';
+    } finally {
+        resettingStudentId.value = null;
+    }
+}
+
+async function copyTemporaryPassword() {
+    const text = passwordResetResult.value?.temporaryPassword;
+    if (!text || !navigator.clipboard?.writeText) {
+        passwordCopyNotice.value = 'Copie manualmente o campo acima.';
+        return;
+    }
+    try {
+        await navigator.clipboard.writeText(text);
+        passwordCopyNotice.value = 'Copiado!';
+    } catch {
+        passwordCopyNotice.value = 'Não foi possível copiar automaticamente.';
     }
 }
 

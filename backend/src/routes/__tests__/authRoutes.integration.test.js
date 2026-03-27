@@ -12,7 +12,7 @@ vi.mock('../../models/index.js', () => ({
     UserSession: {
         create: vi.fn(),
         findOne: vi.fn(),
-        update: vi.fn()
+        update: vi.fn(async () => [0])
     },
     UserCollectible: {
         destroy: vi.fn()
@@ -24,7 +24,7 @@ vi.mock('../../services/accountPurgeService.js', () => ({
 }));
 
 import authRoutes from '../authRoutes.js';
-import { User, UserCollectible } from '../../models/index.js';
+import { User, UserCollectible, UserSession } from '../../models/index.js';
 
 function createApp() {
     const app = express();
@@ -133,5 +133,56 @@ describe('auth routes integration', () => {
                 isActive: true
             }
         });
+    });
+
+    it('POST /auth/students/:id/reset-password bloqueia quem nao e professor', async () => {
+        const app = createApp();
+        const token = jwt.sign({ id: 20, role: 'student' }, process.env.JWT_SECRET);
+        User.findByPk.mockResolvedValueOnce({ id: 20, role: 'student', is_active: true });
+
+        const response = await request(app)
+            .post('/auth/students/77/reset-password')
+            .set('Authorization', `Bearer ${token}`);
+
+        expect(response.status).toBe(403);
+        expect(response.body).toEqual({ message: 'Acesso restrito para professor.' });
+    });
+
+    it('POST /auth/students/:id/reset-password gera senha e revoga sessoes do aluno', async () => {
+        const app = createApp();
+        const token = jwt.sign({ id: 1, role: 'professor' }, process.env.JWT_SECRET);
+
+        const student = {
+            id: 77,
+            username: 'aluno.z',
+            role: 'student',
+            deleted_at: null,
+            update: vi.fn(async () => {})
+        };
+
+        User.findByPk.mockResolvedValueOnce({ id: 1, role: 'professor', is_active: true });
+        User.findOne.mockResolvedValueOnce(student);
+        UserSession.update.mockResolvedValueOnce([2]);
+
+        const response = await request(app)
+            .post('/auth/students/77/reset-password')
+            .set('Authorization', `Bearer ${token}`);
+
+        expect(response.status).toBe(200);
+        expect(response.body.message).toContain('Nova senha gerada');
+        expect(typeof response.body.temporaryPassword).toBe('string');
+        expect(response.body.temporaryPassword.length).toBeGreaterThanOrEqual(8);
+        expect(response.body.student).toEqual({ id: 77, username: 'aluno.z' });
+        expect(student.update).toHaveBeenCalledWith(
+            expect.objectContaining({
+                failed_login_attempts: 0,
+                locked_until: null,
+                password_hash: expect.any(String)
+            })
+        );
+        expect(UserSession.update).toHaveBeenCalledWith(
+            { revoked_at: expect.any(Date) },
+            { where: { user_id: 77, revoked_at: null } }
+        );
     });
 });

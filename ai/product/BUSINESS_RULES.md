@@ -8,7 +8,7 @@ Documento voltado a **regras funcionais** (“o que o produto permite ou exige�
 
 ## Papéis
 
-- **Professor:** acesso administrativo e pedagógico (ex.: alunos, moderação ampliada na comunidade, métricas onde existirem).
+- **Professor:** acesso administrativo e pedagógico (ex.: alunos, moderação ampliada na comunidade, métricas onde existirem). Pode **gerar nova senha** para um aluno que esqueceu a senha: a API define senha temporária segura, revoga sessões de refresh do aluno e devolve a senha **uma vez** para o professor repassar ao aluno por canal adequado.
 - **Aluno:** acesso ao conteúdo e às funcionalidades de aluno (episódios, gamificação, comunidade como participante).
 
 ---

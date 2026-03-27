@@ -147,6 +147,26 @@ function validatePasswordPolicy(password, username = '') {
     return '';
 }
 
+function generateCompliantPassword(username = '') {
+    const chars = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789';
+    const normalizedUsername = String(username || '').trim().toLowerCase();
+    for (let attempt = 0; attempt < 80; attempt += 1) {
+        let pwd = '';
+        for (let i = 0; i < 14; i += 1) {
+            pwd += chars[crypto.randomInt(chars.length)];
+        }
+        if (!validatePasswordPolicy(pwd, normalizedUsername)) {
+            return pwd;
+        }
+    }
+    const suffix = crypto.randomBytes(6).toString('hex');
+    const fallback = `xK9${suffix}m2`;
+    if (!validatePasswordPolicy(fallback, normalizedUsername)) {
+        return fallback;
+    }
+    throw new Error('password_generation_failed');
+}
+
 function authAudit(event, details = {}) {
     console.info('[auth]', event, JSON.stringify(details));
 }
@@ -422,6 +442,54 @@ export async function updateStudentStatus(req, res) {
             username: student.username,
             role: student.role,
             isActive: Boolean(student.is_active)
+        }
+    });
+}
+
+export async function professorResetStudentPassword(req, res) {
+    const studentId = Number(req.params.id);
+    if (!Number.isInteger(studentId) || studentId <= 0) {
+        return res.status(400).json({ message: 'ID de aluno inválido.' });
+    }
+
+    const student = await User.findOne({
+        where: { id: studentId, role: 'student', deleted_at: null }
+    });
+    if (!student) {
+        return res.status(404).json({ message: 'Aluno não encontrado.' });
+    }
+
+    let plainPassword;
+    try {
+        plainPassword = generateCompliantPassword(student.username);
+    } catch {
+        return res.status(500).json({ message: 'Não foi possível gerar uma senha segura. Tente novamente.' });
+    }
+
+    const password_hash = await bcrypt.hash(plainPassword, 10);
+    await student.update({
+        password_hash,
+        failed_login_attempts: 0,
+        locked_until: null
+    });
+
+    await UserSession.update(
+        { revoked_at: new Date() },
+        { where: { user_id: student.id, revoked_at: null } }
+    );
+
+    authAudit('professor_reset_student_password', {
+        studentId: student.id,
+        professorId: req.user.id,
+        ip: req.ip
+    });
+
+    return res.json({
+        message: 'Nova senha gerada. Encaminhe ao aluno por um canal seguro; ela não será exibida novamente nesta tela.',
+        temporaryPassword: plainPassword,
+        student: {
+            id: student.id,
+            username: student.username
         }
     });
 }
