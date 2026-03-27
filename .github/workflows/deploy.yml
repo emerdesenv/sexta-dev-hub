@@ -36,8 +36,33 @@ jobs:
             echo "Subindo containers de produção..."
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --remove-orphans
 
-            echo "Aguardando aplicação subir..."
-            sleep 20
+            echo "Aguardando containers ficarem healthy..."
+            wait_for_healthy() {
+              local container_name="$1"
+              local max_attempts=30
+              local attempt=1
+              while [ $attempt -le $max_attempts ]; do
+                status=$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$container_name" 2>/dev/null || echo "missing")
+                if [ "$status" = "healthy" ] || [ "$status" = "running" ]; then
+                  echo "$container_name está $status"
+                  return 0
+                fi
+                echo "Aguardando $container_name (status: $status) tentativa $attempt/$max_attempts..."
+                sleep 5
+                attempt=$((attempt + 1))
+              done
+              echo "$container_name não ficou saudável a tempo."
+              return 1
+            }
+
+            if ! wait_for_healthy sexta_dev_backend || ! wait_for_healthy sexta_dev_frontend; then
+              echo "Containers não ficaram saudáveis. Executando rollback..."
+              docker compose -f docker-compose.yml -f docker-compose.prod.yml ps
+              docker compose -f docker-compose.yml -f docker-compose.prod.yml logs --tail=120 frontend backend
+              git reset --hard $PREVIOUS_COMMIT
+              docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --remove-orphans
+              exit 1
+            fi
 
             echo "Validando frontend e API..."
             if ! curl -fsS https://${{ secrets.APP_DOMAIN }}/ \
