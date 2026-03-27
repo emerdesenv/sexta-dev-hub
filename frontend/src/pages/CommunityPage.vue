@@ -197,9 +197,11 @@
                                     :href="part.value"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    class="underline text-blue-300 hover:text-blue-200"
+                                    class="inline-flex items-baseline gap-1 underline text-blue-300 hover:text-blue-200"
+                                    title="Abrir link em nova aba"
                                 >
-                                    {{ part.value }}
+                                    <span class="break-all">{{ part.value }}</span>
+                                    <IconExternalLink class="h-3.5 w-3.5 shrink-0 opacity-90" />
                                 </a>
                                 <span v-else>{{ part.value }}</span>
                             </template>
@@ -236,9 +238,11 @@
                                             :href="part.value"
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            class="underline text-blue-300 hover:text-blue-200"
+                                            class="inline-flex items-baseline gap-1 underline text-blue-300 hover:text-blue-200"
+                                            title="Abrir link em nova aba"
                                         >
-                                            {{ part.value }}
+                                            <span class="break-all">{{ part.value }}</span>
+                                            <IconExternalLink class="h-3.5 w-3.5 shrink-0 opacity-90" />
                                         </a>
                                         <span v-else>{{ part.value }}</span>
                                     </template>
@@ -356,6 +360,7 @@ import PageContainer from '../components/layout/PageContainer.vue';
 import Footer from '../components/layout/Footer.vue';
 import Badge from '../components/ui/Badge.vue';
 import BaseModal from '../components/ui/BaseModal.vue';
+import IconExternalLink from '../components/icons/IconExternalLink.vue';
 import api from '../services/api';
 import { useAuthStore } from '../stores/auth';
 

@@ -314,6 +314,7 @@ export async function registerStudent(req, res) {
         message: requireApproval
             ? 'Cadastro enviado com sucesso. Sua conta ficará disponível após aprovação do professor.'
             : 'Conta de aluno criada com sucesso.',
+        requiresApproval: requireApproval,
         user: { id: user.id, username: user.username, role: user.role }
     });
 }

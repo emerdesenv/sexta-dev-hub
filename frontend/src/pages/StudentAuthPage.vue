@@ -42,6 +42,40 @@
                     </button>
                 </div>
 
+                <div
+                    v-if="registerSuccess"
+                    class="register-success-panel mt-5"
+                    role="status"
+                    aria-live="polite"
+                >
+                    <div class="register-success-panel__icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-8 w-8">
+                            <path
+                                fill-rule="evenodd"
+                                d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z"
+                                clip-rule="evenodd"
+                            />
+                        </svg>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <h2 class="text-lg font-extrabold leading-snug">
+                            {{ registerSuccess.mode === 'pending' ? 'Cadastro recebido' : 'Conta criada com sucesso' }}
+                        </h2>
+                        <p class="mt-2 text-sm text-muted leading-relaxed">
+                            {{ registerSuccess.message }}
+                        </p>
+                        <p v-if="registerSuccess.username" class="mt-2 text-sm font-semibold text-[color-mix(in_srgb,var(--text)_88%,transparent)]">
+                            Usuário: <span class="font-mono tracking-tight">{{ registerSuccess.username }}</span>
+                        </p>
+                        <p
+                            v-if="registerSuccess.mode === 'active'"
+                            class="mt-3 text-sm text-muted leading-relaxed"
+                        >
+                            Você já pode entrar com seu usuário e senha na aba <strong>Entrar</strong>.
+                        </p>
+                    </div>
+                </div>
+
                 <form class="mt-5 flex flex-col gap-4" @submit.prevent="handleSubmit">
                     <label class="flex flex-col gap-2">
                         <span class="sd-label">Usuário</span>
@@ -102,7 +136,7 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue';
+import { reactive, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import PublicHeader from '../components/PublicHeader.vue';
 import Footer from '../components/layout/Footer.vue';
@@ -118,12 +152,19 @@ const tab = ref('login');
 const loading = ref(false);
 const notice = ref('');
 const error = ref('');
+const registerSuccess = ref(null);
 const policyModalOpen = ref(false);
 const form = reactive({
     username: '',
     password: '',
     confirmPassword: '',
     inviteCode: ''
+});
+
+watch(tab, (next) => {
+    if (next === 'register') {
+        registerSuccess.value = null;
+    }
 });
 
 async function handleSubmit() {
@@ -136,12 +177,24 @@ async function handleSubmit() {
                 error.value = 'Senha e confirmação de senha devem ser iguais.';
                 return;
             }
-            await api.post('/auth/register-student', form);
-            notice.value = 'Cadastro enviado com sucesso. Se sua turma exigir aprovação, aguarde liberação do professor.';
+            const { data } = await api.post('/auth/register-student', form);
+            const usernameSaved = String(form.username || '').trim().toLowerCase();
+            const pending = Boolean(data?.requiresApproval);
+            registerSuccess.value = {
+                mode: pending ? 'pending' : 'active',
+                message:
+                    data?.message
+                    || (pending
+                        ? 'Seu cadastro foi registrado. Aguarde a liberação do professor.'
+                        : 'Sua conta está pronta para uso.'),
+                username: usernameSaved
+            };
             tab.value = 'login';
+            form.username = usernameSaved;
             form.password = '';
             form.confirmPassword = '';
             form.inviteCode = '';
+            notice.value = '';
             return;
         }
 
@@ -203,5 +256,32 @@ async function handleSubmit() {
     border-color: rgba(37, 99, 235, 0.72);
     background: linear-gradient(135deg, rgba(37, 99, 235, 0.95), rgba(6, 182, 212, 0.9));
     box-shadow: 0 8px 18px rgba(37, 99, 235, 0.32);
+}
+
+.register-success-panel {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 1.15rem 1.25rem;
+    border-radius: 1rem;
+    border: 1px solid color-mix(in srgb, var(--primary) 45%, var(--border));
+    background: linear-gradient(
+        145deg,
+        color-mix(in srgb, var(--primary) 14%, var(--surface-elevated)) 0%,
+        color-mix(in srgb, #22c55e 8%, var(--surface-elevated)) 100%
+    );
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+}
+
+.register-success-panel__icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 9999px;
+    background: color-mix(in srgb, #22c55e 22%, transparent);
+    color: color-mix(in srgb, #86efac 92%, #14532d);
 }
 </style>

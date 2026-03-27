@@ -116,35 +116,11 @@
 
     </Card>
 
-    <Teleport to="body">
-        <div
-            v-if="showLoginPrompt"
-            class="episode-gate-overlay"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Acesso do episódio"
-            @click.self="closeLoginPrompt"
-        >
-            <div class="episode-gate-modal" @click.stop>
-                <div class="text-lg font-bold">Conteúdo para aluno logado</div>
-                <p class="text-sm text-muted mt-2">
-                    Entre como aluno para acompanhar progresso, ganhar XP e desbloquear recompensas.
-                </p>
-                <div class="flex gap-2 mt-4">
-                    <button class="sd-button sd-button-primary w-full" type="button" @click="goToStudentAuth">
-                        Entrar / Criar conta
-                    </button>
-                    <button
-                        class="sd-button sd-button-secondary w-full"
-                        type="button"
-                        @click="closeLoginPrompt"
-                    >
-                        Continuar visitante
-                    </button>
-                </div>
-            </div>
-        </div>
-    </Teleport>
+    <StudentAuthGateModal
+        v-model="showLoginPrompt"
+        aria-label="Acesso do episódio"
+        @auth="goToStudentAuth"
+    />
 </template>
 
 <script setup>
@@ -152,6 +128,7 @@ import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import Card from './ui/Card.vue';
 import Badge from './ui/Badge.vue';
+import StudentAuthGateModal from './StudentAuthGateModal.vue';
 import { useAuthStore } from '../stores/auth';
 
 const props = defineProps({ episode: Object });
@@ -201,12 +178,8 @@ function trophyTierMeta(tier) {
 }
 
 function goToStudentAuth() {
-    closeLoginPrompt();
-    router.push('/aluno');
-}
-
-function closeLoginPrompt() {
     showLoginPrompt.value = false;
+    router.push('/aluno');
 }
 </script>
 
@@ -228,27 +201,6 @@ function closeLoginPrompt() {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-}
-
-.episode-gate-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(3, 8, 20, 0.72);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-    z-index: 80;
-}
-
-.episode-gate-modal {
-    width: 100%;
-    max-width: 420px;
-    border-radius: 14px;
-    border: 1px solid rgba(47, 61, 102, 0.9);
-    background: #111a2f;
-    padding: 18px;
-    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.38);
 }
 
 .trophy-pill-dot--platinum {

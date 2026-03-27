@@ -105,6 +105,10 @@ describe('authController', () => {
             is_active: false
         }));
         expect(res.status).toHaveBeenCalledWith(201);
+        expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+            requiresApproval: true,
+            message: expect.stringContaining('aprovação do professor')
+        }));
     });
 
     it('executa soft delete da conta do aluno', async () => {

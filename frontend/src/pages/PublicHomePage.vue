@@ -24,6 +24,21 @@
                         <a href="#episodios" class="sd-button sd-button-primary">
                             Explorar episódios
                         </a>
+                        <router-link
+                            v-if="auth.isAuthenticated"
+                            to="/comunidade"
+                            class="sd-button sd-button-secondary"
+                        >
+                            Comunidade
+                        </router-link>
+                        <button
+                            v-else
+                            type="button"
+                            class="sd-button sd-button-secondary"
+                            @click="showCommunityGate = true"
+                        >
+                            Comunidade
+                        </button>
                     </div>
                 </div>
 
@@ -225,6 +240,13 @@
             </div>
         </PageContainer>
         <Footer />
+
+        <StudentAuthGateModal
+            v-model="showCommunityGate"
+            aria-label="Acesso à comunidade"
+            description="Entre como aluno para participar da comunidade, trocar conhecimento e acompanhar conteúdos compartilhados por outros estudantes e desenvolvedores."
+            @auth="onCommunityGateAuth"
+        />
     </div>
 </template>
 
@@ -236,6 +258,7 @@ import api from '../services/api';
 import PageContainer from '../components/layout/PageContainer.vue';
 import Badge from '../components/ui/Badge.vue';
 import Footer from '../components/layout/Footer.vue';
+import StudentAuthGateModal from '../components/StudentAuthGateModal.vue';
 import { useAuthStore } from '../stores/auth';
 import { useRouter } from 'vue-router';
 
@@ -255,6 +278,7 @@ const NEW_DAYS_WINDOW = 7;
 const activeEvent = ref(null);
 const claimingEvent = ref(false);
 const eventNotice = ref('');
+const showCommunityGate = ref(false);
 
 const eventNoticeToneClass = computed(() => (
     String(eventNotice.value || '').toLowerCase().includes('sucesso')
@@ -276,6 +300,11 @@ const eventRemainingLabel = computed(() => {
 
 function goToStudentAuth() {
     router.push('/aluno');
+}
+
+function onCommunityGateAuth() {
+    showCommunityGate.value = false;
+    goToStudentAuth();
 }
 
 async function loadActiveEvent() {
