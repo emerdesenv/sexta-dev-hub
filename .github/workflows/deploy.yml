@@ -34,16 +34,20 @@ jobs:
             git reset --hard origin/main
 
             echo "Subindo containers de produção..."
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --remove-orphans
 
             echo "Aguardando aplicação subir..."
-            sleep 10
+            sleep 20
 
-            echo "Validando healthcheck..."
-            if ! curl -f https://${{ secrets.APP_DOMAIN }}/health; then
+            echo "Validando frontend e API..."
+            if ! curl -fsS https://${{ secrets.APP_DOMAIN }}/ \
+              || ! curl -fsS https://${{ secrets.APP_DOMAIN }}/health \
+              || ! curl -fsS https://${{ secrets.APP_DOMAIN }}/api/health; then
               echo "Healthcheck falhou. Executando rollback..."
+              docker compose -f docker-compose.yml -f docker-compose.prod.yml ps
+              docker compose -f docker-compose.yml -f docker-compose.prod.yml logs --tail=120 frontend backend
               git reset --hard $PREVIOUS_COMMIT
-              docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+              docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --remove-orphans
               exit 1
             fi
 
