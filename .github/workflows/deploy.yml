@@ -33,6 +33,11 @@ jobs:
             git fetch origin
             git reset --hard origin/main
 
+            echo "Garantindo permissões seguras do ACME..."
+            mkdir -p traefik/letsencrypt
+            touch traefik/letsencrypt/acme.json
+            chmod 600 traefik/letsencrypt/acme.json
+
             echo "Subindo containers de produção..."
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --remove-orphans
 
