@@ -28,15 +28,20 @@ jobs:
 
             PREVIOUS_COMMIT=$(git rev-parse HEAD)
 
+            ensure_acme_permissions() {
+              mkdir -p traefik/letsencrypt
+              touch traefik/letsencrypt/acme.json
+              chmod 600 traefik/letsencrypt/acme.json
+              stat -c "acme.json perms=%a owner=%U:%G path=%n" traefik/letsencrypt/acme.json
+            }
+
             echo "Commit anterior: $PREVIOUS_COMMIT"
             echo "Atualizando repositório..."
             git fetch origin
             git reset --hard origin/main
 
             echo "Garantindo permissões seguras do ACME..."
-            mkdir -p traefik/letsencrypt
-            touch traefik/letsencrypt/acme.json
-            chmod 600 traefik/letsencrypt/acme.json
+            ensure_acme_permissions
 
             echo "Subindo containers de produção..."
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --remove-orphans
@@ -65,7 +70,10 @@ jobs:
               docker compose -f docker-compose.yml -f docker-compose.prod.yml ps
               docker compose -f docker-compose.yml -f docker-compose.prod.yml logs --tail=120 frontend backend
               git reset --hard $PREVIOUS_COMMIT
+              ensure_acme_permissions
               docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --remove-orphans
+              wait_for_healthy sexta_dev_backend || true
+              wait_for_healthy sexta_dev_frontend || true
               exit 1
             fi
 
@@ -77,7 +85,10 @@ jobs:
               docker compose -f docker-compose.yml -f docker-compose.prod.yml ps
               docker compose -f docker-compose.yml -f docker-compose.prod.yml logs --tail=120 frontend backend
               git reset --hard $PREVIOUS_COMMIT
+              ensure_acme_permissions
               docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --remove-orphans
+              wait_for_healthy sexta_dev_backend || true
+              wait_for_healthy sexta_dev_frontend || true
               exit 1
             fi
 

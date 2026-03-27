@@ -82,22 +82,13 @@ services:
       - no-new-privileges:true
     labels:
       - traefik.enable=true
-      - traefik.http.routers.frontend-root.rule=Host(`${DOMAIN}`)
-      - traefik.http.routers.frontend-root.entrypoints=websecure
-      - traefik.http.routers.frontend-root.tls=true
-      - traefik.http.routers.frontend-root.tls.certresolver=le
-      - traefik.http.routers.frontend-root.priority=1
-      - traefik.http.routers.frontend-root.service=frontend
+      - traefik.http.routers.frontend.rule=Host(`${DOMAIN}`) || Host(`www.${DOMAIN}`)
+      - traefik.http.routers.frontend.entrypoints=websecure
+      - traefik.http.routers.frontend.tls=true
+      - traefik.http.routers.frontend.tls.certresolver=le
+      - traefik.http.routers.frontend.priority=1
+      - traefik.http.routers.frontend.service=frontend
       - traefik.http.services.frontend.loadbalancer.server.port=80
-      - traefik.http.routers.frontend-www.rule=Host(`www.${DOMAIN}`)
-      - traefik.http.routers.frontend-www.entrypoints=websecure
-      - traefik.http.routers.frontend-www.tls=true
-      - traefik.http.routers.frontend-www.tls.certresolver=le
-      - traefik.http.routers.frontend-www.middlewares=redirect-to-root
-      - traefik.http.routers.frontend-www.service=noop@internal
-      - traefik.http.middlewares.redirect-to-root.redirectregex.regex=^https://www\\.(.+)
-      - traefik.http.middlewares.redirect-to-root.redirectregex.replacement=https://$${1}
-      - traefik.http.middlewares.redirect-to-root.redirectregex.permanent=true
     networks:
       - sexta_dev_net
 
