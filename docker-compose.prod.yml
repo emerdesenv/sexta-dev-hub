@@ -42,8 +42,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 20s
-    security_opt:
-      - no-new-privileges:true
     labels:
       - traefik.enable=true
       - traefik.http.routers.backend.rule=Host(`${DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/uploads`) || Path(`/health`))
@@ -62,14 +60,6 @@ services:
       args:
         VITE_API_URL: ${VITE_API_URL}
         VITE_GITHUB_URL: ${VITE_GITHUB_URL}
-    healthcheck:
-      test: ["CMD-SHELL", "wget --spider -q http://localhost/ || exit 1"]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
-    security_opt:
-      - no-new-privileges:true
     labels:
       - traefik.enable=true
       - traefik.http.routers.frontend.rule=Host(`${DOMAIN}`)
