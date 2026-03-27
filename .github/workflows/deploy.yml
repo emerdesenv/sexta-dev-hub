@@ -33,6 +33,12 @@ jobs:
             git fetch origin
             git reset --hard origin/main
 
+            # acme.json vazio/1 byte quebra o resolver LE (JSON parse). Garantir JSON mínimo + 600.
+            mkdir -p traefik/letsencrypt
+            BYTES=$(wc -c < traefik/letsencrypt/acme.json 2>/dev/null || echo 0)
+            if [ "$BYTES" -lt 4 ]; then echo '{}' > traefik/letsencrypt/acme.json; fi
+            chmod 600 traefik/letsencrypt/acme.json
+
             echo "Subindo containers de produção..."
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 

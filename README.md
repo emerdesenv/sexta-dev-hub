@@ -162,6 +162,8 @@ Esse comando irá:
 -   configurar o Traefik
 -   emitir automaticamente certificados SSL
 
+Checklist operacional e armadilhas comuns: [DEPLOY_CHECKLIST.md](./DEPLOY_CHECKLIST.md).
+
 ------------------------------------------------------------------------
 
 # 🌐 Acesso à Aplicação
