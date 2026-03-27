@@ -1,13 +1,20 @@
 import jwt from 'jsonwebtoken';
 import { User } from '../models/index.js';
 
-export async function authRequired(req, res, next) {
+function getTokenFromRequest(req) {
     const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith('Bearer ')) {
+    if (authHeader?.startsWith('Bearer ')) {
+        return authHeader.split(' ')[1];
+    }
+    const cookieName = process.env.AUTH_COOKIE_NAME || 'sdh_auth_token';
+    return req.cookies?.[cookieName] || null;
+}
+
+export async function authRequired(req, res, next) {
+    const token = getTokenFromRequest(req);
+    if (!token) {
         return res.status(401).json({ message: 'Token não informado.' });
     }
-
-    const token = authHeader.split(' ')[1];
     
     try {
         req.user = jwt.verify(token, process.env.JWT_SECRET);
@@ -22,15 +29,22 @@ export async function authRequired(req, res, next) {
     }
 }
 
-export function optionalAuth(req, res, next) {
-    const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith('Bearer ')) {
+export async function optionalAuth(req, res, next) {
+    const token = getTokenFromRequest(req);
+    if (!token) {
         return next();
     }
-
-    const token = authHeader.split(' ')[1];
     try {
-        req.user = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findByPk(decoded.id, { attributes: ['id', 'role', 'is_active'] });
+        if (!user || !user.is_active) {
+            req.user = null;
+            return next();
+        }
+        req.user = {
+            ...decoded,
+            role: user.role
+        };
     } catch {
         req.user = null;
     }

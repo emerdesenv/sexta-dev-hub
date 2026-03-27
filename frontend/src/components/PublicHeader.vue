@@ -1,10 +1,10 @@
 <template>
-    <header class="sticky top-0 z-50 backdrop-blur bg-bg/75 border-b border-border/40">
-        <div class="sd-container py-4 md:py-5 flex items-center justify-between gap-5">
-            <router-link to="/" class="text-lg font-extrabold tracking-tight">
-                <span class="md:hidden inline-block mt-1 ml-4 mb-1">Sexta Dev Hub</span>
+    <header class="sticky top-0 z-50 backdrop-blur bg-bg/75 border-b border-border/40 md:fixed md:left-0 md:right-0">
+        <div class="sd-container header-inner flex items-center justify-between gap-4">
+            <router-link to="/" class="text-lg font-extrabold tracking-tight min-w-0 flex items-center">
+                <span class="md:hidden block text-base leading-none truncate max-w-[65vw]">Dev Hub</span>
                 <span class="hidden md:inline">
-                    Sexta <span class="text-primary-2">Dev</span> Hub
+                    <span class="text-primary-2">Dev</span> Hub
                 </span>
             </router-link>
 
@@ -21,6 +21,12 @@
                     to="/gamificacao"
                 >
                     Gamificação
+                </router-link>
+                <router-link
+                    class="sd-button sd-button-secondary px-3 py-2 text-sm my-1"
+                    to="/comunidade"
+                >
+                    Comunidade
                 </router-link>
                 <router-link
                     v-if="!auth.isAuthenticated"
@@ -86,6 +92,13 @@
                     </button>
                     <div v-if="menuOpen" class="user-menu-dropdown right-0">
                         <router-link
+                            class="user-menu-item"
+                            to="/comunidade"
+                            @click="closeMenu"
+                        >
+                            Comunidade
+                        </router-link>
+                        <router-link
                             v-if="auth.user?.role === 'student'"
                             class="user-menu-item"
                             to="/aluno/conta"
@@ -121,6 +134,7 @@
             </nav>
         </div>
     </header>
+    <div class="hidden md:block header-desktop-spacer" aria-hidden="true"></div>
 </template>
 
 <script setup>
@@ -182,6 +196,22 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.header-inner {
+    padding-top: 0.875rem;
+    padding-bottom: 0.875rem;
+}
+
+@media (min-width: 768px) {
+    .header-inner {
+        padding-top: 1.25rem;
+        padding-bottom: 1.25rem;
+    }
+
+    .header-desktop-spacer {
+        height: 84px;
+    }
+}
+
 .user-menu-button {
     border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
     background: color-mix(in srgb, var(--surface) 94%, transparent);

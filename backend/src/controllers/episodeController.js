@@ -3,6 +3,7 @@ import path from 'path';
 import slugify from 'slugify';
 import { z } from 'zod';
 import { Episode, EpisodeAttempt, UserEpisodeAttemptCredit, UserEpisodeProgress, UserGamification } from '../models/index.js';
+import { validateUploadedFilesSignature } from '../services/upload.js';
 
 const TROPHY_TIER_VALUES = ['bronze', 'silver', 'gold', 'platinum'];
 
@@ -345,8 +346,13 @@ function removeFileIfExists(relativePath) {
 }
 
 export async function createEpisode(req, res) {
+    await validateUploadedFilesSignature(req.files || {});
     normalizeTrophyTierInBody(req.body);
-    const data = episodeSchema.parse(req.body);
+    const parsed = episodeSchema.safeParse(req.body);
+    if (!parsed.success) {
+        return res.status(400).json({ message: 'Dados inválidos para criar episódio.' });
+    }
+    const data = parsed.data;
     const parsedAssessmentConfig = parseAssessmentConfig(data.assessment_config);
     if (data.episode_type === 'assessment' && !data.assessment_mode) {
         return res.status(400).json({ message: 'Defina o modo do episódio avaliativo.' });
@@ -372,8 +378,13 @@ export async function updateEpisode(req, res) {
     const episode = await Episode.findByPk(req.params.id);
     if (!episode) return res.status(404).json({ message: 'Episódio não encontrado.' });
 
+    await validateUploadedFilesSignature(req.files || {});
     normalizeTrophyTierInBody(req.body);
-    const data = episodeSchema.partial().parse(req.body);
+    const parsed = episodeSchema.partial().safeParse(req.body);
+    if (!parsed.success) {
+        return res.status(400).json({ message: 'Dados inválidos para atualizar episódio.' });
+    }
+    const data = parsed.data;
     const parsedAssessmentConfig = data.assessment_config === undefined
         ? undefined
         : parseAssessmentConfig(data.assessment_config);

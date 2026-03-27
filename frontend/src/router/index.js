@@ -8,11 +8,13 @@ import GamificationPage from '../pages/GamificationPage.vue';
 import StudentAuthPage from '../pages/StudentAuthPage.vue';
 import StudentAccountPage from '../pages/StudentAccountPage.vue';
 import StudentCollectionPage from '../pages/StudentCollectionPage.vue';
+import CommunityPage from '../pages/CommunityPage.vue';
 
 const routes = [
     { path: '/', name: 'home', component: PublicHomePage },
     { path: '/gamificacao', name: 'gamification', component: GamificationPage },
     { path: '/aluno', name: 'student-auth', component: StudentAuthPage },
+    { path: '/comunidade', name: 'community', component: CommunityPage },
     { path: '/aluno/conta', name: 'student-account', component: StudentAccountPage, meta: { requiresAuth: true, requiresRole: 'student' } },
     { path: '/aluno/colecao', name: 'student-collection', component: StudentCollectionPage, meta: { requiresAuth: true, requiresRole: 'student' } },
     { path: '/episodio/:slug', name: 'episode-detail', component: EpisodeDetailPage },

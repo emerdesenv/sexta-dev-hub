@@ -9,7 +9,9 @@ export const User = sequelize.define('user', {
     role: { type: DataTypes.STRING(30), allowNull: false, defaultValue: 'professor' },
     is_active: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
     failed_login_attempts: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
-    locked_until: { type: DataTypes.DATE, allowNull: true }
+    locked_until: { type: DataTypes.DATE, allowNull: true },
+    deleted_at: { type: DataTypes.DATE, allowNull: true, defaultValue: null },
+    purge_after: { type: DataTypes.DATE, allowNull: true, defaultValue: null }
 });
 
 User.prototype.checkPassword = function(password) {

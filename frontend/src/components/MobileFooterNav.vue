@@ -78,6 +78,7 @@ const isStudentAuth = computed(() => route.name === 'student-auth' || route.name
     position: fixed;
     left: 0;
     right: 0;
+    max-width: 100vw;
     bottom: 0;
     z-index: 60;
     display: grid;
@@ -87,6 +88,7 @@ const isStudentAuth = computed(() => route.name === 'student-auth' || route.name
     background: color-mix(in srgb, var(--bg) 86%, transparent);
     border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
     backdrop-filter: blur(12px);
+    overflow-x: hidden;
 }
 
 @media (min-width: 768px) {

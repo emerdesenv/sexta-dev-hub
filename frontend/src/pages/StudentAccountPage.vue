@@ -33,33 +33,30 @@
             </section>
 
             <section class="sd-card sd-card-section p-6 md:p-7 mt-6">
-                <h2 class="sd-section-title">Alterar senha</h2>
+                <div class="flex items-center justify-between gap-3 flex-wrap">
+                    <h2 class="sd-section-title">Alterar senha</h2>
+                    <button class="sd-button sd-button-primary" type="button" @click="openPasswordModal">
+                        Alterar senha
+                    </button>
+                </div>
                 <div v-if="notice" class="sd-notice mt-3">{{ notice }}</div>
                 <div v-if="error" class="sd-error mt-3">{{ error }}</div>
-                <form class="mt-4 grid gap-4 max-w-lg" @submit.prevent="updatePassword">
-                    <PasswordInput
-                        v-model="passwordForm.currentPassword"
-                        label="Senha atual"
-                        required
-                        autocomplete="current-password"
-                    />
-                    <PasswordInput
-                        v-model="passwordForm.newPassword"
-                        label="Nova senha"
-                        required
-                        autocomplete="new-password"
-                    />
-                    <PasswordInput
-                        v-model="passwordForm.confirmPassword"
-                        label="Confirmar nova senha"
-                        required
-                        autocomplete="new-password"
-                    />
-                    <p class="text-xs text-muted">Use ao menos 8 caracteres com letras e números.</p>
-                    <button class="sd-button sd-button-primary w-fit" type="submit" :disabled="loadingPassword">
-                        {{ loadingPassword ? 'Salvando...' : 'Salvar nova senha' }}
+                <p class="mt-3 text-sm text-muted">
+                    Abra o modal para atualizar sua senha com segurança.
+                </p>
+            </section>
+
+            <section class="sd-card sd-card-section p-6 md:p-7 mt-6">
+                <div class="flex items-center justify-between gap-3 flex-wrap">
+                    <h2 class="sd-section-title">Zona de risco</h2>
+                    <button class="sd-button sd-button-danger" type="button" @click="openDeleteModal">
+                        Excluir conta
                     </button>
-                </form>
+                </div>
+                <p class="mt-3 text-sm text-muted">
+                    Ao excluir a conta, seu progresso ficará indisponível imediatamente e será removido permanentemente após o prazo de retenção.
+                </p>
+                <div v-if="deleteError" class="sd-error mt-3">{{ deleteError }}</div>
             </section>
 
             <section class="mt-6 grid gap-6 lg:grid-cols-2">
@@ -100,25 +97,104 @@
                 </div>
             </section>
         </PageContainer>
+        <BaseModal
+            v-model="passwordModalOpen"
+            title="Alterar senha"
+            aria-label="Alterar senha"
+            max-width="xl"
+            :disable-close="loadingPassword"
+            @close="closePasswordModal"
+        >
+            <form class="mt-4 grid gap-4" @submit.prevent="updatePassword">
+                <PasswordInput
+                    v-model="passwordForm.currentPassword"
+                    label="Senha atual"
+                    required
+                    autocomplete="current-password"
+                />
+                <PasswordInput
+                    v-model="passwordForm.newPassword"
+                    label="Nova senha"
+                    required
+                    autocomplete="new-password"
+                />
+                <PasswordInput
+                    v-model="passwordForm.confirmPassword"
+                    label="Confirmar nova senha"
+                    required
+                    autocomplete="new-password"
+                />
+                <p class="text-xs text-muted">Use ao menos 8 caracteres com letras e números.</p>
+                <div class="flex items-center justify-end gap-2">
+                    <button class="sd-button sd-button-secondary" type="button" :disabled="loadingPassword" @click="closePasswordModal">
+                        Cancelar
+                    </button>
+                    <button class="sd-button sd-button-primary" type="submit" :disabled="loadingPassword">
+                        {{ loadingPassword ? 'Salvando...' : 'Salvar senha' }}
+                    </button>
+                </div>
+            </form>
+        </BaseModal>
+        <BaseModal
+            v-model="deleteModalOpen"
+            title="Confirmar exclusão da conta"
+            aria-label="Confirmar exclusão da conta"
+            max-width="xl"
+            :disable-close="loadingDelete"
+            @close="closeDeleteModal"
+        >
+            <div class="mt-3 space-y-3">
+                <p class="text-sm text-muted">
+                    Ao confirmar, sua conta será desativada agora e seu progresso será removido permanentemente após o prazo de retenção:
+                </p>
+                <ul class="list-disc pl-5 text-sm text-muted space-y-1">
+                    <li>nível, XP e moedas acumuladas;</li>
+                    <li>histórico de eventos e episódios concluídos;</li>
+                    <li>colecionáveis e demais progressos da plataforma.</li>
+                </ul>
+                <label class="flex items-center gap-2 text-sm text-muted">
+                    <input v-model="deleteConfirmation" type="checkbox" :disabled="loadingDelete" />
+                    Eu entendo que perderei todo o meu progresso.
+                </label>
+                <div class="flex items-center justify-end gap-2 pt-2">
+                    <button class="sd-button sd-button-secondary" type="button" :disabled="loadingDelete" @click="closeDeleteModal">
+                        Cancelar
+                    </button>
+                    <button class="sd-button sd-button-danger" type="button" :disabled="loadingDelete || !deleteConfirmation" @click="deleteAccount">
+                        {{ loadingDelete ? 'Excluindo...' : 'Excluir minha conta' }}
+                    </button>
+                </div>
+            </div>
+        </BaseModal>
         <Footer />
     </div>
 </template>
 
 <script setup>
 import { onMounted, reactive, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import PublicHeader from '../components/PublicHeader.vue';
 import PageContainer from '../components/layout/PageContainer.vue';
 import Footer from '../components/layout/Footer.vue';
 import Badge from '../components/ui/Badge.vue';
 import PasswordInput from '../components/ui/PasswordInput.vue';
+import BaseModal from '../components/ui/BaseModal.vue';
 import api from '../services/api';
+import { useAuthStore } from '../stores/auth';
 
+const router = useRouter();
+const auth = useAuthStore();
 const profile = ref({ username: '' });
 const profileStats = ref({ level: 1, xpTotal: 0 });
 const history = ref({ events: [], completedEpisodes: [] });
 const loadingPassword = ref(false);
+const passwordModalOpen = ref(false);
+const deleteModalOpen = ref(false);
 const notice = ref('');
 const error = ref('');
+const deleteError = ref('');
+const loadingDelete = ref(false);
+const deleteConfirmation = ref(false);
 
 const passwordForm = reactive({
     currentPassword: '',
@@ -157,10 +233,48 @@ async function updatePassword() {
         passwordForm.currentPassword = '';
         passwordForm.newPassword = '';
         passwordForm.confirmPassword = '';
+        passwordModalOpen.value = false;
     } catch (e) {
         error.value = e?.response?.data?.message || 'Não foi possível atualizar a senha.';
     } finally {
         loadingPassword.value = false;
+    }
+}
+
+function openPasswordModal() {
+    error.value = '';
+    notice.value = '';
+    passwordModalOpen.value = true;
+}
+
+function closePasswordModal() {
+    if (loadingPassword.value) return;
+    passwordModalOpen.value = false;
+}
+
+function openDeleteModal() {
+    deleteError.value = '';
+    deleteConfirmation.value = false;
+    deleteModalOpen.value = true;
+}
+
+function closeDeleteModal() {
+    if (loadingDelete.value) return;
+    deleteModalOpen.value = false;
+}
+
+async function deleteAccount() {
+    if (!deleteConfirmation.value) return;
+    loadingDelete.value = true;
+    deleteError.value = '';
+    try {
+        await api.delete('/auth/me');
+        auth.logout();
+        router.push('/aluno');
+    } catch (e) {
+        deleteError.value = e?.response?.data?.message || 'Não foi possível excluir sua conta.';
+    } finally {
+        loadingDelete.value = false;
     }
 }
 

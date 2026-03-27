@@ -11,6 +11,12 @@ import { CollectibleItem } from './CollectibleItem.js';
 import { LimitedEvent } from './LimitedEvent.js';
 import { UserCollectible } from './UserCollectible.js';
 import { UserLimitedEventClaim } from './UserLimitedEventClaim.js';
+import { CommunityTopic } from './CommunityTopic.js';
+import { CommunityReply } from './CommunityReply.js';
+import { CommunityVote } from './CommunityVote.js';
+import { CommunityReport } from './CommunityReport.js';
+import { CommunityModerationLog } from './CommunityModerationLog.js';
+import { UserSession } from './UserSession.js';
 
 User.hasOne(UserGamification, { foreignKey: 'user_id', onDelete: 'CASCADE' });
 UserGamification.belongsTo(User, { foreignKey: 'user_id' });
@@ -61,6 +67,25 @@ UserMissionClaim.belongsTo(User, { foreignKey: 'user_id' });
 
 User.hasMany(UserRewardRedemption, { foreignKey: 'user_id', onDelete: 'CASCADE' });
 UserRewardRedemption.belongsTo(User, { foreignKey: 'user_id' });
+User.hasMany(UserSession, { foreignKey: 'user_id', onDelete: 'CASCADE' });
+UserSession.belongsTo(User, { foreignKey: 'user_id' });
+
+User.hasMany(CommunityTopic, { foreignKey: 'author_user_id', onDelete: 'CASCADE' });
+CommunityTopic.belongsTo(User, { foreignKey: 'author_user_id', as: 'author' });
+CommunityTopic.hasMany(CommunityReply, { foreignKey: 'topic_id', as: 'replies', onDelete: 'CASCADE' });
+CommunityReply.belongsTo(CommunityTopic, { foreignKey: 'topic_id' });
+User.hasMany(CommunityReply, { foreignKey: 'author_user_id', onDelete: 'CASCADE' });
+CommunityReply.belongsTo(User, { foreignKey: 'author_user_id', as: 'author' });
+
+CommunityReply.hasMany(CommunityVote, { foreignKey: 'reply_id', as: 'votes', onDelete: 'CASCADE' });
+CommunityVote.belongsTo(CommunityReply, { foreignKey: 'reply_id' });
+User.hasMany(CommunityVote, { foreignKey: 'user_id', onDelete: 'CASCADE' });
+CommunityVote.belongsTo(User, { foreignKey: 'user_id' });
+
+User.hasMany(CommunityReport, { foreignKey: 'reporter_user_id', onDelete: 'CASCADE' });
+CommunityReport.belongsTo(User, { foreignKey: 'reporter_user_id', as: 'reporter' });
+User.hasMany(CommunityModerationLog, { foreignKey: 'moderator_user_id', onDelete: 'CASCADE' });
+CommunityModerationLog.belongsTo(User, { foreignKey: 'moderator_user_id', as: 'moderator' });
 
 export {
     User,
@@ -75,5 +100,11 @@ export {
     EpisodeAttempt,
     GamificationEvent,
     UserMissionClaim,
-    UserRewardRedemption
+    UserRewardRedemption,
+    UserSession,
+    CommunityTopic,
+    CommunityReply,
+    CommunityVote,
+    CommunityReport,
+    CommunityModerationLog
 };

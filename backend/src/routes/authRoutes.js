@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
-import { getMe, listStudents, login, registerStudent, updateMyPassword, updateStudentStatus } from '../controllers/authController.js';
+import { deleteMyAccount, getMe, listStudents, login, logout, refreshSession, registerStudent, updateMyPassword, updateStudentStatus } from '../controllers/authController.js';
 import { authRequired, professorRequired } from '../middleware/auth.js';
 
 const router = Router();
@@ -22,8 +22,11 @@ const registerLimiter = rateLimit({
 });
 
 router.post('/login', loginLimiter, login);
+router.post('/refresh', refreshSession);
+router.post('/logout', logout);
 router.post('/register-student', registerLimiter, registerStudent);
 router.get('/me', authRequired, getMe);
+router.delete('/me', authRequired, deleteMyAccount);
 router.patch('/me/password', authRequired, updateMyPassword);
 router.get('/students', authRequired, professorRequired, listStudents);
 router.patch('/students/:id/status', authRequired, professorRequired, updateStudentStatus);

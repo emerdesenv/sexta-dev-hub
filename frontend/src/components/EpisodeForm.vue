@@ -1,5 +1,5 @@
 <template>
-    <form class="sd-card p-6 flex flex-col gap-5" @submit.prevent="submitForm">
+    <form class="p-4 md:p-6 flex flex-col gap-5" @submit.prevent="submitForm">
         <h2 class="text-xl font-bold">
             {{ editing ? 'Editar episódio' : 'Novo episódio' }}
         </h2>

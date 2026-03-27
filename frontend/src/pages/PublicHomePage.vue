@@ -4,14 +4,15 @@
         <PageContainer class="pt-10 md:pt-10">
             <section class="sd-card sd-card-section p-7 md:grid md:grid-cols-[1.35fr_0.9fr] md:items-center md:gap-6">
                 <div>
-                    <Badge tone="primary">Conteúdo aberto para alunos</Badge>
-                    <Badge
-                        v-if="auth.isAuthenticated && auth.user?.role === 'student'"
-                        :tone="streakShieldCount > 0 ? 'audio' : 'neutral'"
-                        class="ml-2"
-                    >
-                        Escudo de streak: {{ streakShieldCount }}
-                    </Badge>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <Badge tone="primary">Conteúdo aberto para alunos</Badge>
+                        <Badge
+                            v-if="auth.isAuthenticated && auth.user?.role === 'student'"
+                            :tone="streakShieldCount > 0 ? 'audio' : 'neutral'"
+                        >
+                            Escudo de streak: {{ streakShieldCount }}
+                        </Badge>
+                    </div>
                     <h1 class="mt-4 text-4xl sm:text-5xl font-extrabold leading-tight">
                         Microaulas de ADS
                     </h1>

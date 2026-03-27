@@ -4,7 +4,7 @@
             <div
                 class="border-t border-border/40 pt-6 text-muted text-sm flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between"
             >
-                <span>© {{ new Date().getFullYear() }} Sexta Dev Hub</span>
+                <span>© {{ new Date().getFullYear() }} Dev Hub</span>
                 <div class="flex items-center gap-3">
                     <span>Conteúdos em PDF, áudio e aprendizado técnico.</span>
                     <a

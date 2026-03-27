@@ -202,6 +202,14 @@ Se seu banco já existia antes da feature de avaliação, rode a migração SQL:
 docker exec -i sexta_dev_mysql mysql -u root -p"$MYSQL_ROOT_PASSWORD" "$DB_NAME" < backend/src/scripts/migration_assessment_episode.sql
 ```
 
+### Aplicar schema completo (bootstrap local)
+
+Quando o banco local estiver incompleto, use o SQL único consolidado:
+
+```bash
+docker exec -i sexta_dev_mysql mysql -u root -p"$MYSQL_ROOT_PASSWORD" "$DB_NAME" < backend/scripts/bootstrap_full_schema.sql
+```
+
 ------------------------------------------------------------------------
 
 # 💾 Backup do Banco de Dados
@@ -244,6 +252,39 @@ A infraestrutura possui algumas práticas de segurança:
 -   MySQL acessível apenas via localhost na VPS
 -   containers isolados por rede Docker
 -   proxy reverso centralizado via Traefik
+
+## 🛡 Política de Segurança da Comunidade (Alunos)
+
+Para reduzir abuso, contas falsas e conteúdo ofensivo no módulo de comunidade, o projeto adota uma política em camadas:
+
+### 1) Barreiras de entrada no cadastro
+
+- `STUDENT_REQUIRE_APPROVAL=true`: conta de aluno nasce inativa e só entra após aprovação de professor.
+- `STUDENT_INVITE_CODE=<codigo>`: quando definido, cadastro de aluno exige código de convite válido.
+- fluxo recomendado para turmas fechadas: aprovação + código ativo.
+
+### 2) Moderação reativa e governança
+
+- denúncias continuam ativas para revisão por professor.
+- reincidência deve seguir política pedagógica progressiva:
+  - 1ª ocorrência grave: advertência formal + ocultação
+  - 2ª ocorrência grave: suspensão temporária
+  - recorrência: inativação até alinhamento com coordenação
+
+### 3) Operação recomendada por fase
+
+- pré-início e semanas 1-2:
+  - manter aprovação obrigatória + código de convite
+- turma estabilizada:
+  - manter aprovação obrigatória ou reduzir para código de convite com rotatividade mensal
+- trocar código imediatamente em caso de vazamento.
+
+### 5) Métricas mínimas de acompanhamento
+
+- taxa de bloqueio por severidade (`medium/high`)
+- termos mais acionados no filtro
+- reincidência por usuário
+- tempo médio de resposta de moderação
 
 ------------------------------------------------------------------------
 

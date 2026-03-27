@@ -14,12 +14,11 @@ function applyTheme(gameTheme, uiTheme) {
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
-        token: localStorage.getItem('sexta_dev_token') || '',
         user: JSON.parse(localStorage.getItem('sexta_dev_user') || 'null'),
         theme: localStorage.getItem('sexta_dev_theme') || 'default',
         uiTheme: localStorage.getItem('sexta_dev_ui_theme') || 'system',
     }),
-    getters: { isAuthenticated: (state) => !!state.token },
+    getters: { isAuthenticated: (state) => !!state.user },
     actions: {
         applyCurrentTheme() {
             applyTheme(this.theme, this.uiTheme);
@@ -31,14 +30,12 @@ export const useAuthStore = defineStore('auth', {
         },
         async login(payload) {
             const { data } = await api.post('/auth/login', payload);
-            this.token = data.token;
             this.user = data.user;
-            localStorage.setItem('sexta_dev_token', data.token);
             localStorage.setItem('sexta_dev_user', JSON.stringify(data.user));
             await this.refreshThemePreference();
         },
         async refreshThemePreference() {
-            if (!this.token) {
+            if (!this.user) {
                 this.theme = 'default';
                 localStorage.setItem('sexta_dev_theme', 'default');
                 this.applyCurrentTheme();
@@ -57,11 +54,14 @@ export const useAuthStore = defineStore('auth', {
                 this.applyCurrentTheme();
             }
         },
-        logout() {
-            this.token = '';
+        async logout() {
+            try {
+                await api.post('/auth/logout');
+            } catch {
+                // Ignore network/logout endpoint failures and clear local state anyway.
+            }
             this.user = null;
             this.theme = 'default';
-            localStorage.removeItem('sexta_dev_token');
             localStorage.removeItem('sexta_dev_user');
             localStorage.setItem('sexta_dev_theme', 'default');
             this.applyCurrentTheme();

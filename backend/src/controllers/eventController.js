@@ -204,7 +204,11 @@ export async function adminListItems(req, res) {
 }
 
 export async function adminCreateItem(req, res) {
-    const data = createItemSchema.parse(req.body);
+    const parsed = createItemSchema.safeParse(req.body);
+    if (!parsed.success) {
+        return res.status(400).json({ message: 'Dados inválidos para criar item.' });
+    }
+    const data = parsed.data;
     const key = String(data.key).trim().toLowerCase();
     const existing = await CollectibleItem.findOne({ where: { key } });
     if (existing) {
@@ -251,7 +255,12 @@ export async function adminListEvents(req, res) {
 }
 
 export async function adminCreateEvent(req, res) {
-    const data = createEventSchema.parse(req.body);
+    const parsed = createEventSchema.safeParse(req.body);
+    if (!parsed.success) {
+        const issue = parsed.error.issues[0];
+        return res.status(400).json({ message: issue?.message || 'Dados inválidos para criar evento.' });
+    }
+    const data = parsed.data;
     const key = String(data.key).trim().toLowerCase();
     const existing = await LimitedEvent.findOne({ where: { key } });
     if (existing) {

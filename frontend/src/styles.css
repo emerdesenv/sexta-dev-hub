@@ -60,6 +60,7 @@ body[data-theme='light'] {
 
 html {
     scrollbar-gutter: stable;
+    overflow-x: hidden;
 }
 
 body {
@@ -68,6 +69,7 @@ body {
         Helvetica, sans-serif;
     background: linear-gradient(180deg, #07101c, #0b1220 20%, #0f1630);
     color: var(--text);
+    overflow-x: hidden;
 }
 
 body[data-theme='neon'] {
@@ -93,6 +95,12 @@ a {
     .sd-container {
         padding-left: 1rem;
         padding-right: 1rem;
+    }
+
+    .sd-card,
+    .sd-card-section,
+    .sd-list-item {
+        max-width: 100%;
     }
 }
 
@@ -392,4 +400,57 @@ a {
     background: rgba(255, 123, 123, 0.1);
     padding: 0.75rem 1rem;
     color: #ffb1b1;
+}
+
+.sd-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(3, 8, 20, 0.72);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    z-index: 80;
+}
+
+.sd-modal-panel {
+    width: 100%;
+    border-radius: 14px;
+    border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
+    background: color-mix(in srgb, var(--surface) 98%, transparent);
+    padding: 18px;
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.38);
+    max-height: calc(100dvh - 2rem);
+    overflow-y: auto;
+}
+
+.sd-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 767px) {
+    .sd-modal-overlay {
+        align-items: stretch;
+        padding: 8px;
+    }
+
+    .sd-modal-panel {
+        max-height: calc(100dvh - 1rem);
+        padding: 14px;
+    }
+}
+
+/* Keep VLibras from overlapping core mobile actions/tabs */
+@media (max-width: 767px) {
+    #vlibras-plugin-root [vw-access-button] {
+        right: 10px !important;
+        bottom: calc(74px + env(safe-area-inset-bottom)) !important;
+        transform: scale(0.88);
+        transform-origin: bottom right;
+        z-index: 45 !important;
+    }
 }

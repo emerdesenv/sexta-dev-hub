@@ -1,11 +1,11 @@
 <template>
     <div class="min-h-screen flex flex-col">
         <PublicHeader />
-        <PageContainer class="pt-6">
+        <PageContainer class="pt-4 md:pt-6">
             <main class="py-8">
                 <div class="grid gap-6 lg:grid-cols-[300px_1fr]">
                     <aside class="lg:sticky lg:top-24 self-start">
-                        <div class="sd-card sd-card-section p-6">
+                        <div class="sd-card sd-card-section p-5 md:p-6">
                             <span class="sd-badge sd-badge-primary">Gestão administrativa</span>
                             <h2 class="mt-4 sd-card-title">
                                 Olá, {{ auth.user?.username }}
@@ -27,43 +27,47 @@
                         </div>
                     </aside>
 
-                    <section class="grid gap-6">
-                        <div class="flex flex-wrap gap-2">
+                    <section class="grid gap-6 min-w-0">
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:flex lg:flex-wrap gap-2 min-w-0">
                             <button
                                 type="button"
-                                class="sd-button px-3 py-2 text-sm"
+                                class="sd-button px-3 py-2 text-[0.8rem] sm:text-sm min-h-[44px] w-full lg:w-auto text-center leading-tight whitespace-normal"
                                 :class="activeSection === 'metrics' ? 'sd-button-primary' : 'sd-button-secondary'"
                                 @click="activeSection = 'metrics'"
                             >
-                                Métricas de gamificação
+                                <span class="sm:hidden">Métricas</span>
+                                <span class="hidden sm:inline">Métricas de gamificação</span>
                             </button>
                             <button
                                 type="button"
-                                class="sd-button px-3 py-2 text-sm"
+                                class="sd-button px-3 py-2 text-[0.8rem] sm:text-sm min-h-[44px] w-full lg:w-auto text-center leading-tight whitespace-normal"
                                 :class="activeSection === 'events' ? 'sd-button-primary' : 'sd-button-secondary'"
                                 @click="activeSection = 'events'"
                             >
-                                Eventos recentes
+                                <span class="sm:hidden">Eventos</span>
+                                <span class="hidden sm:inline">Eventos recentes</span>
                             </button>
                             <button
                                 type="button"
-                                class="sd-button px-3 py-2 text-sm"
+                                class="sd-button px-3 py-2 text-[0.8rem] sm:text-sm min-h-[44px] w-full lg:w-auto text-center leading-tight whitespace-normal"
                                 :class="activeSection === 'episodes' ? 'sd-button-primary' : 'sd-button-secondary'"
                                 @click="activeSection = 'episodes'"
                             >
-                                Episódios cadastrados
+                                <span class="sm:hidden">Episódios</span>
+                                <span class="hidden sm:inline">Episódios cadastrados</span>
                             </button>
                             <button
                                 type="button"
-                                class="sd-button px-3 py-2 text-sm"
+                                class="sd-button px-3 py-2 text-[0.8rem] sm:text-sm min-h-[44px] w-full lg:w-auto text-center leading-tight whitespace-normal"
                                 :class="activeSection === 'limited-events' ? 'sd-button-primary' : 'sd-button-secondary'"
                                 @click="activeSection = 'limited-events'"
                             >
-                                Eventos relâmpago
+                                <span class="sm:hidden">Relâmpago</span>
+                                <span class="hidden sm:inline">Eventos relâmpago</span>
                             </button>
                             <button
                                 type="button"
-                                class="sd-button px-3 py-2 text-sm"
+                                class="sd-button px-3 py-2 text-[0.8rem] sm:text-sm min-h-[44px] w-full lg:w-auto text-center leading-tight whitespace-normal"
                                 :class="activeSection === 'students' ? 'sd-button-primary' : 'sd-button-secondary'"
                                 @click="activeSection = 'students'"
                             >
@@ -71,7 +75,7 @@
                             </button>
                         </div>
 
-                        <div v-if="activeSection === 'metrics'" class="sd-card p-6">
+                        <div v-if="activeSection === 'metrics'" class="sd-card p-4 md:p-6 min-w-0">
                             <div class="flex justify-between items-center gap-3 flex-wrap">
                                 <h2 class="sd-section-title">Métricas de gamificação</h2>
                                 <button
@@ -163,7 +167,7 @@
 
                         </div>
 
-                        <div v-if="activeSection === 'events'" class="sd-card p-6">
+                        <div v-if="activeSection === 'events'" class="sd-card p-4 md:p-6 min-w-0">
                             <div class="flex justify-between items-center gap-3 flex-wrap">
                                 <h2 class="sd-section-title">
                                     Eventos recentes
@@ -202,7 +206,7 @@
                             </div>
                         </div>
 
-                        <div v-if="activeSection === 'limited-events'" class="sd-card p-6">
+                        <div v-if="activeSection === 'limited-events'" class="sd-card p-4 md:p-6 min-w-0">
                             <div class="flex justify-between items-center gap-3 flex-wrap">
                                 <h2 class="sd-section-title">Eventos relâmpago</h2>
                                 <div class="flex flex-wrap gap-2">
@@ -380,7 +384,7 @@
                             </section>
                         </div>
 
-                        <div v-if="activeSection === 'students'" class="sd-card p-6">
+                        <div v-if="activeSection === 'students'" class="sd-card p-4 md:p-6 min-w-0">
                             <div class="flex justify-between items-center gap-3 flex-wrap">
                                 <h2 class="sd-section-title">Gerenciar alunos</h2>
                                 <button
@@ -401,7 +405,30 @@
                                 Carregando alunos...
                             </div>
 
-                            <div v-else-if="students.length" class="mt-4 overflow-auto">
+                            <div v-else-if="students.length" class="mt-4 space-y-3 md:hidden">
+                                <article v-for="student in paginatedStudents" :key="student.id" class="sd-list-item p-3">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <div class="font-medium break-words">{{ student.username }}</div>
+                                        <span class="sd-badge" :class="student.isActive ? 'sd-badge-published' : 'sd-badge-draft'">
+                                            {{ student.isActive ? 'Ativo' : 'Inativo' }}
+                                        </span>
+                                    </div>
+                                    <div class="text-xs text-muted mt-2">Criado em {{ formatDateTime(student.createdAt) }}</div>
+                                    <div class="mt-3">
+                                        <button
+                                            class="sd-button px-3 py-2 text-sm w-full"
+                                            type="button"
+                                            :class="student.isActive ? 'sd-button-secondary' : 'sd-button-primary'"
+                                            :disabled="mutatingStudentId === student.id"
+                                            @click="toggleStudentStatus(student)"
+                                        >
+                                            {{ mutatingStudentId === student.id ? 'Salvando...' : (student.isActive ? 'Inativar' : 'Ativar') }}
+                                        </button>
+                                    </div>
+                                </article>
+                            </div>
+
+                            <div v-if="students.length" class="mt-4 overflow-auto hidden md:block">
                                 <table class="sd-table">
                                     <thead>
                                         <tr>
@@ -412,7 +439,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="student in students" :key="student.id">
+                                        <tr v-for="student in paginatedStudents" :key="student.id">
                                             <td class="font-medium">{{ student.username }}</td>
                                             <td>
                                                 <span class="sd-badge" :class="student.isActive ? 'sd-badge-published' : 'sd-badge-draft'">
@@ -436,21 +463,52 @@
                                 </table>
                             </div>
 
+                            <div
+                                v-if="students.length > 0"
+                                class="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between"
+                            >
+                                <span class="text-sm text-muted">
+                                    Mostrando {{ studentsPageFrom }}-{{ studentsPageTo }} de {{ totalStudentsItems }} aluno(s)
+                                </span>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <label class="text-xs text-muted" for="students-per-page-select">Itens por página</label>
+                                    <select
+                                        id="students-per-page-select"
+                                        v-model.number="studentsItemsPerPage"
+                                        class="sd-input !w-auto !py-2 !px-3 text-sm"
+                                    >
+                                        <option v-for="option in perPageOptions" :key="`students-${option}`" :value="option">
+                                            {{ option }}
+                                        </option>
+                                    </select>
+                                    <button
+                                        class="sd-button sd-button-secondary px-3 py-2 text-sm"
+                                        type="button"
+                                        :disabled="loadingStudents || studentsIsFirstPage"
+                                        @click="goToPrevStudentsPage"
+                                    >
+                                        Anterior
+                                    </button>
+                                    <span class="text-sm text-muted">
+                                        Página {{ studentsCurrentPage }} de {{ studentsTotalPages }}
+                                    </span>
+                                    <button
+                                        class="sd-button sd-button-secondary px-3 py-2 text-sm"
+                                        type="button"
+                                        :disabled="loadingStudents || studentsIsLastPage"
+                                        @click="goToNextStudentsPage"
+                                    >
+                                        Próxima
+                                    </button>
+                                </div>
+                            </div>
+
                             <div v-else class="sd-notice mt-4">
                                 Nenhum aluno cadastrado até o momento.
                             </div>
                         </div>
 
-                        <div v-if="activeSection === 'episodes' && showForm">
-                            <EpisodeForm
-                                :editing="editing"
-                                :model-value="selectedEpisode"
-                                @submit="handleSubmit"
-                                @cancel="resetForm"
-                            />
-                        </div>
-
-                        <div v-if="activeSection === 'episodes'" class="sd-card sd-card-section p-6 overflow-auto">
+                        <div v-if="activeSection === 'episodes'" class="sd-card sd-card-section p-4 md:p-6 overflow-auto min-w-0">
                             <div v-if="actionError" class="sd-error mb-4">
                                 {{ actionError }}
                             </div>
@@ -468,7 +526,43 @@
                                 <span class="sd-badge">{{ episodes.length }} registro(s)</span>
                             </div>
 
-                            <table class="sd-table mt-4">
+                            <div class="mt-4 space-y-3 md:hidden">
+                                <article v-for="episode in paginatedEpisodes" :key="episode.id" class="sd-list-item p-3">
+                                    <div class="font-semibold break-words">{{ episode.title }}</div>
+                                    <div class="mt-2 text-xs text-muted flex flex-wrap gap-2">
+                                        <span class="sd-badge">
+                                            {{ episode.episode_type === 'assessment' ? 'Avaliativo' : 'Estudo' }}
+                                        </span>
+                                        <span class="sd-badge">{{ episode.year_target }}º ano</span>
+                                        <span class="sd-badge" :class="episode.is_published ? 'sd-badge-published' : 'sd-badge-draft'">
+                                            {{ episode.is_published ? 'Publicado' : 'Rascunho' }}
+                                        </span>
+                                    </div>
+                                    <div class="mt-2 text-xs text-muted">Categoria: {{ episode.category }}</div>
+                                    <div class="mt-3 flex items-center gap-2">
+                                        <button
+                                            class="sd-button sd-button-secondary px-3 py-2 text-sm w-full"
+                                            type="button"
+                                            :disabled="isMutating || loadingEpisodes"
+                                            @click="editEpisode(episode)"
+                                        >
+                                            Editar
+                                        </button>
+                                        <button
+                                            class="sd-button sd-button-secondary px-3 py-2 text-sm w-full"
+                                            type="button"
+                                            :disabled="isMutating || loadingEpisodes"
+                                            @click="removeEpisode(episode.id)"
+                                        >
+                                            Excluir
+                                        </button>
+                                    </div>
+                                </article>
+                                <div v-if="episodes.length === 0" class="sd-notice">Nenhum episódio cadastrado.</div>
+                            </div>
+
+                            <div class="hidden md:block overflow-auto">
+                            <table class="sd-table">
                                 <thead>
                                     <tr>
                                         <th>Título</th>
@@ -545,6 +639,7 @@
                                     </tr>
                                 </tbody>
                             </table>
+                            </div>
                             <div
                                 v-if="episodes.length > 0"
                                 class="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between"
@@ -590,53 +685,58 @@
                 </div>
             </main>
         </PageContainer>
-        <Teleport to="body">
-            <div
-                v-if="selectedAssessment"
-                class="row-actions-menu-overlay"
-                role="dialog"
-                aria-modal="true"
-                aria-label="Detalhes da atividade avaliativa"
-                @click.self="selectedAssessment = null"
-            >
-                <div class="row-actions-modal" @click.stop>
-                    <div class="flex items-center justify-between gap-2">
-                        <h3 class="sd-card-title">Desempenho por aluno</h3>
-                        <button type="button" class="sd-button sd-button-secondary px-3 py-2 text-sm" @click="selectedAssessment = null">
-                            Fechar
-                        </button>
-                    </div>
-                    <p class="text-sm text-muted mt-1">{{ selectedAssessment.title }} • {{ formatAssessmentMode(selectedAssessment.mode) }}</p>
-                    <div class="mt-4 max-h-[60vh] overflow-auto">
-                        <table class="sd-table">
-                            <thead>
-                                <tr>
-                                    <th>Aluno</th>
-                                    <th class="text-right">Tentativas</th>
-                                    <th class="text-right">Melhor nota</th>
-                                    <th class="text-center">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="student in selectedAssessment.students" :key="`${selectedAssessment.episodeId}-${student.userId}`">
-                                    <td>{{ student.username }}</td>
-                                    <td class="text-right">{{ student.attemptsUsed }}</td>
-                                    <td class="text-right">{{ student.bestScore }}%</td>
-                                    <td class="text-center">
-                                        <span class="sd-badge" :class="student.passed ? 'sd-badge-published' : 'sd-badge-draft'">
-                                            {{ student.passed ? 'Aprovado' : 'Reprovado' }}
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr v-if="!selectedAssessment.students?.length">
-                                    <td colspan="4" class="py-6 text-center text-muted">Sem dados de alunos para esta atividade.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+        <BaseModal
+            v-model="showForm"
+            :title="editing ? 'Editar episódio' : 'Novo episódio'"
+            aria-label="Formulário de episódio"
+            max-width="5xl"
+            :disable-close="isMutating"
+            @close="resetForm"
+        >
+            <EpisodeForm
+                :editing="editing"
+                :model-value="selectedEpisode"
+                @submit="handleSubmit"
+                @cancel="resetForm"
+            />
+        </BaseModal>
+        <BaseModal
+            :model-value="Boolean(selectedAssessment)"
+            title="Desempenho por aluno"
+            aria-label="Detalhes da atividade avaliativa"
+            max-width="4xl"
+            @update:model-value="(value) => { if (!value) selectedAssessment = null; }"
+            @close="selectedAssessment = null"
+        >
+            <p v-if="selectedAssessment" class="text-sm text-muted mt-1">{{ selectedAssessment.title }} • {{ formatAssessmentMode(selectedAssessment.mode) }}</p>
+            <div v-if="selectedAssessment" class="mt-4 max-h-[60vh] overflow-auto">
+                <table class="sd-table">
+                    <thead>
+                        <tr>
+                            <th>Aluno</th>
+                            <th class="text-right">Tentativas</th>
+                            <th class="text-right">Melhor nota</th>
+                            <th class="text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="student in selectedAssessment.students" :key="`${selectedAssessment.episodeId}-${student.userId}`">
+                            <td>{{ student.username }}</td>
+                            <td class="text-right">{{ student.attemptsUsed }}</td>
+                            <td class="text-right">{{ student.bestScore }}%</td>
+                            <td class="text-center">
+                                <span class="sd-badge" :class="student.passed ? 'sd-badge-published' : 'sd-badge-draft'">
+                                    {{ student.passed ? 'Aprovado' : 'Reprovado' }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr v-if="!selectedAssessment.students?.length">
+                            <td colspan="4" class="py-6 text-center text-muted">Sem dados de alunos para esta atividade.</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-        </Teleport>
+        </BaseModal>
         <Footer />
     </div>
 </template>
@@ -645,6 +745,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import PublicHeader from '../components/PublicHeader.vue';
 import EpisodeForm from '../components/EpisodeForm.vue';
+import BaseModal from '../components/ui/BaseModal.vue';
 import api from '../services/api';
 import { useAuthStore } from '../stores/auth';
 import PageContainer from '../components/layout/PageContainer.vue';
@@ -693,6 +794,8 @@ const students = ref([]);
 const loadingStudents = ref(false);
 const studentsError = ref('');
 const mutatingStudentId = ref(null);
+const studentsCurrentPage = ref(1);
+const studentsItemsPerPage = ref(10);
 const iconCatalog = collectibleIconCatalog;
 
 const itemForm = ref({
@@ -723,6 +826,15 @@ const pageFrom = computed(() => (totalItems.value ? startIndex.value + 1 : 0));
 const pageTo = computed(() => Math.min(endIndex.value, totalItems.value));
 const isFirstPage = computed(() => currentPage.value <= 1);
 const isLastPage = computed(() => currentPage.value >= totalPages.value);
+const totalStudentsItems = computed(() => students.value.length);
+const studentsTotalPages = computed(() => Math.max(1, Math.ceil(totalStudentsItems.value / studentsItemsPerPage.value)));
+const studentsStartIndex = computed(() => (studentsCurrentPage.value - 1) * studentsItemsPerPage.value);
+const studentsEndIndex = computed(() => studentsStartIndex.value + studentsItemsPerPage.value);
+const paginatedStudents = computed(() => students.value.slice(studentsStartIndex.value, studentsEndIndex.value));
+const studentsPageFrom = computed(() => (totalStudentsItems.value ? studentsStartIndex.value + 1 : 0));
+const studentsPageTo = computed(() => Math.min(studentsEndIndex.value, totalStudentsItems.value));
+const studentsIsFirstPage = computed(() => studentsCurrentPage.value <= 1);
+const studentsIsLastPage = computed(() => studentsCurrentPage.value >= studentsTotalPages.value);
 const openActionMenuId = ref(null);
 
 watch(itemsPerPage, () => {
@@ -732,6 +844,16 @@ watch(itemsPerPage, () => {
 watch(totalPages, (pages) => {
     if (currentPage.value > pages) {
         currentPage.value = pages;
+    }
+});
+
+watch(studentsItemsPerPage, () => {
+    studentsCurrentPage.value = 1;
+});
+
+watch(studentsTotalPages, (pages) => {
+    if (studentsCurrentPage.value > pages) {
+        studentsCurrentPage.value = pages;
     }
 });
 
@@ -849,6 +971,7 @@ async function loadStudents() {
     try {
         const { data } = await api.get('/auth/students');
         students.value = Array.isArray(data) ? data : [];
+        studentsCurrentPage.value = 1;
     } catch (e) {
         students.value = [];
         studentsError.value = e?.response?.data?.message || 'Não foi possível carregar os alunos.';
@@ -894,6 +1017,16 @@ function goToNextPage() {
     currentPage.value += 1;
 }
 
+function goToPrevStudentsPage() {
+    if (studentsIsFirstPage.value) return;
+    studentsCurrentPage.value -= 1;
+}
+
+function goToNextStudentsPage() {
+    if (studentsIsLastPage.value) return;
+    studentsCurrentPage.value += 1;
+}
+
 function closeActionMenu() {
     openActionMenuId.value = null;
 }
@@ -918,6 +1051,7 @@ function handleDocumentClick() {
 
 function openCreate() {
     if (isMutating.value) return;
+    activeSection.value = 'episodes';
     editing.value = false;
     selectedEpisode.value = null;
     showForm.value = true;
@@ -925,6 +1059,7 @@ function openCreate() {
 
 function editEpisode(episode) {
     if (isMutating.value) return;
+    activeSection.value = 'episodes';
     editing.value = true;
     selectedEpisode.value = episode;
     showForm.value = true;
@@ -1019,24 +1154,4 @@ onBeforeUnmount(() => {
     color: color-mix(in srgb, var(--danger) 78%, white);
 }
 
-.row-actions-menu-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(3, 8, 20, 0.72);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-    z-index: 80;
-}
-
-.row-actions-modal {
-    width: 100%;
-    max-width: 880px;
-    border-radius: 14px;
-    border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
-    background: color-mix(in srgb, var(--surface) 98%, transparent);
-    padding: 18px;
-    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.38);
-}
 </style>

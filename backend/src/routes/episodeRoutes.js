@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { createEpisode, deleteEpisode, getPublicBySlug, listAdmin, listPublic, updateEpisode } from '../controllers/episodeController.js';
-import { authRequired, optionalAuth } from '../middleware/auth.js';
+import { authRequired, optionalAuth, professorRequired } from '../middleware/auth.js';
 import { upload } from '../services/upload.js';
 
 const router = Router();
@@ -14,8 +14,8 @@ const multipart = upload.fields([
 router.get('/public', optionalAuth, listPublic);
 router.get('/public/:slug', optionalAuth, getPublicBySlug);
 router.get('/', authRequired, listAdmin);
-router.post('/', authRequired, multipart, createEpisode);
-router.put('/:id', authRequired, multipart, updateEpisode);
-router.delete('/:id', authRequired, deleteEpisode);
+router.post('/', authRequired, professorRequired, multipart, createEpisode);
+router.put('/:id', authRequired, professorRequired, multipart, updateEpisode);
+router.delete('/:id', authRequired, professorRequired, deleteEpisode);
 
 export default router;
