@@ -1,0 +1,28 @@
+---
+description: Alinhar features com regras de negocio do produto
+globs: {backend/src/**/*,frontend/src/**/*}.{js,ts,vue}
+alwaysApply: false
+---
+
+# Regras de negocio do produto
+
+Ao implementar, refatorar ou revisar fluxos de produto (autenticacao, cadastro, comunidade, gamificacao, permissoes e exibicao de dados), consulte `ai/product/BUSINESS_RULES.md` antes de propor mudancas.
+
+## Quando aplicar
+
+- Criacao/alteracao de endpoint que afeta comportamento visivel ao usuario
+- Mudanca em regras de permissao, estados de conta, status, visibilidade
+- Mudanca de UX que representa uma politica de produto (ex.: pode responder, pode excluir, pode listar)
+- Ajustes de frontend que dependem de regra de negocio da API
+
+## Como responder
+
+- Cite explicitamente a regra de negocio aplicada (ou conflito identificado)
+- Se a regra no codigo divergir da documentacao, sinalize e proponha atualizar o `BUSINESS_RULES.md`
+- Nao invente politica nova sem registrar a regra no documento
+
+## Exemplo rapido
+
+- Antes: liberar resposta em qualquer topico
+- Regra: topico com autor removido nao aceita novas respostas
+- Acao: bloquear no backend e refletir no frontend com mensagem clara

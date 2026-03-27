@@ -22,6 +22,9 @@ Cada agente possui:
 - test-engineer
 - product-designer
 
+## Regras de negócio
+Papéis que envolvem fluxo do produto devem considerar `/ai/product/BUSINESS_RULES.md` (além dos arquivos listados no próprio agente).
+
 ## Regra geral
 Antes de responder, o agente deve consultar os arquivos listados em sua seção "Deve consultar primeiro".
 

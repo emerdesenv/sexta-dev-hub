@@ -1,0 +1,22 @@
+---
+description: Validar aderencia a regras de negocio em revisoes
+globs: {backend/src/**/*,frontend/src/**/*}.{js,ts,vue}
+alwaysApply: false
+---
+
+# Checklist de regra de negocio em review
+
+Em revisoes de codigo, code review ou preparacao de PR que alterem comportamento de produto, valide contra `ai/product/BUSINESS_RULES.md`.
+
+## Checklist minimo
+
+- A mudanca respeita regras existentes de permissao e visibilidade?
+- Existe regressao de fluxo de usuario documentado?
+- Se nova regra foi introduzida, ela foi registrada em `BUSINESS_RULES.md`?
+- Frontend e backend estao consistentes com a mesma regra?
+
+## Formato esperado em review
+
+- Listar achados de regra de negocio primeiro (se houver)
+- Explicitar risco funcional quando houver divergencia do documento
+- Se estiver conforme, registrar: "Aderente a BUSINESS_RULES.md para este fluxo"

@@ -8,6 +8,7 @@ Traduzir requisitos, ideias e referências visuais em orientação prática para
 
 ## Deve consultar primeiro
 - /ai/README_AI.md
+- /ai/product/BUSINESS_RULES.md
 - /ai/context/AI_CONTEXT.md
 - /ai/design/DESIGN_SYSTEM.md
 - /ai/prompts/FIGMA_PROMPTS.md

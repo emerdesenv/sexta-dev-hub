@@ -10,6 +10,7 @@ Implementar interfaces, componentes e fluxos de usuário seguindo o design syste
 - /ai/README_AI.md
 - /ai/context/AI_CONTEXT.md
 - /ai/governance/AI_RULES.md
+- /ai/product/BUSINESS_RULES.md
 - /ai/context/PROJECT_MAP.md
 - /ai/governance/CODE_STYLE.md
 - /ai/design/DESIGN_SYSTEM.md

@@ -187,7 +187,23 @@
                                 {{ selectedTopic.topic.status === 'hidden' ? 'Reexibir tópico' : 'Ocultar tópico' }}
                             </button>
                         </div>
-                        <p class="mt-3 text-muted">{{ selectedTopic.topic.content }}</p>
+                        <p class="mt-3 text-muted whitespace-pre-wrap break-words">
+                            <template
+                                v-for="(part, index) in splitTextWithLinks(selectedTopic.topic.content)"
+                                :key="`topic-content-${index}`"
+                            >
+                                <a
+                                    v-if="part.type === 'link'"
+                                    :href="part.value"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="underline text-blue-300 hover:text-blue-200"
+                                >
+                                    {{ part.value }}
+                                </a>
+                                <span v-else>{{ part.value }}</span>
+                            </template>
+                        </p>
                         <div class="mt-2 flex items-center gap-2 flex-wrap">
                             <Badge :tone="selectedTopic.topic.isAnonymous ? 'warning' : (selectedTopic.topic.author?.role === 'professor' ? 'pro' : 'info')">
                                 {{ selectedTopic.topic.isAnonymous ? 'Anônimo' : (selectedTopic.topic.author?.username || 'Usuário') }}
@@ -210,7 +226,23 @@
                                         <Badge v-else-if="reply.isOfficial" tone="success">Oficial</Badge>
                                     </div>
                                 </div>
-                                <p class="mt-1 text-sm">{{ reply.content }}</p>
+                                <p class="mt-1 text-sm whitespace-pre-wrap break-words">
+                                    <template
+                                        v-for="(part, index) in splitTextWithLinks(reply.content)"
+                                        :key="`reply-content-${reply.id}-${index}`"
+                                    >
+                                        <a
+                                            v-if="part.type === 'link'"
+                                            :href="part.value"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="underline text-blue-300 hover:text-blue-200"
+                                        >
+                                            {{ part.value }}
+                                        </a>
+                                        <span v-else>{{ part.value }}</span>
+                                    </template>
+                                </p>
                                 <div class="mt-2 flex items-center gap-2 flex-wrap">
                                     <button
                                         v-if="auth.isAuthenticated"
@@ -390,6 +422,33 @@ function categoryLabel(category) {
 function phaseLabel(phase) {
     if (!phase) return 'Fase não informada';
     return `Fase ${phase}`;
+}
+
+function splitTextWithLinks(input) {
+    const text = String(input || '');
+    if (!text) return [{ type: 'text', value: '' }];
+
+    const urlRegex = /(https?:\/\/[^\s<>"']+)/g;
+    const parts = [];
+    let lastIndex = 0;
+    let match = urlRegex.exec(text);
+
+    while (match) {
+        const url = match[0];
+        const start = match.index;
+        if (start > lastIndex) {
+            parts.push({ type: 'text', value: text.slice(lastIndex, start) });
+        }
+        parts.push({ type: 'link', value: url });
+        lastIndex = start + url.length;
+        match = urlRegex.exec(text);
+    }
+
+    if (lastIndex < text.length) {
+        parts.push({ type: 'text', value: text.slice(lastIndex) });
+    }
+
+    return parts.length ? parts : [{ type: 'text', value: text }];
 }
 
 function canSetBestReply(reply) {

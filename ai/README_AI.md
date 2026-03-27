@@ -26,6 +26,14 @@ Contém:
 
 ---
 
+## Regras de negócio do produto
+
+`/ai/product/BUSINESS_RULES.md`
+
+Descreve **o que o produto permite ou exige** (autenticação, comunidade, cadastro de aluno, gamificação, etc.), em linguagem de negócio. Complementa a documentação técnica abaixo.
+
+---
+
 ## Regras para IA
 
 `/ai/governance/AI_RULES.md`
@@ -144,9 +152,10 @@ Antes de gerar ou alterar código, a IA deve:
 
 1. Ler `/ai/context/AI_CONTEXT.md`  
 2. Ler `/ai/governance/AI_RULES.md`  
-3. Entender `/ai/context/PROJECT_MAP.md`  
-4. Seguir padrões definidos em `/ai/design/DESIGN_SYSTEM.md`  
-5. Respeitar decisões arquiteturais em `/ai/context/ARCHITECTURE.md`  
+3. Quando a mudança afetar fluxos de usuário ou políticas do produto, alinhar com `/ai/product/BUSINESS_RULES.md`  
+4. Entender `/ai/context/PROJECT_MAP.md`  
+5. Seguir padrões definidos em `/ai/design/DESIGN_SYSTEM.md`  
+6. Respeitar decisões arquiteturais em `/ai/context/ARCHITECTURE.md`  
 
 ---
 

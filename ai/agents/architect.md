@@ -10,6 +10,7 @@ Garantir que decisões técnicas, novas features e refatorações respeitem a ar
 - /ai/README_AI.md
 - /ai/context/AI_CONTEXT.md
 - /ai/governance/AI_RULES.md
+- /ai/product/BUSINESS_RULES.md
 - /ai/context/ARCHITECTURE.md
 - /ai/context/PROJECT_MAP.md
 - /ai/governance/CONSTRAINTS.md
