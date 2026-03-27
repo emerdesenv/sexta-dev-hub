@@ -63,3 +63,8 @@ backend/uploads/*
 
 tmp/
 temp/
+
+# ========================
+# TRAEFIK
+# ========================
+traefik/letsencrypt/acme.json
