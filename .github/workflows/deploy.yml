@@ -78,9 +78,11 @@ jobs:
             fi
 
             echo "Validando frontend e API..."
-            if ! curl -fsS https://${{ secrets.APP_DOMAIN }}/ \
-              || ! curl -fsS https://${{ secrets.APP_DOMAIN }}/health \
-              || ! curl -fsS https://${{ secrets.APP_DOMAIN }}/api/health; then
+            # Temporary: keep deploy stable while LE rate-limit is active.
+            # Once public certificate issuance is normalized, remove -k.
+            if ! curl -kfsS https://${{ secrets.APP_DOMAIN }}/ \
+              || ! curl -kfsS https://${{ secrets.APP_DOMAIN }}/health \
+              || ! curl -kfsS https://${{ secrets.APP_DOMAIN }}/api/health; then
               echo "Healthcheck falhou. Executando rollback..."
               docker compose -f docker-compose.yml -f docker-compose.prod.yml ps
               docker compose -f docker-compose.yml -f docker-compose.prod.yml logs --tail=120 frontend backend
