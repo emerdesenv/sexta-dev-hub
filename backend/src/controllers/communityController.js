@@ -1,5 +1,6 @@
 import { Op } from 'sequelize';
 import { z } from 'zod';
+import { sequelize } from '../config/database.js';
 import {
     CommunityModerationLog,
     CommunityReply,
@@ -64,19 +65,38 @@ function validationErrorResponse(res, parsed) {
     });
 }
 
+const COMMUNITY_AUTHOR_ATTRIBUTES = ['id', 'username', 'role', 'deleted_at'];
+const REMOVED_COMMUNITY_USER_LABEL = 'Usuário removido';
+
 function toTopicSummary(topic, { viewerRole = '', viewerId = 0 } = {}) {
     const isAnonymous = Boolean(topic.is_anonymous);
     const isProfessorViewer = viewerRole === 'professor';
     const isMine = Number(topic.author_user_id) === Number(viewerId);
-    const shouldMaskAuthor = isAnonymous && !isProfessorViewer;
+    const shouldMaskAnonymous = isAnonymous && !isProfessorViewer;
 
-    const author = topic.author
-        ? {
-            id: shouldMaskAuthor ? null : topic.author.id,
-            username: shouldMaskAuthor ? 'Aluno anônimo' : topic.author.username,
-            role: shouldMaskAuthor ? 'student' : topic.author.role
+    let author = null;
+    if (topic.author) {
+        if (topic.author.deleted_at) {
+            author = {
+                id: isProfessorViewer ? topic.author.id : null,
+                username: REMOVED_COMMUNITY_USER_LABEL,
+                role: topic.author.role
+            };
+        } else if (shouldMaskAnonymous) {
+            author = { id: null, username: 'Aluno anônimo', role: 'student' };
+        } else {
+            author = {
+                id: topic.author.id,
+                username: topic.author.username,
+                role: topic.author.role
+            };
         }
-        : (shouldMaskAuthor ? { id: null, username: 'Aluno anônimo', role: 'student' } : null);
+    } else if (shouldMaskAnonymous) {
+        author = { id: null, username: 'Aluno anônimo', role: 'student' };
+    }
+
+    const authorAccountRemoved = Boolean(topic.author?.deleted_at);
+    const repliesOpen = !authorAccountRemoved && !['archived', 'hidden'].includes(String(topic.status || ''));
 
     return {
         id: topic.id,
@@ -92,11 +112,30 @@ function toTopicSummary(topic, { viewerRole = '', viewerId = 0 } = {}) {
         createdAt: topic.created_at,
         updatedAt: topic.updated_at,
         author,
+        authorAccountRemoved,
+        repliesOpen,
         repliesCount: Number(topic.replies_count || 0)
     };
 }
 
-function toReplyPayload(reply) {
+function toReplyPayload(reply, { viewerRole = '' } = {}) {
+    const isProfessorViewer = viewerRole === 'professor';
+    let author = null;
+    if (reply.author) {
+        if (reply.author.deleted_at) {
+            author = {
+                id: isProfessorViewer ? reply.author.id : null,
+                username: REMOVED_COMMUNITY_USER_LABEL,
+                role: reply.author.role
+            };
+        } else {
+            author = {
+                id: reply.author.id,
+                username: reply.author.username,
+                role: reply.author.role
+            };
+        }
+    }
     return {
         id: reply.id,
         topicId: reply.topic_id,
@@ -107,13 +146,7 @@ function toReplyPayload(reply) {
         viewerVoted: Boolean(reply.viewer_voted || false),
         createdAt: reply.created_at,
         updatedAt: reply.updated_at,
-        author: reply.author
-            ? {
-                id: reply.author.id,
-                username: reply.author.username,
-                role: reply.author.role
-            }
-            : null
+        author
     };
 }
 
@@ -147,11 +180,26 @@ export async function listTopics(req, res) {
         ];
     }
 
+    const removedAuthorsOnly = ['1', 'true', 'yes', 'on'].includes(
+        String(req.query.removedAuthorsOnly || '').trim().toLowerCase()
+    );
+    if (removedAuthorsOnly && req.user?.role !== 'professor') {
+        return res.status(403).json({ message: 'Acesso restrito para professor.' });
+    }
+
+    const authorInclude = {
+        model: User,
+        as: 'author',
+        attributes: COMMUNITY_AUTHOR_ATTRIBUTES
+    };
+    if (removedAuthorsOnly) {
+        authorInclude.where = { deleted_at: { [Op.ne]: null } };
+        authorInclude.required = true;
+    }
+
     const rows = await CommunityTopic.findAll({
         where,
-        include: [
-            { model: User, as: 'author', attributes: ['id', 'username', 'role'] }
-        ],
+        include: [authorInclude],
         order: [['created_at', 'DESC']],
         limit: 50,
         subQuery: false
@@ -205,7 +253,7 @@ export async function createTopic(req, res) {
     });
 
     const full = await CommunityTopic.findByPk(topic.id, {
-        include: [{ model: User, as: 'author', attributes: ['id', 'username', 'role'] }]
+        include: [{ model: User, as: 'author', attributes: COMMUNITY_AUTHOR_ATTRIBUTES }]
     });
 
     return res.status(201).json(toTopicSummary(
@@ -231,7 +279,7 @@ export async function updateTopic(req, res) {
     }
 
     const topic = await CommunityTopic.findByPk(topicId, {
-        include: [{ model: User, as: 'author', attributes: ['id', 'username', 'role'] }]
+        include: [{ model: User, as: 'author', attributes: COMMUNITY_AUTHOR_ATTRIBUTES }]
     });
     if (!topic) {
         return res.status(404).json({ message: 'Tópico não encontrado.' });
@@ -266,7 +314,7 @@ export async function getTopicById(req, res) {
     }
 
     const topic = await CommunityTopic.findByPk(topicId, {
-        include: [{ model: User, as: 'author', attributes: ['id', 'username', 'role'] }]
+        include: [{ model: User, as: 'author', attributes: COMMUNITY_AUTHOR_ATTRIBUTES }]
     });
 
     if (!topic || (topic.status === 'hidden' && req.user?.role !== 'professor')) {
@@ -278,7 +326,7 @@ export async function getTopicById(req, res) {
             topic_id: topicId,
             ...(req.user?.role === 'professor' ? {} : { is_hidden: false })
         },
-        include: [{ model: User, as: 'author', attributes: ['id', 'username', 'role'] }],
+        include: [{ model: User, as: 'author', attributes: COMMUNITY_AUTHOR_ATTRIBUTES }],
         order: [['created_at', 'ASC']]
     });
     const replyIds = replies.map((reply) => Number(reply.id)).filter((id) => Number.isInteger(id) && id > 0);
@@ -308,7 +356,7 @@ export async function getTopicById(req, res) {
             ...reply.toJSON(),
             votes_count: votesByReplyId.get(Number(reply.id)) || 0,
             viewer_voted: viewerVotes.has(Number(reply.id))
-        }))
+        }, { viewerRole: req.user?.role }))
     });
 }
 
@@ -328,12 +376,19 @@ export async function createReply(req, res) {
             severity: moderation.severity
         });
     }
-    const topic = await CommunityTopic.findByPk(topicId);
+    const topic = await CommunityTopic.findByPk(topicId, {
+        include: [{ model: User, as: 'author', attributes: ['id', 'deleted_at'] }]
+    });
     if (!topic) {
         return res.status(404).json({ message: 'Tópico não encontrado.' });
     }
     if (topic.status === 'archived' || topic.status === 'hidden') {
         return res.status(409).json({ message: 'Este tópico está fechado para novas respostas.' });
+    }
+    if (topic.author?.deleted_at) {
+        return res.status(409).json({
+            message: 'Não é possível responder: o autor deste tópico removeu a conta.'
+        });
     }
 
     const reply = await CommunityReply.create({
@@ -344,10 +399,10 @@ export async function createReply(req, res) {
     });
 
     const full = await CommunityReply.findByPk(reply.id, {
-        include: [{ model: User, as: 'author', attributes: ['id', 'username', 'role'] }]
+        include: [{ model: User, as: 'author', attributes: COMMUNITY_AUTHOR_ATTRIBUTES }]
     });
 
-    return res.status(201).json(toReplyPayload(full));
+    return res.status(201).json(toReplyPayload(full, { viewerRole: req.user?.role }));
 }
 
 export async function updateTopicStatus(req, res) {
@@ -365,6 +420,56 @@ export async function updateTopicStatus(req, res) {
     }
     await topic.update({ status: data.status });
     return res.json({ message: 'Status atualizado com sucesso.' });
+}
+
+export async function deleteTopic(req, res) {
+    const topicId = Number(req.params.id);
+    if (!Number.isInteger(topicId) || topicId <= 0) {
+        return res.status(400).json({ message: 'ID de tópico inválido.' });
+    }
+
+    const topic = await CommunityTopic.findByPk(topicId, {
+        include: [{ model: User, as: 'author', attributes: COMMUNITY_AUTHOR_ATTRIBUTES }]
+    });
+    if (!topic) {
+        return res.status(404).json({ message: 'Tópico não encontrado.' });
+    }
+    if (!topic.author?.deleted_at) {
+        return res.status(403).json({
+            message: 'Somente tópicos cujo autor removeu a conta podem ser excluídos por esta ação.'
+        });
+    }
+
+    const replyRows = await CommunityReply.findAll({
+        where: { topic_id: topicId },
+        attributes: ['id'],
+        raw: true
+    });
+    const replyIds = replyRows.map((r) => Number(r.id)).filter((id) => Number.isInteger(id) && id > 0);
+
+    const transaction = await sequelize.transaction();
+    try {
+        await CommunityReport.destroy({
+            where: {
+                [Op.or]: [
+                    { target_type: 'topic', target_id: topicId },
+                    ...(replyIds.length ? [{ target_type: 'reply', target_id: { [Op.in]: replyIds } }] : [])
+                ]
+            },
+            transaction
+        });
+        if (replyIds.length) {
+            await CommunityVote.destroy({ where: { reply_id: replyIds }, transaction });
+        }
+        await CommunityReply.destroy({ where: { topic_id: topicId }, transaction });
+        await topic.destroy({ transaction });
+        await transaction.commit();
+    } catch (err) {
+        await transaction.rollback();
+        throw err;
+    }
+
+    return res.json({ message: 'Tópico excluído com sucesso.' });
 }
 
 export async function voteReply(req, res) {

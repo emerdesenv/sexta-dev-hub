@@ -67,6 +67,15 @@
                             v-if="isProfessorView"
                             class="sd-button px-3 py-2 text-sm"
                             type="button"
+                            :class="topicScope === 'removedAuthors' ? 'sd-button-primary' : 'sd-button-secondary'"
+                            @click="topicScope = 'removedAuthors'"
+                        >
+                            Autores removidos
+                        </button>
+                        <button
+                            v-if="isProfessorView"
+                            class="sd-button px-3 py-2 text-sm"
+                            type="button"
                             :class="topicScope === 'reports' ? 'sd-button-primary' : 'sd-button-secondary'"
                             @click="topicScope = 'reports'"
                         >
@@ -94,13 +103,14 @@
                                 <Badge :tone="topic.isAnonymous ? 'warning' : (topic.author?.role === 'professor' ? 'pro' : 'info')">
                                     {{ topic.isAnonymous ? 'Anônimo' : (topic.author?.username || 'Usuário') }}
                                 </Badge>
+                                <Badge v-if="topic.authorAccountRemoved" tone="warning">Autor removido</Badge>
                                 <Badge v-if="topic.isMine" tone="info">Meu tópico</Badge>
                                 <Badge tone="neutral">{{ phaseLabel(topic.phase) }}</Badge>
                                 <Badge tone="neutral">{{ topic.repliesCount || 0 }} respostas</Badge>
                             </div>
                         </button>
                         <div v-if="!visibleTopics.length" class="sd-notice">
-                            {{ topicScope === 'mine' ? 'Você ainda não criou tópicos.' : 'Nenhum tópico encontrado.' }}
+                            {{ emptyTopicsMessage }}
                         </div>
                     </div>
 
@@ -153,6 +163,15 @@
                                 >
                                     Editar tópico
                                 </button>
+                                <button
+                                    v-if="isProfessorView && selectedTopic.topic.authorAccountRemoved"
+                                    class="sd-button sd-button-danger"
+                                    type="button"
+                                    :disabled="loadingAction"
+                                    @click="deleteRemovedAuthorTopic"
+                                >
+                                    Excluir tópico
+                                </button>
                                 <button class="sd-button sd-button-secondary" type="button" @click="closeTopicDetail">
                                     Fechar
                                 </button>
@@ -169,12 +188,19 @@
                             </button>
                         </div>
                         <p class="mt-3 text-muted">{{ selectedTopic.topic.content }}</p>
-                        <div class="mt-2 flex items-center gap-2">
+                        <div class="mt-2 flex items-center gap-2 flex-wrap">
                             <Badge :tone="selectedTopic.topic.isAnonymous ? 'warning' : (selectedTopic.topic.author?.role === 'professor' ? 'pro' : 'info')">
                                 {{ selectedTopic.topic.isAnonymous ? 'Anônimo' : (selectedTopic.topic.author?.username || 'Usuário') }}
                             </Badge>
+                            <Badge v-if="selectedTopic.topic.authorAccountRemoved" tone="warning">Autor removido</Badge>
                             <Badge tone="neutral">{{ phaseLabel(selectedTopic.topic.phase) }}</Badge>
                         </div>
+                        <p v-if="auth.isAuthenticated && !selectedTopic.topic.repliesOpen" class="mt-3 text-sm text-muted">
+                            <template v-if="selectedTopic.topic.authorAccountRemoved">
+                                Não é possível enviar novas respostas: o autor deste tópico removeu a conta.
+                            </template>
+                            <template v-else>Este tópico não aceita novas respostas.</template>
+                        </p>
                         <div class="mt-4 space-y-3">
                             <article v-for="reply in selectedTopic.replies" :key="reply.id" class="sd-list-item p-3">
                                 <div class="flex items-center justify-between gap-3">
@@ -228,7 +254,10 @@
                         </div>
                     </div>
 
-                    <footer v-if="auth.isAuthenticated" class="border-t border-border p-4 md:p-5 community-topic-drawer-footer">
+                    <footer
+                        v-if="auth.isAuthenticated && selectedTopic.topic.repliesOpen"
+                        class="border-t border-border p-4 md:p-5 community-topic-drawer-footer"
+                    >
                         <form class="flex gap-2" @submit.prevent="submitReply">
                             <input v-model.trim="newReply" class="sd-input" placeholder="Escreva sua resposta" :disabled="loadingReply || loadingAction" />
                             <button class="sd-button sd-button-secondary shrink-0" type="submit" :disabled="loadingReply || loadingAction || !newReply">
@@ -378,9 +407,15 @@ const canEditSelectedTopic = computed(() => {
 
 const isProfessorView = computed(() => auth.user?.role === 'professor');
 
+const emptyTopicsMessage = computed(() => {
+    if (topicScope.value === 'mine') return 'Você ainda não criou tópicos.';
+    if (topicScope.value === 'removedAuthors') return 'Nenhum tópico de autor removido.';
+    return 'Nenhum tópico encontrado.';
+});
+
 const visibleTopics = computed(() => {
-    if (topicScope.value !== 'mine') return topics.value;
-    return topics.value.filter((topic) => Boolean(topic.isMine));
+    if (topicScope.value === 'mine') return topics.value.filter((topic) => Boolean(topic.isMine));
+    return topics.value;
 });
 
 function openCreateTopicModal() {
@@ -422,6 +457,9 @@ async function loadTopics() {
     if (filters.value.search) params.search = filters.value.search;
     if (filters.value.category) params.category = filters.value.category;
     if (filters.value.phase) params.phase = Number(filters.value.phase);
+    if (topicScope.value === 'removedAuthors' && auth.user?.role === 'professor') {
+        params.removedAuthorsOnly = '1';
+    }
     const { data } = await api.get('/community/topics', { params });
     topics.value = data;
 }
@@ -586,6 +624,26 @@ async function reportTopic(topicId) {
     }
 }
 
+async function deleteRemovedAuthorTopic() {
+    if (!selectedTopic.value?.topic?.authorAccountRemoved || auth.user?.role !== 'professor') return;
+    if (!window.confirm('Excluir este tópico e todas as respostas? Esta ação não pode ser desfeita.')) return;
+    errorMessage.value = '';
+    notice.value = '';
+    loadingAction.value = true;
+    try {
+        await api.delete(`/community/topics/${selectedTopic.value.topic.id}`);
+        notice.value = 'Tópico excluído.';
+        topicDetailOpen.value = false;
+        selectedTopic.value = null;
+        await loadTopics();
+        await loadReports();
+    } catch (error) {
+        errorMessage.value = error?.response?.data?.message || 'Não foi possível excluir o tópico.';
+    } finally {
+        loadingAction.value = false;
+    }
+}
+
 async function moderate(targetType, targetId, action) {
     if (auth.user?.role !== 'professor') return;
     errorMessage.value = '';
@@ -636,18 +694,21 @@ watch(topicDetailOpen, (isOpen) => {
     document.body.style.overflow = isOpen ? 'hidden' : '';
 });
 
-watch(topicScope, () => {
-    if (topicScope.value === 'reports') {
+watch(topicScope, async (scope) => {
+    if (scope === 'reports') {
         topicDetailOpen.value = false;
         selectedTopic.value = null;
+        await loadReports();
         return;
     }
-    if (!selectedTopic.value || topicScope.value !== 'mine') return;
-    const selectedId = selectedTopic.value.topic?.id;
-    const stillVisible = visibleTopics.value.some((topic) => topic.id === selectedId);
-    if (!stillVisible) {
-        topicDetailOpen.value = false;
-        selectedTopic.value = null;
+    await loadTopics();
+    if (selectedTopic.value) {
+        const selectedId = selectedTopic.value.topic?.id;
+        const stillVisible = visibleTopics.value.some((topic) => topic.id === selectedId);
+        if (!stillVisible) {
+            topicDetailOpen.value = false;
+            selectedTopic.value = null;
+        }
     }
 });
 

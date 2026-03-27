@@ -5,6 +5,7 @@ import {
     createReport,
     createReply,
     createTopic,
+    deleteTopic,
     getTopicById,
     listReports,
     listTopics,
@@ -65,6 +66,7 @@ router.get('/topics', optionalAuth, listTopics);
 router.get('/topics/:id', optionalAuth, getTopicById);
 router.post('/topics', authRequired, topicsLimiter, createTopic);
 router.patch('/topics/:id', authRequired, updateTopic);
+router.delete('/topics/:id', authRequired, professorRequired, deleteTopic);
 router.post('/topics/:id/replies', authRequired, repliesLimiter, createReply);
 router.patch('/topics/:id/best-reply', authRequired, setBestReply);
 router.patch('/topics/:id/status', authRequired, professorRequired, updateTopicStatus);

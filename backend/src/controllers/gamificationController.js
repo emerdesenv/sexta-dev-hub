@@ -793,7 +793,12 @@ export async function resetAssessmentAttempts(req, res) {
 
 export async function getLeaderboard(req, res) {
     const rows = await UserGamification.findAll({
-        include: [{ model: User, attributes: ['username'] }],
+        include: [{
+            model: User,
+            attributes: ['username'],
+            where: { deleted_at: null },
+            required: true
+        }],
         order: [['xp_total', 'DESC']],
         limit: 20
     });
