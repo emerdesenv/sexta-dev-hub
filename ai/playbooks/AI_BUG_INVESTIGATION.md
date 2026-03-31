@@ -1,5 +1,10 @@
 # AI Bug Investigation
 
+Owner: Debugger
+Status: active
+Ultima revisao: 2026-03-31
+Proxima revisao sugerida: 2026-05-30
+
 Este playbook define o processo padrão para investigar e corrigir bugs.
 
 O foco é encontrar a causa raiz antes de implementar qualquer correção.

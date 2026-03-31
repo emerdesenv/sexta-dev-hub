@@ -1,5 +1,10 @@
 # AI AGENT ORCHESTRATOR
 
+Owner: Architect
+Status: active
+Ultima revisao: 2026-03-31
+Proxima revisao sugerida: 2026-05-30
+
 Este documento define como a IA deve coordenar agentes especializados dentro do projeto.
 
 O objetivo é permitir que tarefas complexas sejam tratadas como um fluxo de trabalho colaborativo entre papéis técnicos diferentes.
@@ -16,6 +21,8 @@ Ela deve:
 2. escolher os agentes adequados
 3. definir a ordem de atuação
 4. consolidar a resposta final
+
+Precedência: em caso de conflito com outros documentos, seguir `ai/governance/DOCUMENT_PRECEDENCE.md`.
 
 ---
 
@@ -129,6 +136,12 @@ Ao coordenar múltiplos agentes, a IA deve responder com:
 4. Ordem de atuação
 5. Plano consolidado
 6. Entrega final
+
+## Evidência mínima na entrega final
+
+- escopo coberto
+- riscos principais (segurança/regressão)
+- testes executados e resultado
 
 ---
 

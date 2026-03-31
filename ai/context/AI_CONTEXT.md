@@ -1,5 +1,10 @@
 # AI Context
 
+Owner: Architect
+Status: active
+Ultima revisao: 2026-03-31
+Proxima revisao sugerida: 2026-04-30
+
 ## Propósito deste Documento
 
 Este documento fornece o **contexto geral do projeto** para desenvolvedores e ferramentas de Inteligência Artificial.
@@ -127,14 +132,13 @@ Responsabilidades:
 
 ## Infraestrutura
 
-A aplicação é executada em ambiente containerizado.
+A aplicação é executada em ambiente containerizado com compose dev/prod.
 
 Ferramentas utilizadas:
 
 - Docker
 - Docker Compose
-- Traefik (reverse proxy)
-- HTTPS com Let's Encrypt
+- Reverse proxy e SSL configurados via Compose/infra do projeto
 
 Responsabilidades:
 
@@ -146,53 +150,13 @@ Responsabilidades:
 
 ## Hospedagem
 
-A aplicação pode ser hospedada em máquinas virtuais de provedores cloud.
-
-Exemplo de ambiente utilizado:
-
-- VM em provedor cloud (ex: Hetzner)
+Deploy em ambiente Linux com containers (cloud VM ou equivalente), conforme checklist em `README.md` e `DEPLOY_CHECKLIST.md`.
 
 ---
 
 # Estrutura Geral do Projeto
 
-## Frontend
-
-Responsável pela interface do usuário.
-
-Estrutura típica:
-
-- `src/`
-- `components/`
-- `pages/`
-- `router/`
-- `services/`
-- `assets/`
-
-Principais responsabilidades:
-
-- renderizar conteúdo
-- exibir materiais
-- gerenciar navegação
-
----
-
-## Backend
-
-Responsável pela API da aplicação.
-
-Estrutura típica:
-
-- `controllers/`
-- `services/`
-- `routes/`
-- `middlewares/`
-
-Principais responsabilidades:
-
-- expor endpoints da API
-- aplicar regras de negócio
-- acessar banco de dados
+Para estrutura real e atualizada do repositório, usar `ai/context/PROJECT_MAP.md`.
 
 ---
 
@@ -272,3 +236,11 @@ Dentro deste projeto, ferramentas de IA podem auxiliar em:
 - sugestões de arquitetura
 
 As respostas devem respeitar os documentos definidos na pasta `/ai`.
+
+## Referências obrigatórias
+
+- `ai/governance/DOCUMENT_PRECEDENCE.md`
+- `ai/governance/AI_RULES.md`
+- `ai/context/ARCHITECTURE.md`
+- `ai/context/PROJECT_MAP.md`
+- `ai/context/DOMAIN_GLOSSARY.md`

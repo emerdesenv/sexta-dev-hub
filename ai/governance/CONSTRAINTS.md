@@ -1,5 +1,10 @@
 # CONSTRAINTS
 
+Owner: Tech Lead + Architect
+Status: active
+Ultima revisao: 2026-03-31
+Proxima revisao sugerida: 2026-04-30
+
 Este documento define restrições técnicas do projeto.
 
 A IA não deve violar estas regras sem justificativa explícita.

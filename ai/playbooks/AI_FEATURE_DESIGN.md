@@ -1,5 +1,10 @@
 # AI Feature Design
 
+Owner: Architect
+Status: active
+Ultima revisao: 2026-03-31
+Proxima revisao sugerida: 2026-05-30
+
 Este playbook define como planejar e implementar novas funcionalidades no projeto.
 
 O objetivo é garantir que novas features sejam criadas de forma consistente, segura e alinhada à arquitetura existente.

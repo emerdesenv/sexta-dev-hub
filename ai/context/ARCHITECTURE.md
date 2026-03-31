@@ -1,5 +1,10 @@
 # ARCHITECTURE.md
 
+Owner: Architect
+Status: active
+Ultima revisao: 2026-03-31
+Proxima revisao sugerida: 2026-04-30
+
 Este documento descreve a arquitetura técnica do sistema.
 
 Seu objetivo é ajudar desenvolvedores e ferramentas de Inteligência Artificial a compreender:

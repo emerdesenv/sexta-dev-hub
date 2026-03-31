@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 jobs:
-  openapi-sync-check:
+  docs-check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -44,6 +44,12 @@ jobs:
             echo "Atualize a documentacao OpenAPI no mesmo PR."
             exit 1
           fi
+
+  backend-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4

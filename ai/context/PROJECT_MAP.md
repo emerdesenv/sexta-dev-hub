@@ -1,5 +1,10 @@
 # Project Map
 
+Owner: Architect
+Status: active
+Ultima revisao: 2026-03-31
+Proxima revisao sugerida: 2026-04-30
+
 ## Propósito deste Documento
 
 Este documento descreve a **estrutura do repositório do projeto**.
@@ -63,26 +68,15 @@ Estrutura geral do projeto:
 
     sexta-dev-hub/
     │
-    ├ frontend/
-    ├ backend/
-    ├ traefik/
-    ├ backup/
-    │
+    ├ .github/
     ├ ai/
-    │   ├ context/
-    │   ├ governance/
-    │   ├ engineering/
-    │   ├ prompts/
-    │   ├ workflows/
-    │   ├ playbooks/
-    │   ├ agents/
-    │   ├ docs/
-    │   │
-    │   ├ AI_OPERATING_SYSTEM.md
-    │   ├ AI_SYSTEM_MAP.md
-    │   ├ ACTIVATE_PROJECT_CONTEXT.md
-    │   └ README_AI.md
-    │
+    ├ backend/
+    ├ frontend/
+    ├ backup/
+    ├ docker-compose.yml
+    ├ docker-compose.dev.yml
+    ├ docker-compose.prod.yml
+    ├ DEPLOY_CHECKLIST.md
     └ README.md
 
 Cada diretório possui responsabilidades específicas.
@@ -108,15 +102,13 @@ Responsável por:
 -   renderização de conteúdos
 -   comunicação com API backend
 
-Estrutura típica:
+Estrutura relevante:
 
     frontend/
     src/
-    components/
-    pages/
-    router/
-    services/
-    assets/
+    public/
+    nginx.conf
+    vite.config.js
 
 ---
 
@@ -211,14 +203,16 @@ Responsável por:
 -   autenticação (se implementada)
 -   integração com banco de dados
 
-Estrutura típica:
+Estrutura relevante:
 
     backend/
-    controllers/
-    services/
-    routes/
-    middlewares/
-    repositories/
+    src/controllers/
+    src/services/
+    src/routes/
+    src/middleware/
+    src/models/
+    src/docs/openapi.js
+    docs/API_DOCUMENTATION_GUIDE.md
 
 ---
 
@@ -293,12 +287,11 @@ Componentes principais:
 
 - Docker
 - Docker Compose
-- Traefik (reverse proxy)
-- HTTPS via Let's Encrypt
+- Workflows GitHub Actions em `.github/workflows/`
 
 Hospedagem:
 
-VM cloud (ex: Hetzner)
+Ambiente Linux com containers e reverse proxy conforme checklist de deploy.
 
 ---
 

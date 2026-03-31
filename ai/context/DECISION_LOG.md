@@ -1,5 +1,10 @@
 # DECISION LOG
 
+Owner: Architect
+Status: active
+Ultima revisao: 2026-03-31
+Proxima revisao sugerida: 2026-04-30
+
 Registro de decisões arquiteturais (ADR) do projeto.
 
 ## Template padrão de ADR

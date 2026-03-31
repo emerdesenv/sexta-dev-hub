@@ -1,5 +1,10 @@
 # PERFORMANCE GUIDELINES
 
+Owner: Architect + Backend Engineer
+Status: active
+Ultima revisao: 2026-03-31
+Proxima revisao sugerida: 2026-05-30
+
 Este documento define boas práticas para manter o sistema performático.
 
 ---

@@ -3,6 +3,17 @@
 ## Objetivo
 Definir um padrão único de estrutura para os documentos do AI Engineering Framework.
 
+## Metadados obrigatórios (topo do arquivo)
+
+Todo documento novo deve começar com:
+
+- `Owner: <papel/time>`
+- `Status: active|draft|deprecated`
+- `Ultima revisao: YYYY-MM-DD`
+- `Proxima revisao sugerida: YYYY-MM-DD`
+
+Referência de governança: `ai/governance/DOCUMENT_OWNERSHIP.md`.
+
 ## Como usar
 - ao criar novo arquivo, usar o template da categoria correspondente
 - ao revisar arquivo existente, ajustar seções para este padrão

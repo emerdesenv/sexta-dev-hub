@@ -1,0 +1,26 @@
+---
+description: Checklist obrigatorio para mudancas criticas de seguranca
+globs: backend/src/**/*.{js,ts},backend/src/middleware/**,backend/src/controllers/**,backend/src/routes/**,backend/src/services/upload.js,backend/src/config/**,.github/workflows/**
+alwaysApply: false
+---
+
+# Security Critical Changes Checklist
+
+Ao alterar autenticacao, autorizacao, sessao, upload, cookies, CORS, headers, seguranca de pipeline ou rotas administrativas, aplique este checklist.
+
+## Checklist minimo obrigatorio
+
+- Validar entradas externas com schema/guardas antes da logica de negocio.
+- Confirmar autorizacao por papel e por recurso (nao apenas autenticacao).
+- Garantir mensagens de erro sem vazamento de detalhes internos.
+- Garantir que nao ha segredo/token hardcoded em codigo, docs ou exemplos.
+- Revisar rate limit para endpoints sensiveis (auth, reset, admin, uploads).
+- Revisar cookies e tokens (`httpOnly`, `secure`, `sameSite`, expiracao coerente).
+- Revisar uploads (whitelist, MIME/signature, tamanho, destino seguro).
+- Atualizar documentacao pertinente (`SECURITY_BASELINE.md`, `SECURITY_PLAYBOOK.md`, `openapi.js`) quando contrato/comportamento mudar.
+
+## Evidencia esperada na entrega
+
+- Riscos de seguranca avaliados e mitigacoes aplicadas.
+- Testes executados para sucesso + abuso basico (ex.: sem permissao, input invalido).
+- Se houver risco residual, registrar explicitamente e propor acompanhamento.

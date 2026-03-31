@@ -1,5 +1,10 @@
 # AI Refactor Guide
 
+Owner: Refactor Specialist
+Status: active
+Ultima revisao: 2026-03-31
+Proxima revisao sugerida: 2026-05-30
+
 Este playbook define como realizar refatorações seguras no sistema.
 
 Refatoração significa melhorar o código sem alterar comportamento funcional.

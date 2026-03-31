@@ -1,5 +1,10 @@
 # DESIGN_SYSTEM.md
 
+Owner: Product Designer + Frontend Engineer
+Status: active
+Ultima revisao: 2026-03-31
+Proxima revisao sugerida: 2026-05-30
+
 ## Objetivo
 
 Este documento define o sistema de design do projeto **Sexta Dev Hub** para orientar o desenvolvimento de interfaces consistentes, modernas e reutilizáveis.

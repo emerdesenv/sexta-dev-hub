@@ -1,199 +1,31 @@
-# AI DEVELOPMENT KIT
+# AI DEVELOPMENT KIT - QUICK START
 
-Este projeto utiliza um conjunto de documentos estruturados para orientar o uso de Inteligência Artificial no desenvolvimento de software.
+Entrada rápida para humanos e agentes entenderem como usar a pasta `ai/`.
 
-O objetivo é permitir que ferramentas como Cursor, Copilot ou outros agentes entendam corretamente:
+## Ordem recomendada de leitura
 
-- arquitetura
-- padrões
-- contexto do projeto
-- decisões técnicas
-- workflows de desenvolvimento
+1. `ai/ACTIVATE_PROJECT_CONTEXT.md`
+2. `ai/governance/DOCUMENT_PRECEDENCE.md`
+3. `ai/context/AI_CONTEXT.md`
+4. `ai/governance/AI_RULES.md`
+5. `ai/product/BUSINESS_RULES.md` (quando houver impacto funcional)
 
----
+## Referências principais por objetivo
 
-# Estrutura do AI Development Kit
+- Contexto e arquitetura: `ai/context/`
+- Regras obrigatórias e checklist: `ai/governance/`
+- Segurança e testes: `ai/engineering/` e `ai/testing/`
+- UI/UX: `ai/design/`
+- Roteamento e orquestração de tarefas: `ai/workflows/`
+- Playbooks de execução: `ai/playbooks/`
+- Papéis especializados: `ai/agents/`
 
-## Contexto do Projeto
+## Papel dos arquivos-raiz
 
-`/ai/context/AI_CONTEXT.md`
+- `ai/AI_OPERATING_SYSTEM.md`: visão conceitual canônica.
+- `ai/AI_SYSTEM_MAP.md`: mapa navegacional.
+- `ai/ACTIVATE_PROJECT_CONTEXT.md`: checklist operacional.
 
-Contém:
-- visão geral
-- objetivos do sistema
-- stack tecnológica
-- princípios do projeto
+## Objetivo
 
----
-
-## Regras de negócio do produto
-
-`/ai/product/BUSINESS_RULES.md`
-
-Descreve **o que o produto permite ou exige** (autenticação, comunidade, cadastro de aluno, gamificação, etc.), em linguagem de negócio. Complementa a documentação técnica abaixo.
-
----
-
-## Regras para IA
-
-`/ai/governance/AI_RULES.md`
-
-Define como a IA deve se comportar ao modificar o projeto.
-
-Inclui:
-
-- regras de código
-- limitações
-- boas práticas
-- padrões obrigatórios
-
----
-
-## Arquitetura
-
-`/ai/context/ARCHITECTURE.md`
-
-Documenta:
-
-- arquitetura do sistema
-- comunicação entre serviços
-- fluxos principais
-- padrões estruturais
-
----
-
-## Mapeamento do Projeto
-
-`/ai/context/PROJECT_MAP.md`
-
-Descreve:
-
-- estrutura de diretórios
-- responsabilidades de cada pasta
-- organização do código
-
----
-
-## Design System
-
-`/ai/design/DESIGN_SYSTEM.md`
-
-Define padrões visuais:
-
-- cores
-- tipografia
-- componentes
-- espaçamento
-
----
-
-## Integração com Figma
-
-`/ai/prompts/FIGMA_PROMPTS.md`
-
-Prompts que ajudam a IA a transformar designs em código.
-
----
-
-## Workflows de Desenvolvimento
-
-`/ai/workflows/CURSOR_WORKFLOWS.md`
-
-Fluxos recomendados para trabalhar com IA no Cursor.
-
-Exemplo:
-
-- criar feature
-- revisar código
-- refatorar módulo
-- gerar componentes
-
----
-
-## Papéis de Agentes
-
-`/ai/agents/README.md`
-
-Define especializações da IA:
-
-- arquiteto
-- revisor
-- implementador
-- designer
-- debugger
-
----
-
-## Templates de Tarefas
-
-`/ai/prompts/TASK_TEMPLATES.md`
-
-Modelos padronizados para criação de tarefas.
-
-## Templates de Documentação
-
-`/ai/docs/DOCUMENT_TEMPLATES.md`
-
-Padrão único de seções para contexto, governança, workflows, playbooks, agentes e prompts.
-
----
-
-## Plano de Refatoração
-
-`/ai/playbooks/AI_REFACTOR_GUIDE.md`
-
-Guia para melhorias estruturais do projeto.
-
----
-
-# Como a IA deve trabalhar neste projeto
-
-Antes de gerar ou alterar código, a IA deve:
-
-1. Ler `/ai/context/AI_CONTEXT.md`  
-2. Ler `/ai/governance/AI_RULES.md`  
-3. Quando a mudança afetar fluxos de usuário ou políticas do produto, alinhar com `/ai/product/BUSINESS_RULES.md`  
-4. Entender `/ai/context/PROJECT_MAP.md`  
-5. Seguir padrões definidos em `/ai/design/DESIGN_SYSTEM.md`  
-6. Respeitar decisões arquiteturais em `/ai/context/ARCHITECTURE.md`  
-
----
-
-# Princípios de Desenvolvimento
-
-Este projeto segue alguns princípios fundamentais:
-
-- simplicidade
-- legibilidade
-- modularidade
-- escalabilidade
-- segurança
-
----
-
-# Boas práticas
-
-Sempre que possível a IA deve:
-
-- evitar duplicação de código
-- criar componentes reutilizáveis
-- escrever código claro
-- seguir estrutura do projeto
-- documentar decisões importantes
-
----
-
-# Importante
-
-A IA não deve:
-
-- alterar arquitetura sem justificativa
-- adicionar dependências desnecessárias
-- quebrar padrões definidos
-- modificar arquivos fora do escopo da tarefa
-
----
-
-# Objetivo final
-
-Criar um ambiente onde humanos e IA colaboram de forma produtiva no desenvolvimento do software.
+Garantir respostas de IA consistentes, verificáveis e alinhadas ao contexto real do projeto.

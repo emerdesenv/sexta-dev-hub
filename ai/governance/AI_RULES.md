@@ -1,5 +1,10 @@
 # AI_RULES.md
 
+Owner: Tech Lead + Code Reviewer
+Status: active
+Ultima revisao: 2026-03-31
+Proxima revisao sugerida: 2026-04-30
+
 ## Objetivo
 
 Este arquivo define as regras que agentes de IA (Cursor, copilotos, automações e ferramentas baseadas em LLM) devem seguir ao gerar, modificar ou sugerir código neste repositório.

@@ -1,17 +1,19 @@
 # CURSOR_WORKFLOWS.md
 
+Owner: Architect
+Status: active
+Ultima revisao: 2026-03-31
+Proxima revisao sugerida: 2026-05-30
+
 ## Objetivo
 
 Este documento define fluxos de trabalho e prompts recomendados para utilizar **Cursor AI** dentro do projeto **Sexta Dev Hub**.
 
 O objetivo é padronizar o uso de IA no desenvolvimento para:
 
-* analisar código
-* gerar componentes
-* refatorar interfaces
-* revisar código
-* melhorar arquitetura
-* manter consistência com o projeto
+* executar tarefas recorrentes com contexto correto
+* reduzir prompts genéricos
+* manter consistência com regras do projeto
 
 ---
 
@@ -19,11 +21,9 @@ O objetivo é padronizar o uso de IA no desenvolvimento para:
 
 Ao trabalhar com IA no Cursor, sempre considerar os seguintes arquivos:
 
-* `/ai/context/AI_CONTEXT.md`
+* `/ai/ACTIVATE_PROJECT_CONTEXT.md`
+* `/ai/governance/DOCUMENT_PRECEDENCE.md`
 * `/ai/governance/AI_RULES.md`
-* `/ai/context/PROJECT_MAP.md`
-* `/ai/design/DESIGN_SYSTEM.md`
-* `/ai/playbooks/AI_REFACTOR_GUIDE.md`
 
 Esses documentos contêm o contexto necessário para a IA compreender o projeto.
 
@@ -253,18 +253,17 @@ Provide recommendations before deployment.
 2. Preferir mudanças pequenas e controladas.
 3. Revisar código gerado antes de aplicar.
 4. Evitar refatorações massivas automáticas.
-5. Utilizar os arquivos de contexto do projeto.
+5. Registrar evidência mínima de testes quando houver mudança de comportamento.
 
 ---
 
 # Fluxo de Trabalho Recomendado
 
-1. Analisar projeto
-2. Definir tarefa
-3. Gerar código com IA
-4. Revisar código
-5. Testar localmente
-6. Commit e deploy
+1. Ativar contexto (`ACTIVATE_PROJECT_CONTEXT.md`)
+2. Classificar tarefa (`AI_TASK_ROUTER.md`)
+3. Orquestrar quando necessário (`AI_AGENT_ORCHESTRATOR.md`)
+4. Executar e validar (`AGENT_EXECUTION_FLOW.md`)
+5. Registrar evidência de testes (`ai/testing/TEST_EVIDENCE_TEMPLATE.md`)
 
 Integração com o framework:
 

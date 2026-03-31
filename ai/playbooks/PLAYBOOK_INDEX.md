@@ -1,10 +1,17 @@
 # Playbook Index
 
+Owner: Architect
+Status: active
+Ultima revisao: 2026-03-31
+Proxima revisao sugerida: 2026-05-30
+
 Este documento funciona como índice central dos playbooks disponíveis no AI Engineering Framework.
 
 Playbooks são guias operacionais que descrevem como resolver tipos comuns de tarefas de engenharia.
 
 Eles ajudam a garantir consistência nas decisões técnicas e no processo de desenvolvimento.
+
+Em caso de conflito com outros documentos, seguir `ai/governance/DOCUMENT_PRECEDENCE.md`.
 
 ---
 
@@ -171,6 +178,7 @@ Mapeamento tipo -> playbook:
 Fallback para tipos sem playbook dedicado (segurança, performance, UI/UX, testes):
 
 - usar `AI_TASK_ROUTER.md` + `AI_AGENT_ORCHESTRATOR.md` + `AGENT_EXECUTION_FLOW.md`
+- aplicar checklist final em `ai/governance/DELIVERY_CHECKLIST.md`
 
 ---
 

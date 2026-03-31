@@ -1,5 +1,10 @@
 # DEBUG PLAYBOOK
 
+Owner: Debugger
+Status: active
+Ultima revisao: 2026-03-31
+Proxima revisao sugerida: 2026-05-30
+
 Guia de diagnóstico para problemas comuns.
 
 Fluxo padrão de investigação:

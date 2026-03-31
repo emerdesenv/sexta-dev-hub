@@ -1,0 +1,24 @@
+---
+description: Checklist de acessibilidade e responsividade para mudancas de UI
+globs: frontend/src/**/*.{vue,js,ts,css}
+alwaysApply: false
+---
+
+# UI Accessibility and Responsive Checks
+
+Ao criar ou alterar interface, valide acessibilidade minima e comportamento responsivo antes de concluir.
+
+## Checklist obrigatorio
+
+- Validar layout em mobile, tablet e desktop (sem overflow horizontal).
+- Garantir estados visuais quando aplicavel: `loading`, `empty`, `error`, `success`.
+- Garantir foco visivel em elementos interativos via teclado.
+- Garantir labels claras para campos de formulario e mensagens de erro legiveis.
+- Garantir contraste legivel para texto e controles principais.
+- Garantir alvos de toque confortaveis em mobile (botoes e links).
+- Preservar consistencia com `ai/design/DESIGN_SYSTEM.md` e `ai/design/UI_IMPLEMENTATION_GUIDE.md`.
+
+## Evidencia esperada
+
+- Descrever no resumo da entrega quais breakpoints foram validados.
+- Informar se houve ajuste de acessibilidade e qual foi.

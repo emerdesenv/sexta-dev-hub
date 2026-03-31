@@ -1,0 +1,27 @@
+---
+description: Exigir evidencia objetiva de testes em entregas e reviews
+globs: **/*
+alwaysApply: false
+---
+
+# PR Test Evidence Required
+
+Sempre que houver mudanca de comportamento (backend, frontend, regras de negocio, seguranca ou UX), registrar evidencia objetiva de testes.
+
+## Formato minimo obrigatorio na entrega
+
+- **Escopo validado**: quais fluxos/rotas/telas foram testados.
+- **Comandos executados**: exemplo `npm test`, suite especifica, smoke manual.
+- **Resultado**: passou/falhou e observacoes relevantes.
+- **Risco residual**: o que nao foi coberto e por que.
+
+## Regras de aplicacao
+
+- Sem evidencia minima, a entrega nao deve ser considerada pronta.
+- Se teste automatizado nao existir, registrar validacao manual com passos reproduziveis.
+- Para mudancas de UI, incluir evidencia visual quando aplicavel (captura/descrição dos estados validados).
+- Para mudancas de API, citar endpoints e status de resposta testados.
+
+## Frase de conformidade sugerida
+
+"Evidencia de testes registrada conforme `ai/engineering/TEST_STRATEGY.md` e `ai/testing/CRITICAL_FLOWS_TEST_MATRIX.md`."

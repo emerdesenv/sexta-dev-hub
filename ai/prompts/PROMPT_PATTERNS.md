@@ -1,10 +1,13 @@
 # PROMPT PATTERNS
 
-Este arquivo contém padrões de prompts reutilizáveis para trabalhar com IA no projeto.
+Owner: Architect
+Status: active
+Ultima revisao: 2026-03-31
+Proxima revisao sugerida: 2026-06-30
 
-O objetivo é acelerar tarefas comuns mantendo qualidade e consistência.
+Padroes de prompt reutilizaveis para tarefas recorrentes.
 
-Template base recomendado:
+## Template base recomendado
 
 - Contexto: `<contexto>`
 - Tarefa: `<tarefa>`
@@ -13,71 +16,37 @@ Template base recomendado:
 - Validação/Testes: `<validacao>`
 - Saída esperada: `<saida_esperada>`
 
----
+## 1) Criar nova feature
 
-# Criar Nova Feature
+Prompt sugerido:
 
-Contexto:
-Explique o problema que precisa ser resolvido.
+"Use `ai/ACTIVATE_PROJECT_CONTEXT.md` e implemente a feature abaixo.
+Restrições: seguir `ai/governance/AI_RULES.md`, `ai/context/ARCHITECTURE.md` e `ai/context/PROJECT_MAP.md`.
+Se alterar endpoint, atualizar OpenAPI.
+Entregar com evidência de testes."
 
-Tarefa:
-Implemente uma nova funcionalidade seguindo a arquitetura definida em `/ai/context/ARCHITECTURE.md`.
+## 2) Refatorar código
 
-Requisitos:
-- seguir `/ai/context/PROJECT_MAP.md`
-- respeitar `/ai/design/DESIGN_SYSTEM.md`
-- criar código modular
-- evitar duplicação
+Prompt sugerido:
 
-Resultado esperado:
-- código claro
-- componentes reutilizáveis
-- documentação se necessário
+"Refatore este trecho sem alterar comportamento externo.
+Objetivo: legibilidade, redução de duplicação e manutenção.
+Restrições: não alterar API pública e respeitar `ai/governance/CONSTRAINTS.md`.
+Ao final, listar riscos e testes recomendados."
 
----
+## 3) Gerar componente UI
 
-# Refatorar Código
+Prompt sugerido:
 
-Analise o seguinte código e proponha uma refatoração.
+"Crie componente Vue reutilizável baseado no contexto abaixo.
+Obrigatório: estados `loading/empty/error/success`, responsividade e acessibilidade mínima.
+Seguir `ai/design/DESIGN_SYSTEM.md` e `ai/design/UI_IMPLEMENTATION_GUIDE.md`.
+Explicar props, eventos e estratégia de teste."
 
-Objetivos:
+## 4) Revisar código
 
-- melhorar legibilidade
-- reduzir complexidade
-- remover duplicação
-- manter comportamento atual
+Prompt sugerido:
 
-Restrições:
-
-- não alterar arquitetura
-- não alterar API pública
-
----
-
-# Gerar Componente UI
-
-Com base no design descrito abaixo, crie um componente reutilizável.
-
-Requisitos:
-
-- responsivo
-- acessível
-- consistente com `/ai/design/DESIGN_SYSTEM.md`
-- props bem definidas
-
----
-
-# Revisar Código
-
-Revise o código abaixo considerando:
-
-- legibilidade
-- segurança
-- performance
-- padrões do projeto
-
-Liste:
-
-- problemas encontrados
-- sugestões de melhoria
-- riscos potenciais
+"Faça code review com foco em riscos e regressões.
+Classifique achados por severidade (alta/média/baixa), cite impacto e recomendação.
+Validar aderência a `ai/governance/AI_RULES.md`, `ai/engineering/SECURITY_BASELINE.md` e `ai/engineering/TEST_STRATEGY.md`."

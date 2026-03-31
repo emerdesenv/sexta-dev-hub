@@ -1,5 +1,10 @@
 # AI PR Review
 
+Owner: Code Reviewer
+Status: active
+Ultima revisao: 2026-03-31
+Proxima revisao sugerida: 2026-05-30
+
 Este playbook define como realizar revisão técnica de código.
 
 O objetivo é garantir qualidade, segurança e consistência.

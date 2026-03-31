@@ -1,5 +1,10 @@
 # Regras de negócio do produto (referência)
 
+Owner: Product + Architect
+Status: active
+Ultima revisao: 2026-03-31
+Proxima revisao sugerida: 2026-04-30
+
 Documento voltado a **regras funcionais** (“o que o produto permite ou exige”), complementando a documentação **técnica** em `/ai/context/` e `/ai/governance/`.
 
 **Manutenção:** ao alterar fluxos de autenticação, comunidade, gamificação ou cadastro, atualize este arquivo para a IA e o time continuarem alinhados à intenção do produto.

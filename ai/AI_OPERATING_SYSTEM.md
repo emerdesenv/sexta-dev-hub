@@ -9,6 +9,7 @@ Ele funciona como uma camada de governança e contexto que permite que ferrament
 ## Fonte de verdade
 Este é o documento conceitual canônico do framework (princípios, objetivos e modelo operacional).
 Para navegação por arquivos e localização de artefatos, consultar `AI_SYSTEM_MAP.md`.
+Para resolver conflitos entre documentos, consultar `governance/DOCUMENT_PRECEDENCE.md`.
 
 ---
 
@@ -87,7 +88,7 @@ Define práticas técnicas recomendadas.
 Inclui:
 
 SECURITY_BASELINE.md  
-TESTING_GUIDELINES.md  
+TEST_STRATEGY.md  
 PERFORMANCE_GUIDELINES.md  
 DEBUG_PLAYBOOK.md  
 

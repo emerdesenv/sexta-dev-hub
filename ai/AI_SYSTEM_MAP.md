@@ -1,37 +1,26 @@
 # AI System Map
 
-Este documento descreve a estrutura completa do AI Engineering Framework presente neste projeto.
-
-O objetivo é ajudar desenvolvedores e ferramentas de Inteligência Artificial a entender rapidamente como o sistema de documentação e agentes está organizado.
+Mapa navegacional da pasta `ai/`.
 
 ## Papel deste documento
-Este arquivo é o mapa navegacional do framework (estrutura e links).
+Este arquivo mostra onde cada artefato está e qual usar por objetivo.
 Para princípios e modelo operacional, consultar `AI_OPERATING_SYSTEM.md`.
+Para resolver conflitos entre documentos, consultar `governance/DOCUMENT_PRECEDENCE.md`.
 
 ---
 
-# Visão Geral
+# Estrutura (resumo)
 
-Este documento existe para mostrar **onde está cada parte** do framework em `/ai` e qual a função de cada área.
-
----
-
-# Estrutura da Pasta /ai
-
-/ai
-
-CONTEXTO DO PROJETO  
-GOVERNANÇA E REGRAS  
-PRÁTICAS DE ENGENHARIA  
-PROMPTS E TEMPLATES  
-WORKFLOWS DE AGENTES  
-PLAYBOOKS DE ENGENHARIA  
-AGENTES ESPECIALIZADOS  
-DOCUMENTAÇÃO DE USO  
-
-Cada área possui uma responsabilidade específica.
-
----
+- `ai/context/`: contexto técnico e mapa do sistema
+- `ai/governance/`: regras obrigatórias e critérios de entrega
+- `ai/engineering/`: segurança, testes, performance e debug
+- `ai/testing/`: matriz executável de fluxos críticos
+- `ai/design/`: padrões visuais e implementação de UI
+- `ai/workflows/`: roteamento e orquestração de tarefas
+- `ai/playbooks/`: execução prática por tipo de trabalho
+- `ai/agents/`: papéis especializados
+- `ai/prompts/`: templates e padrões de prompt
+- `ai/docs/`: onboarding humano e templates documentais
 
 # Context
 
@@ -92,7 +81,7 @@ Define boas práticas operacionais de engenharia.
 Arquivos principais:
 
 SECURITY_BASELINE.md  
-TESTING_GUIDELINES.md  
+TEST_STRATEGY.md  
 PERFORMANCE_GUIDELINES.md  
 DEBUG_PLAYBOOK.md  
 
@@ -236,7 +225,7 @@ Instrui a IA a carregar o contexto completo do projeto antes de responder tarefa
 
 ## README_AI.md
 
-Introdução geral ao AI Engineering Framework.
+Quick start humano.
 
 ## AI_SYSTEM_MAP.md
 
@@ -244,47 +233,15 @@ Este documento.
 
 ---
 
-# Fluxo recomendado de uso
+# Fluxo recomendado de uso (curto)
 
 Ao trabalhar com IA no projeto, o fluxo ideal é:
 
-1. Ativar contexto do projeto
-
-Consultar:
-
-`ACTIVATE_PROJECT_CONTEXT.md`
-
----
-
-2. Classificar tarefa
-
-Consultar:
-
-`/ai/workflows/AI_TASK_ROUTER.md`
-
----
-
-3. Escolher playbook
-
-Consultar:
-
-`/ai/playbooks/PLAYBOOK_INDEX.md`
-
----
-
-4. Selecionar agentes
-
-Consultar:
-
-`/ai/workflows/AI_AGENT_ORCHESTRATOR.md`
-
----
-
-5. Executar tarefa
-
-Seguindo:
-
-`/ai/workflows/AGENT_EXECUTION_FLOW.md`
+1. Ativar contexto: `ACTIVATE_PROJECT_CONTEXT.md`
+2. Roteamento: `workflows/AI_TASK_ROUTER.md`
+3. Orquestração: `workflows/AI_AGENT_ORCHESTRATOR.md`
+4. Execução: `workflows/AGENT_EXECUTION_FLOW.md`
+5. Revisão de entrega: `governance/DELIVERY_CHECKLIST.md`
 
 ---
 

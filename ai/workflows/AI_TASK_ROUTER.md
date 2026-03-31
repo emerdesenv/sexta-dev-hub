@@ -1,5 +1,10 @@
 # AI TASK ROUTER
 
+Owner: Architect
+Status: active
+Ultima revisao: 2026-03-31
+Proxima revisao sugerida: 2026-05-30
+
 Este documento define como classificar tarefas e quais agentes devem ser acionados.
 
 O objetivo é reduzir ambiguidade e tornar o uso dos agentes previsível.

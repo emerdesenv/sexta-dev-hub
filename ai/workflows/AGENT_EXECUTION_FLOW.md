@@ -1,5 +1,10 @@
 # AGENT EXECUTION FLOW
 
+Owner: Architect
+Status: active
+Ultima revisao: 2026-03-31
+Proxima revisao sugerida: 2026-05-30
+
 Este documento define fluxos recomendados de execução entre agentes.
 
 O objetivo é padronizar a ordem de atuação dos agentes para reduzir retrabalho e melhorar qualidade.
@@ -19,6 +24,8 @@ Em muitos casos, primeiro é necessário:
 - diagnosticar problema
 - revisar segurança
 - definir testes
+
+Precedência: conflitos devem seguir `ai/governance/DOCUMENT_PRECEDENCE.md`.
 
 ---
 
@@ -197,3 +204,7 @@ Ao seguir um fluxo, a IA deve informar:
 3. agentes envolvidos
 4. ordem de execução
 5. entrega consolidada
+
+## Critério adicional de conclusão
+
+- evidência de testes registrada conforme `ai/testing/TEST_EVIDENCE_TEMPLATE.md`

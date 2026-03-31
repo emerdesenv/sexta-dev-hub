@@ -1,0 +1,96 @@
+name: DAST Production Scan
+
+on:
+  workflow_run:
+    workflows: ["Deploy Production"]
+    types: [completed]
+  schedule:
+    - cron: "0 4 * * *"
+  workflow_dispatch:
+
+jobs:
+  zap-baseline-production:
+    name: OWASP ZAP Baseline (Production)
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Define target URL
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "TARGET_URL=https://${{ secrets.APP_DOMAIN }}" >> "$GITHUB_ENV"
+
+      - name: Wait for production healthcheck
+        shell: bash
+        run: |
+          set -euo pipefail
+          for i in {1..15}; do
+            if curl -fsS "${TARGET_URL}/health" >/dev/null; then
+              echo "Healthcheck OK at ${TARGET_URL}/health"
+              exit 0
+            fi
+            echo "Healthcheck not ready yet, retry ${i}/15..."
+            sleep 10
+          done
+          echo "Production healthcheck failed before DAST."
+          exit 1
+
+      - name: Run OWASP ZAP baseline scan
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .zap
+          docker run --rm \
+            -v "${PWD}:/zap/wrk:rw" \
+            ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py \
+            -t "${TARGET_URL}" \
+            -m 5 \
+            -T 2 \
+            -r /zap/wrk/.zap/zap-report.html \
+            -J /zap/wrk/.zap/zap-report.json \
+            -w /zap/wrk/.zap/zap-report.md
+
+      - name: Evaluate high-risk alerts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path(".zap/zap-report.json")
+          if not path.exists():
+              raise SystemExit("ZAP JSON report not found.")
+
+          data = json.loads(path.read_text(encoding="utf-8"))
+          sites = data.get("site", [])
+          high = 0
+          medium = 0
+          low = 0
+
+          for site in sites:
+              for alert in site.get("alerts", []):
+                  risk = str(alert.get("riskcode", "0"))
+                  if risk == "3":
+                      high += 1
+                  elif risk == "2":
+                      medium += 1
+                  elif risk == "1":
+                      low += 1
+
+          print(f"ZAP summary -> High: {high}, Medium: {medium}, Low: {low}")
+          if high > 0:
+              raise SystemExit(f"DAST failed: found {high} high-risk alert(s).")
+          PY
+
+      - name: Upload DAST artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dast-production-zap-report
+          path: .zap/
+          if-no-files-found: ignore

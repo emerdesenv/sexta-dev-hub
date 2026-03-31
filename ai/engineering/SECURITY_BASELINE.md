@@ -1,5 +1,10 @@
 # SECURITY BASELINE
 
+Owner: Security Auditor
+Status: active
+Ultima revisao: 2026-03-31
+Proxima revisao sugerida: 2026-04-30
+
 Este documento define práticas mínimas de segurança.
 
 ---

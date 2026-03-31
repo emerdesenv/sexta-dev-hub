@@ -1,5 +1,10 @@
 # CODE STYLE
 
+Owner: Tech Lead + Code Reviewer
+Status: active
+Ultima revisao: 2026-03-31
+Proxima revisao sugerida: 2026-05-30
+
 ## Objetivo
 Definir padrões mínimos de legibilidade, organização e consistência para frontend e backend.
 

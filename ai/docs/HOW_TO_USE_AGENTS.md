@@ -1,5 +1,10 @@
 # How to Use Agents
 
+Owner: Architect
+Status: active
+Ultima revisao: 2026-03-31
+Proxima revisao sugerida: 2026-06-30
+
 Este documento explica como utilizar os agentes definidos no AI Engineering Framework.
 
 Agentes representam papéis especializados dentro do processo de desenvolvimento.

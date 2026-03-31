@@ -1,130 +1,49 @@
 # Workflow Examples
 
-Este documento apresenta exemplos de fluxos de trabalho utilizando o AI Engineering Framework.
+Exemplos curtos e objetivos de uso do framework com evidência mínima.
 
----
+## Exemplo 1 - Feature completa (backend + frontend)
 
-# Exemplo 1: Criar nova funcionalidade
+### Entrada
+"Criar upload de PDF com tela de envio e validação de segurança."
 
-Objetivo:
+### Fluxo
+1. Router: `ai/workflows/AI_TASK_ROUTER.md`
+2. Orquestrador: `ai/workflows/AI_AGENT_ORCHESTRATOR.md`
+3. Execução: `architect -> backend-engineer -> security-auditor -> frontend-engineer -> test-engineer -> code-reviewer`
 
-Criar uma tela de upload de documentos.
+### Evidência esperada
+- OpenAPI atualizado
+- testes executados + resultado
+- risco residual registrado
 
-Passos:
+## Exemplo 2 - Bug em produção
 
-1. Usar o router
+### Entrada
+"Após login, tela inicial fica em branco."
 
-Use `/ai/workflows/AI_TASK_ROUTER.md`.
+### Fluxo
+1. `debugger` identifica causa raiz
+2. especialista de camada corrige (`frontend-engineer` ou `backend-engineer`)
+3. `test-engineer` valida regressão
+4. `code-reviewer` fecha revisão
 
-2. Planejar com o orquestrador
+### Evidência esperada
+- causa raiz explícita
+- correção com teste de regressão
+- impacto/riscos documentados
 
-Use `/ai/workflows/AI_AGENT_ORCHESTRATOR.md`.
+## Exemplo 3 - Refatoração sem mudar comportamento
 
-3. Definir arquitetura
+### Entrada
+"Reduzir duplicação no service de autenticação."
 
-Agente: architect
+### Fluxo
+1. `refactor-specialist`
+2. `test-engineer`
+3. `code-reviewer`
 
-4. Implementar backend
-
-Agente: backend-engineer
-
-5. Implementar frontend
-
-Agente: frontend-engineer
-
-6. Revisar segurança
-
-Agente: security-auditor
-
-7. Criar testes
-
-Agente: test-engineer
-
-8. Revisar código
-
-Agente: code-reviewer
-
-Critério de pronto:
-
-- fluxo principal funcionando
-- riscos de segurança analisados
-- validação de testes registrada
-
----
-
-# Exemplo 2: Investigar bug
-
-Problema:
-
-Imagem não aparece na tela.
-
-Fluxo:
-
-1. Ativar debugger
-
-Atue como `/ai/agents/debugger.md`.
-
-2. Identificar causa raiz
-
-3. Corrigir com backend-engineer ou frontend-engineer
-
-4. Validar com test-engineer
-
-5. Revisar com code-reviewer
-
-Critério de pronto:
-
-- causa raiz identificada
-- correção validada no cenário original
-- regressão principal verificada
-
----
-
-# Exemplo 3: Refatoração
-
-Objetivo:
-
-Melhorar legibilidade de um serviço.
-
-Fluxo:
-
-1. Ativar refactor-specialist
-
-2. Aplicar melhorias estruturais
-
-3. Criar testes
-
-4. Revisar código
-
-Critério de pronto:
-
+### Evidência esperada
 - comportamento preservado
-- melhorias estruturais confirmadas
 - testes de regressão executados
-
----
-
-# Exemplo 4: Revisão de Pull Request
-
-Fluxo:
-
-1. Ativar code-reviewer
-
-2. Avaliar arquitetura
-
-3. Avaliar segurança
-
-4. Avaliar testes
-
-5. Emitir veredito final
-
----
-
-# Exemplo 5: Planejar nova feature
-
-Fluxo:
-
-1. Usar AI_FEATURE_DESIGN.md
-2. Planejar arquitetura
-3. Dividir implementação
-4. Validar riscos
+- sem mudança funcional não planejada

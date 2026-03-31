@@ -1,54 +1,33 @@
 # TESTING GUIDELINES
 
-Este documento define como testes devem ser pensados no projeto.
+Owner: Test Engineer
+Status: active
+Ultima revisao: 2026-03-31
+Proxima revisao sugerida: 2026-05-30
+
+Documento complementar.
+
+Referência principal de testes:
+- `ai/engineering/TEST_STRATEGY.md`
+- `ai/testing/CRITICAL_FLOWS_TEST_MATRIX.md`
 
 ---
 
-# Tipos de Teste
+# Objetivo deste arquivo
 
-Unit Test
+Manter um glossário curto dos tipos de teste usados no projeto.
 
-testa função isolada
+## Unit Test
+Testa função ou regra isolada.
 
-Integration Test
+## Integration Test
+Testa integração entre módulos/camadas.
 
-testa interação entre módulos
-
-E2E Test
-
-testa fluxo completo
-
----
-
-# Prioridade
-
-1. lógica de negócio
-2. endpoints críticos
-3. fluxos principais
+## E2E / Smoke
+Testa fluxo principal de ponta a ponta.
 
 ---
 
-# Critérios de Teste
+# Nota de precedencia
 
-Testes devem validar:
-
-- comportamento esperado
-- erros
-- casos extremos
-
----
-
-# Testes Manuais
-
-Fluxos mínimos:
-
-- login
-- cadastro
-- upload de arquivos
-- APIs principais
-
-Política mínima:
-
-- toda alteração deve incluir validação do fluxo principal impactado
-- mudanças com risco de regressão devem incluir teste automatizado quando possível
-- registrar evidências de teste na entrega (automatizado e/ou manual)
+Se houver conflito entre este documento e `TEST_STRATEGY.md`, prevalece `TEST_STRATEGY.md`.
