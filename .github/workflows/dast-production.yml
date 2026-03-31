@@ -45,12 +45,14 @@ jobs:
           mkdir -p .zap
           docker run --rm \
             --user root \
+            -w /zap/wrk \
             -v "${PWD}:/zap/wrk:rw" \
             ghcr.io/zaproxy/zaproxy:stable \
             zap-baseline.py \
             -t "${TARGET_URL}" \
             -m 5 \
             -T 2 \
+            -I \
             -r .zap/zap-report.html \
             -J .zap/zap-report.json \
             -w .zap/zap-report.md
