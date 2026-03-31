@@ -192,24 +192,78 @@
                 </div>
             </section>
 
-            <section class="mt-8">
+            <section class="mt-8 ranking-section">
                 <h2 class="sd-section-title">Ranking</h2>
-                <div class="sd-card sd-card-section mt-4 p-4">
+                <div class="sd-card sd-card-section mt-4 p-4 ranking-shell">
+                    <div class="ranking-toolbar">
+                        <p class="text-sm text-muted">
+                            <strong>{{ filteredLeaderboard.length }}</strong> participantes exibidos
+                        </p>
+                        <input
+                            v-model.trim="rankingSearch"
+                            type="search"
+                            class="sd-input ranking-search-input"
+                            placeholder="Buscar participante"
+                            aria-label="Buscar participante no ranking"
+                        >
+                    </div>
+                    <div v-if="topThree.length" class="ranking-podium">
+                        <article
+                            v-for="player in topThree"
+                            :key="`top-${player.username}`"
+                            class="ranking-podium-item"
+                            :class="`ranking-podium-item-${player.rank}`"
+                        >
+                            <div class="ranking-podium-rank-chip">
+                                <span
+                                    class="ranking-podium-icon"
+                                    :class="`ranking-podium-icon-${player.rank}`"
+                                    aria-hidden="true"
+                                >
+                                    <svg viewBox="0 0 24 24" fill="none" class="h-4 w-4">
+                                        <path d="M8 4h8v2h2a2 2 0 0 1 2 2v2a5 5 0 0 1-5 5h-1.2A4.8 4.8 0 0 1 13 17.8V19h3v2H8v-2h3v-1.2A4.8 4.8 0 0 1 10.2 15H9a5 5 0 0 1-5-5V8a2 2 0 0 1 2-2h2V4Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                                    </svg>
+                                </span>
+                                <span>#{{ player.rank }}</span>
+                            </div>
+                            <strong class="ranking-podium-name">
+                                {{ player.username }}
+                            </strong>
+                            <div class="ranking-podium-meta">
+                                <span>N{{ player.level }}</span>
+                                <span>{{ player.xpTotal }} XP</span>
+                            </div>
+                            <Badge v-if="player.profileProEnabled" tone="pro">PRO</Badge>
+                        </article>
+                    </div>
                     <div class="space-y-2">
                         <div
-                            v-for="(player, index) in leaderboard"
-                            :key="`${player.username}-${index}`"
-                            class="sd-list-item flex justify-between items-center p-3"
+                            v-for="player in rankedRows"
+                            :key="`${player.username}-${player.rank}`"
+                            class="sd-list-item ranking-list-item p-3"
+                            :class="{ 'ranking-list-item-top': player.rank === 1 }"
                         >
-                            <span class="inline-flex items-center gap-2">
-                                <span>#{{ index + 1 }} • {{ player.username }}</span>
+                            <span class="inline-flex items-center gap-2 min-w-0">
+                                <span class="ranking-position" :class="{ 'ranking-position-top': player.rank <= 3 }">#{{ player.rank }}</span>
+                                <span class="truncate">{{ player.username }}</span>
                                 <Badge v-if="player.profileProEnabled" tone="pro">PRO</Badge>
                             </span>
                             <span class="inline-flex items-center gap-3 text-sm text-muted">
-                                <span title="Total de troféus na coleção">🏆 {{ player.trophyTotal ?? 0 }}</span>
+                                <span
+                                    title="Total de troféus na coleção"
+                                    class="ranking-inline-trophy"
+                                    aria-hidden="true"
+                                >
+                                    <svg viewBox="0 0 24 24" fill="none" class="h-4 w-4">
+                                        <path d="M8 4h8v2h2a2 2 0 0 1 2 2v2a5 5 0 0 1-5 5h-1.2A4.8 4.8 0 0 1 13 17.8V19h3v2H8v-2h3v-1.2A4.8 4.8 0 0 1 10.2 15H9a5 5 0 0 1-5-5V8a2 2 0 0 1 2-2h2V4Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                                    </svg>
+                                </span>
                                 <span>N{{ player.level }} • {{ player.xpTotal }} XP</span>
                             </span>
                         </div>
+                    </div>
+                    <div v-if="!filteredLeaderboard.length" class="sd-notice mt-3">
+                        Nenhum participante encontrado para esse filtro.
                     </div>
                 </div>
             </section>
@@ -290,11 +344,29 @@ const data = ref({
     }
 });
 const leaderboard = ref([]);
+const rankingSearch = ref('');
 const loadingAction = ref(false);
 const notice = ref('');
 const errorMessage = ref('');
 const assessmentAttempts = ref([]);
 const isShowcase = computed(() => !auth.isAuthenticated);
+
+const filteredLeaderboard = computed(() => {
+    const term = rankingSearch.value.trim().toLowerCase();
+    if (!term) return leaderboard.value;
+    return leaderboard.value.filter((player) =>
+        String(player?.username || '').toLowerCase().includes(term)
+    );
+});
+
+const rankedRows = computed(() =>
+    filteredLeaderboard.value.map((player, index) => ({
+        ...player,
+        rank: index + 1
+    }))
+);
+
+const topThree = computed(() => rankedRows.value.slice(0, 3));
 
 const levelPercent = computed(() => {
     const next = Number(data.value.profile.xpNextLevel || 0);
@@ -446,3 +518,158 @@ async function redeemReward(rewardKey) {
 
 onMounted(loadData);
 </script>
+
+<style scoped>
+.ranking-section {
+    position: relative;
+}
+
+.ranking-shell {
+    background:
+        radial-gradient(circle at 20% 0%, color-mix(in srgb, var(--primary) 18%, transparent), transparent 36%),
+        radial-gradient(circle at 90% 10%, color-mix(in srgb, var(--primary-2) 14%, transparent), transparent 30%),
+        color-mix(in srgb, var(--surface) 95%, transparent);
+    border-color: color-mix(in srgb, var(--primary) 24%, var(--border));
+}
+
+.ranking-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+    flex-wrap: wrap;
+}
+
+.ranking-search-input {
+    width: min(100%, 20rem);
+    border-color: color-mix(in srgb, var(--primary) 22%, var(--border));
+    background: color-mix(in srgb, var(--surface-2) 40%, var(--surface));
+}
+
+@media (max-width: 767px) {
+    .ranking-search-input {
+        width: 100%;
+    }
+}
+
+.ranking-podium {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 0.65rem;
+    margin-bottom: 0.85rem;
+}
+
+@media (min-width: 768px) {
+    .ranking-podium {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+.ranking-podium-item {
+    border-radius: 0.9rem;
+    border: 1px solid color-mix(in srgb, var(--primary) 20%, var(--border));
+    background: color-mix(in srgb, var(--surface-elevated) 84%, transparent);
+    padding: 0.82rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.ranking-podium-item-1 {
+    border-color: color-mix(in srgb, var(--warning) 70%, var(--border));
+    background: linear-gradient(135deg, color-mix(in srgb, var(--warning) 14%, var(--surface-elevated)), color-mix(in srgb, var(--surface-elevated) 90%, transparent));
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--warning) 18%, transparent);
+}
+
+.ranking-podium-item-2 {
+    border-color: color-mix(in srgb, var(--primary) 58%, var(--border));
+    background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 16%, var(--surface-elevated)), color-mix(in srgb, var(--surface-elevated) 88%, transparent));
+}
+
+.ranking-podium-item-3 {
+    border-color: color-mix(in srgb, var(--primary-2) 52%, var(--border));
+    background: linear-gradient(135deg, color-mix(in srgb, var(--primary-2) 14%, var(--surface-elevated)), color-mix(in srgb, var(--surface-elevated) 88%, transparent));
+}
+
+.ranking-podium-rank-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    width: fit-content;
+    border-radius: 999px;
+    padding: 0.2rem 0.56rem;
+    font-size: 0.8rem;
+    color: var(--text);
+    font-weight: 800;
+    border: 1px solid color-mix(in srgb, var(--primary) 22%, var(--border));
+    background: color-mix(in srgb, var(--surface) 60%, transparent);
+}
+
+.ranking-podium-icon {
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ranking-podium-icon-1 {
+    color: color-mix(in srgb, var(--warning) 80%, white);
+}
+
+.ranking-podium-icon-2 {
+    color: color-mix(in srgb, var(--info) 72%, white);
+}
+
+.ranking-podium-icon-3 {
+    color: color-mix(in srgb, var(--primary-2) 72%, white);
+}
+
+.ranking-podium-name {
+    font-size: 1.05rem;
+}
+
+.ranking-podium-meta {
+    display: inline-flex;
+    gap: 0.65rem;
+    font-size: 0.84rem;
+    color: var(--muted);
+}
+
+.ranking-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.6rem;
+    border-color: color-mix(in srgb, var(--primary) 16%, var(--border));
+    background: color-mix(in srgb, var(--surface-2) 30%, transparent);
+}
+
+.ranking-list-item-top {
+    border-color: color-mix(in srgb, var(--warning) 58%, var(--border));
+    background: linear-gradient(90deg, color-mix(in srgb, var(--warning) 11%, var(--surface-2)), color-mix(in srgb, var(--surface-2) 86%, transparent));
+}
+
+.ranking-position {
+    min-width: 2.2rem;
+    font-weight: 700;
+    color: var(--text-soft);
+    border-radius: 0.45rem;
+    padding: 0.14rem 0.48rem;
+    text-align: center;
+    border: 1px solid color-mix(in srgb, var(--primary) 24%, var(--border));
+    background: color-mix(in srgb, var(--surface) 55%, transparent);
+}
+
+.ranking-position-top {
+    border-color: color-mix(in srgb, var(--warning) 60%, var(--border));
+    color: color-mix(in srgb, var(--warning) 80%, white);
+}
+
+.ranking-inline-trophy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: color-mix(in srgb, var(--warning) 76%, white);
+}
+</style>

@@ -186,14 +186,14 @@ function goToStudentAuth() {
 <style scoped>
 .episode-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.3);
-    border-color: rgba(147, 197, 253, 0.35);
+    box-shadow: 0 16px 30px color-mix(in srgb, var(--bg) 62%, transparent);
+    border-color: color-mix(in srgb, var(--primary) 38%, var(--border));
 }
 
 .episode-card-meta-item:not(:last-child)::after {
     content: '•';
     margin-left: 0.75rem;
-    color: color-mix(in srgb, var(--text-muted) 65%, transparent);
+    color: color-mix(in srgb, var(--muted) 65%, transparent);
 }
 
 .episode-card-summary {

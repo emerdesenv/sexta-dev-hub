@@ -1,0 +1,35 @@
+<svg width="260" height="190" viewBox="0 0 260 190" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgCard" x1="25" y1="28" x2="230" y2="170" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1F3C88" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#0E7490" stop-opacity="0.95"/>
+    </linearGradient>
+    <linearGradient id="book" x1="88" y1="120" x2="161" y2="160" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#60A5FA"/>
+      <stop offset="1" stop-color="#2563EB"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(200 56) rotate(90) scale(45 52)">
+      <stop stop-color="#38BDF8" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#38BDF8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect x="18" y="20" width="224" height="154" rx="20" fill="url(#bgCard)" stroke="#60A5FA" stroke-opacity="0.35"/>
+  <rect x="30" y="34" width="200" height="12" rx="6" fill="#DBEAFE" fill-opacity="0.25"/>
+  <rect x="30" y="52" width="128" height="8" rx="4" fill="#DBEAFE" fill-opacity="0.18"/>
+
+  <rect x="74" y="116" width="92" height="44" rx="8" fill="url(#book)"/>
+  <path d="M86 116H120V160H86C82.5 160 80 157.5 80 154V122C80 118.5 82.5 116 86 116Z" fill="#93C5FD" fill-opacity="0.7"/>
+  <path d="M154 116H120V160H154C157.5 160 160 157.5 160 154V122C160 118.5 157.5 116 154 116Z" fill="#1D4ED8" fill-opacity="0.85"/>
+  <line x1="120" y1="116" x2="120" y2="160" stroke="#BFDBFE" stroke-width="2"/>
+
+  <circle cx="196" cy="62" r="20" fill="#FCD34D"/>
+  <path d="M196 34V28M179.1 38.9L175 34.8M172 56H166M179.1 73.1L175 77.2M196 90V96M212.9 73.1L217 77.2M220 56H226M212.9 38.9L217 34.8" stroke="#FDE68A" stroke-width="2" stroke-linecap="round"/>
+
+  <rect x="46" y="90" width="42" height="28" rx="6" fill="#0F172A" fill-opacity="0.45" stroke="#67E8F9" stroke-opacity="0.45"/>
+  <path d="M53 104H81" stroke="#A5F3FC" stroke-width="2" stroke-linecap="round"/>
+  <path d="M58 98L63 103L58 108" stroke="#22D3EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M76 98L71 103L76 108" stroke="#22D3EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <ellipse cx="200" cy="56" rx="56" ry="45" fill="url(#glow)"/>
+</svg>

@@ -1,23 +1,43 @@
 <template>
     <div class="min-h-screen flex flex-col">
         <PublicHeader />
-        <PageContainer class="pt-8 md:pt-10 pb-12">
-            <section class="sd-card sd-card-section p-6 md:p-7">
-                <Badge tone="warning">Coleção</Badge>
-                <h1 class="mt-3 text-3xl sm:text-4xl font-extrabold">Minha coleção</h1>
-                <p class="mt-2 text-muted">
-                    Itens colecionáveis desbloqueados em eventos relâmpago e desafios especiais.
-                </p>
+        <PageContainer class="pt-14 md:pt-16 pb-14">
+            <section class="sd-card sd-card-section p-6 md:p-7 mt-4 md:mt-5 collection-hero">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <Badge tone="warning">Coleção</Badge>
+                        <h1 class="mt-3 text-3xl sm:text-4xl font-extrabold">Minha coleção</h1>
+                        <p class="mt-2 text-muted">
+                            Itens colecionáveis desbloqueados em eventos relâmpago e desafios especiais.
+                        </p>
+                    </div>
+                    <div class="collection-hero-icon" aria-hidden="true">🧢</div>
+                </div>
 
                 <div v-if="error" class="sd-error mt-4">{{ error }}</div>
                 <div v-else-if="loading" class="sd-notice mt-4">Carregando sua coleção...</div>
 
                 <div v-else class="mt-6">
+                    <div class="grid gap-3 sm:grid-cols-3 mb-4">
+                        <div class="sd-card-item p-3 collection-kpi-card">
+                            <div class="text-xs text-muted">Total de itens</div>
+                            <strong class="text-2xl font-extrabold">{{ items.length }}</strong>
+                        </div>
+                        <div class="sd-card-item p-3 collection-kpi-card">
+                            <div class="text-xs text-muted">Itens raros+</div>
+                            <strong class="text-2xl font-extrabold">{{ rareItemsCount }}</strong>
+                        </div>
+                        <div class="sd-card-item p-3 collection-kpi-card">
+                            <div class="text-xs text-muted">Último desbloqueio</div>
+                            <strong class="text-sm font-extrabold">{{ latestUnlockLabel }}</strong>
+                        </div>
+                    </div>
+
                     <div v-if="items.length" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         <article
                             v-for="entry in items"
                             :key="entry.id"
-                            class="sd-card sd-card-item p-5"
+                            class="sd-card sd-card-item p-5 collection-item-card"
                         >
                             <div class="flex items-start justify-between gap-3">
                                 <div class="min-w-0">
@@ -104,7 +124,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import PublicHeader from '../components/PublicHeader.vue';
 import PageContainer from '../components/layout/PageContainer.vue';
 import Footer from '../components/layout/Footer.vue';
@@ -115,6 +135,23 @@ import { isImageIcon } from '../constants/collectibleIcons';
 const loading = ref(false);
 const error = ref('');
 const items = ref([]);
+
+const rareItemsCount = computed(() =>
+    items.value.filter((entry) => {
+        const rarity = String(entry?.item?.rarity || '').toLowerCase();
+        return rarity === 'rare' || rarity === 'epic' || rarity === 'legendary';
+    }).length
+);
+
+const latestUnlockLabel = computed(() => {
+    if (!items.value.length) return '-';
+    const sorted = [...items.value].sort((a, b) => {
+        const da = new Date(a?.acquiredAt || 0).getTime();
+        const db = new Date(b?.acquiredAt || 0).getTime();
+        return db - da;
+    });
+    return formatDate(sorted[0]?.acquiredAt);
+});
 
 function formatDate(value) {
     const d = new Date(value);
@@ -151,4 +188,38 @@ async function loadCollection() {
 
 onMounted(loadCollection);
 </script>
+
+<style scoped>
+.collection-hero {
+    background:
+        radial-gradient(circle at 92% 15%, color-mix(in srgb, var(--primary-2) 18%, transparent), transparent 34%),
+        linear-gradient(
+            130deg,
+            color-mix(in srgb, var(--primary) 15%, var(--surface)) 0%,
+            color-mix(in srgb, var(--surface) 96%, transparent) 100%
+        );
+}
+
+.collection-hero-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    border: 1px solid color-mix(in srgb, var(--primary-2) 34%, var(--border));
+    background: color-mix(in srgb, var(--surface) 46%, transparent);
+}
+
+.collection-kpi-card {
+    border-color: color-mix(in srgb, var(--primary) 22%, var(--border));
+    background: color-mix(in srgb, var(--surface-elevated) 78%, transparent);
+}
+
+.collection-item-card {
+    border-color: color-mix(in srgb, var(--primary) 22%, var(--border));
+    background: color-mix(in srgb, var(--surface-elevated) 82%, transparent);
+}
+</style>
 

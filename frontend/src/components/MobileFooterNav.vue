@@ -107,6 +107,15 @@ const isStudentAuth = computed(() => route.name === 'student-auth' || route.name
     border-radius: 14px;
     color: color-mix(in srgb, var(--text) 70%, transparent);
     text-decoration: none;
+    transition:
+        background-color 140ms ease,
+        border-color 140ms ease,
+        color 140ms ease;
+}
+
+.mf-item:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--primary) 52%, transparent);
+    outline-offset: 2px;
 }
 
 .mf-item--active {

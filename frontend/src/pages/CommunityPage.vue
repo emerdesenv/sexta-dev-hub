@@ -1,21 +1,32 @@
 <template>
     <div class="min-h-screen flex flex-col">
-        <PublicHeader />
-        <PageContainer class="pt-8 md:pt-10 pb-12">
-            <section class="sd-card sd-card-section p-6 md:p-7">
-                <Badge tone="primary">Comunidade ADS</Badge>
-                <h1 class="mt-3 text-3xl sm:text-4xl font-extrabold">Troca de conhecimento entre fases</h1>
-                <p class="mt-3 text-muted max-w-3xl">
-                    Espaço para dúvidas, soluções e discussões com foco em aprendizado colaborativo.
-                </p>
-                <p class="mt-2 text-xs text-muted max-w-3xl">
-                    Para manter um ambiente seguro, conteúdos ofensivos, de ódio, assédio ou incentivo a autoagressão são bloqueados.
-                </p>
+        <PublicHeader variant="community" />
+        <PageContainer class="pt-12 md:pt-14 pb-16">
+            <section class="sd-card sd-card-section p-6 md:p-7 community-hero md:grid md:grid-cols-[minmax(0,1fr)_260px] md:items-center md:gap-6">
+                <div class="min-w-0">
+                    <Badge tone="primary">Comunidade ADS</Badge>
+                    <h1 class="mt-3 text-3xl sm:text-4xl font-extrabold">Troca de conhecimento entre fases</h1>
+                    <p class="mt-3 text-muted max-w-3xl">
+                        Espaço para dúvidas, soluções e discussões com foco em aprendizado colaborativo.
+                    </p>
+                    <div class="mt-4 flex flex-wrap items-center gap-2 hero-safety-chips">
+                        <Badge tone="success">Ambiente seguro</Badge>
+                        <Badge tone="warning">Sem ofensas</Badge>
+                        <Badge tone="info">Autoagressão não é incentivada</Badge>
+                    </div>
+                </div>
+                <div class="community-hero-visual hidden md:flex items-center justify-end">
+                    <img
+                        src="/community-hero-illustration.svg"
+                        alt="Ilustração de comunidade e colaboração"
+                        class="community-hero-image"
+                    >
+                </div>
             </section>
 
-            <section class="mt-6 grid gap-4 md:grid-cols-1">
-                <div class="space-y-4">
-                <article class="sd-card p-5">
+            <section class="mt-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_19rem]">
+                <div class="space-y-4 min-w-0">
+                <article class="sd-card p-5 community-main-card">
                     <div class="flex items-center justify-between gap-3 flex-wrap">
                         <h2 class="sd-section-title">Tópicos recentes</h2>
                         <button
@@ -31,7 +42,7 @@
                         <input v-model.trim="filters.search" class="sd-input" placeholder="Buscar por título ou conteúdo" />
                         <button class="sd-button sd-button-secondary" type="button" @click="loadTopics">Buscar</button>
                     </div>
-                    <div v-if="topicScope !== 'reports'" class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div v-if="topicScope !== 'reports'" class="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
                         <select v-model="filters.category" class="sd-input">
                             <option value="">Todas categorias</option>
                             <option value="duvida">Dúvida</option>
@@ -44,6 +55,12 @@
                             <option value="1">Fase 1</option>
                             <option value="2">Fase 2</option>
                             <option value="3">Fase 3</option>
+                        </select>
+                        <select v-model="sortMode" class="sd-input">
+                            <option value="recent">Mais recentes</option>
+                            <option value="oldest">Mais antigos</option>
+                            <option value="mostReplies">Mais respostas</option>
+                            <option value="title">Título (A-Z)</option>
                         </select>
                     </div>
                     <div v-if="auth.isAuthenticated" class="mt-3 flex items-center gap-2 flex-wrap">
@@ -82,12 +99,26 @@
                             Denúncias pendentes
                         </button>
                     </div>
+                    <div class="mt-4 grid gap-3 sm:grid-cols-3">
+                        <div class="sd-card-item p-3 community-metric-card">
+                            <div class="text-xs text-muted">Tópicos visíveis</div>
+                            <strong class="text-2xl font-extrabold">{{ sortedTopics.length }}</strong>
+                        </div>
+                        <div class="sd-card-item p-3 community-metric-card">
+                            <div class="text-xs text-muted">Denúncias pendentes</div>
+                            <strong class="text-2xl font-extrabold">{{ reports.length }}</strong>
+                        </div>
+                        <div class="sd-card-item p-3 community-metric-card">
+                            <div class="text-xs text-muted">Escopo</div>
+                            <strong class="text-lg font-extrabold">{{ scopeLabel }}</strong>
+                        </div>
+                    </div>
 
                     <div v-if="topicScope !== 'reports'" class="mt-4 space-y-3">
                         <button
-                            v-for="topic in visibleTopics"
+                            v-for="topic in paginatedTopics"
                             :key="topic.id"
-                            class="w-full text-left sd-list-item p-4"
+                            class="w-full text-left sd-list-item p-4 community-topic-item"
                             :class="{
                                 'ring-2 ring-blue-400/60 border-blue-400/60 bg-blue-500/5': selectedTopic?.topic?.id === topic.id
                             }"
@@ -109,8 +140,17 @@
                                 <Badge tone="neutral">{{ topic.repliesCount || 0 }} respostas</Badge>
                             </div>
                         </button>
-                        <div v-if="!visibleTopics.length" class="sd-notice">
+                        <div v-if="!sortedTopics.length" class="sd-notice">
                             {{ emptyTopicsMessage }}
+                        </div>
+                        <div v-else-if="canLoadMoreTopics" class="pt-1">
+                            <button
+                                class="sd-button sd-button-secondary w-full"
+                                type="button"
+                                @click="loadMoreTopics"
+                            >
+                                Carregar mais
+                            </button>
                         </div>
                     </div>
 
@@ -141,12 +181,85 @@
                     </div>
                 </article>
                 </div>
+                <aside class="space-y-4">
+                    <article class="sd-card p-4 community-side-card">
+                        <h3 class="sd-card-title">Atalhos</h3>
+                        <div class="mt-3 space-y-2">
+                            <button class="sd-list-item shortcut-item w-full text-left p-3" type="button" @click="sortMode = 'mostReplies'">
+                                <span class="shortcut-content">
+                                    <span class="shortcut-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" fill="none" class="h-4 w-4">
+                                            <path d="M8 10h8M8 14h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                            <path d="M5 5h14v12H9l-4 3V5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                                        </svg>
+                                    </span>
+                                    <span>Dúvidas respondidas</span>
+                                </span>
+                                <span class="shortcut-arrow" aria-hidden="true">›</span>
+                            </button>
+                            <button class="sd-list-item shortcut-item w-full text-left p-3" type="button" @click="rulesModalOpen = true">
+                                <span class="shortcut-content">
+                                    <span class="shortcut-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" fill="none" class="h-4 w-4">
+                                            <path d="M12 3l7 3v6c0 4.2-2.8 7.7-7 9-4.2-1.3-7-4.8-7-9V6l7-3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                                            <path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </span>
+                                    <span>Regras da comunidade</span>
+                                </span>
+                                <span class="shortcut-arrow" aria-hidden="true">›</span>
+                            </button>
+                        </div>
+                    </article>
+                    <article id="community-ranking" class="sd-card p-4 community-side-card">
+                        <div class="flex items-center justify-between gap-2">
+                            <h3 class="sd-card-title">Ranking</h3>
+                            <Badge tone="info">Top 5</Badge>
+                        </div>
+                        <div class="mt-3 space-y-2">
+                            <div
+                                v-for="(player, index) in communityLeaderboard.slice(0, 5)"
+                                :key="`${player.username}-${index}`"
+                                class="sd-list-item p-3 flex items-center justify-between gap-2"
+                            >
+                                <span class="text-sm min-w-0 truncate">#{{ index + 1 }} {{ player.username }}</span>
+                                <span class="text-xs text-muted">N{{ player.level }}</span>
+                            </div>
+                            <div v-if="!communityLeaderboard.length" class="sd-notice">
+                                Ranking indisponível no momento.
+                            </div>
+                        </div>
+                    </article>
+                    <article class="sd-card p-4 community-side-card community-gamification-card">
+                        <div class="flex items-center justify-between gap-2">
+                            <h3 class="sd-card-title">Gamificação</h3>
+                            <router-link to="/gamificacao" class="text-xs community-link">Ver perfil</router-link>
+                        </div>
+                        <div class="mt-3 community-xp-box">
+                            <div class="text-xs text-muted">Nível estimado da comunidade</div>
+                            <div class="mt-1 flex items-end justify-between gap-3">
+                                <strong class="text-2xl font-extrabold">N{{ communityLevelEstimate }}</strong>
+                                <span class="text-xs text-muted">{{ communityXpEstimate }} XP</span>
+                            </div>
+                        </div>
+                        <div class="mt-3 grid grid-cols-2 gap-2">
+                            <div class="sd-card-item p-3">
+                                <div class="text-xs text-muted">Participantes</div>
+                                <strong class="text-lg font-extrabold">{{ communityLeaderboard.length }}</strong>
+                            </div>
+                            <div class="sd-card-item p-3">
+                                <div class="text-xs text-muted">Tópicos</div>
+                                <strong class="text-lg font-extrabold">{{ sortedTopics.length }}</strong>
+                            </div>
+                        </div>
+                    </article>
+                </aside>
             </section>
 
             <Transition name="topic-drawer">
                 <div
                     v-if="topicDetailOpen && selectedTopic"
-                    class="fixed inset-0 z-[95] bg-black/70 flex items-end md:items-stretch md:justify-end"
+                    class="fixed inset-0 z-[95] community-overlay flex items-end md:items-stretch md:justify-end"
                     @click.self="closeTopicDetail"
                 >
                     <section class="community-topic-drawer w-full md:w-[min(820px,94vw)] h-[100dvh] md:h-full border-t border-border md:border-l md:border-t-0 md:border-r-0 md:border-b-0 rounded-none md:rounded-none flex flex-col shadow-2xl">
@@ -197,7 +310,7 @@
                                     :href="part.value"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    class="inline-flex items-baseline gap-1 underline text-blue-300 hover:text-blue-200"
+                                    class="community-link inline-flex items-baseline gap-1 underline"
                                     title="Abrir link em nova aba"
                                 >
                                     <span class="break-all">{{ part.value }}</span>
@@ -238,7 +351,7 @@
                                             :href="part.value"
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            class="inline-flex items-baseline gap-1 underline text-blue-300 hover:text-blue-200"
+                                            class="community-link inline-flex items-baseline gap-1 underline"
                                             title="Abrir link em nova aba"
                                         >
                                             <span class="break-all">{{ part.value }}</span>
@@ -348,8 +461,45 @@
                     </div>
                 </form>
             </BaseModal>
+
+            <BaseModal
+                v-model="rulesModalOpen"
+                title="Regras da comunidade"
+                aria-label="Regras da comunidade"
+                max-width="2xl"
+            >
+                <div class="mt-4 space-y-3">
+                    <p class="text-sm text-muted">
+                        Este espaço é para aprendizado colaborativo. Respeito e segurança são inegociáveis.
+                    </p>
+                    <article class="sd-list-item p-3">
+                        <h4 class="font-semibold">1) Respeite as pessoas</h4>
+                        <p class="text-sm text-muted mt-1">
+                            Não publique ofensas, ataques pessoais, assédio ou discriminação.
+                        </p>
+                    </article>
+                    <article class="sd-list-item p-3">
+                        <h4 class="font-semibold">2) Mantenha foco técnico</h4>
+                        <p class="text-sm text-muted mt-1">
+                            Dúvidas, soluções e discussões devem ter contexto e contribuir para o aprendizado.
+                        </p>
+                    </article>
+                    <article class="sd-list-item p-3">
+                        <h4 class="font-semibold">3) Sem conteúdo inadequado</h4>
+                        <p class="text-sm text-muted mt-1">
+                            Conteúdos ofensivos, de ódio, ameaça ou incentivo a autoagressão serão removidos.
+                        </p>
+                    </article>
+                    <article class="sd-list-item p-3">
+                        <h4 class="font-semibold">4) Denuncie com responsabilidade</h4>
+                        <p class="text-sm text-muted mt-1">
+                            Use denúncia quando necessário. A moderação revisa os casos com prioridade.
+                        </p>
+                    </article>
+                </div>
+            </BaseModal>
         </PageContainer>
-        <Footer />
+        <Footer variant="community" class="mt-8 md:mt-10" />
     </div>
 </template>
 
@@ -372,6 +522,7 @@ const loadingReply = ref(false);
 const loadingAction = ref(false);
 const topicDetailOpen = ref(false);
 const topicModalOpen = ref(false);
+const rulesModalOpen = ref(false);
 const isEditingTopic = ref(false);
 const editingTopicId = ref(null);
 const reports = ref([]);
@@ -379,6 +530,9 @@ const notice = ref('');
 const errorMessage = ref('');
 const newReply = ref('');
 const topicScope = ref('all');
+const sortMode = ref('recent');
+const topicsPageSize = ref(6);
+const communityLeaderboard = ref([]);
 
 const filters = ref({
     search: '',
@@ -477,10 +631,66 @@ const emptyTopicsMessage = computed(() => {
     return 'Nenhum tópico encontrado.';
 });
 
+const scopeLabel = computed(() => {
+    if (topicScope.value === 'mine') return 'Meus tópicos';
+    if (topicScope.value === 'removedAuthors') return 'Autores removidos';
+    if (topicScope.value === 'reports') return 'Denúncias';
+    return 'Todos';
+});
+
 const visibleTopics = computed(() => {
     if (topicScope.value === 'mine') return topics.value.filter((topic) => Boolean(topic.isMine));
     return topics.value;
 });
+
+function resolveTopicDate(topic) {
+    const raw = topic?.createdAt || topic?.created_at || topic?.updatedAt || topic?.updated_at;
+    const d = raw ? new Date(raw) : null;
+    return d && !Number.isNaN(d.getTime()) ? d.getTime() : 0;
+}
+
+const sortedTopics = computed(() => {
+    const list = [...visibleTopics.value];
+    if (sortMode.value === 'title') {
+        return list.sort((a, b) => String(a.title || '').localeCompare(String(b.title || '')));
+    }
+    if (sortMode.value === 'mostReplies') {
+        return list.sort((a, b) => Number(b.repliesCount || 0) - Number(a.repliesCount || 0));
+    }
+    if (sortMode.value === 'oldest') {
+        return list.sort((a, b) => resolveTopicDate(a) - resolveTopicDate(b));
+    }
+    return list.sort((a, b) => resolveTopicDate(b) - resolveTopicDate(a));
+});
+
+const communityXpEstimate = computed(() =>
+    communityLeaderboard.value
+        .slice(0, 5)
+        .reduce((sum, player) => sum + Number(player?.xpTotal || 0), 0)
+);
+
+const communityLevelEstimate = computed(() => {
+    const top = communityLeaderboard.value.slice(0, 5);
+    if (!top.length) return 1;
+    const total = top.reduce((sum, player) => sum + Number(player?.level || 1), 0);
+    return Math.max(1, Math.round(total / top.length));
+});
+
+const paginatedTopics = computed(() => sortedTopics.value.slice(0, topicsPageSize.value));
+const canLoadMoreTopics = computed(() => paginatedTopics.value.length < sortedTopics.value.length);
+
+function loadMoreTopics() {
+    topicsPageSize.value += 6;
+}
+
+function scrollToRanking() {
+    const rankingEl = document.getElementById('community-ranking');
+    if (!rankingEl) {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        return;
+    }
+    rankingEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 
 function openCreateTopicModal() {
     notice.value = '';
@@ -534,6 +744,15 @@ async function loadReports() {
         params: { status: 'pending' }
     });
     reports.value = data;
+}
+
+async function loadCommunitySidebar() {
+    try {
+        const { data } = await api.get('/gamification/leaderboard');
+        communityLeaderboard.value = Array.isArray(data) ? data : [];
+    } catch {
+        communityLeaderboard.value = [];
+    }
 }
 
 async function submitTopic() {
@@ -759,6 +978,7 @@ watch(topicDetailOpen, (isOpen) => {
 });
 
 watch(topicScope, async (scope) => {
+    topicsPageSize.value = 6;
     if (scope === 'reports') {
         topicDetailOpen.value = false;
         selectedTopic.value = null;
@@ -768,7 +988,7 @@ watch(topicScope, async (scope) => {
     await loadTopics();
     if (selectedTopic.value) {
         const selectedId = selectedTopic.value.topic?.id;
-        const stillVisible = visibleTopics.value.some((topic) => topic.id === selectedId);
+        const stillVisible = sortedTopics.value.some((topic) => topic.id === selectedId);
         if (!stillVisible) {
             topicDetailOpen.value = false;
             selectedTopic.value = null;
@@ -776,10 +996,15 @@ watch(topicScope, async (scope) => {
     }
 });
 
+watch([sortMode, () => filters.value.search, () => filters.value.category, () => filters.value.phase], () => {
+    topicsPageSize.value = 6;
+});
+
 onMounted(async () => {
     document.addEventListener('keydown', handleTopicDetailEscape);
     await loadTopics();
     await loadReports();
+    await loadCommunitySidebar();
 });
 
 onBeforeUnmount(() => {
@@ -794,6 +1019,107 @@ onBeforeUnmount(() => {
 .community-topic-drawer-body,
 .community-topic-drawer-footer {
     background: var(--surface);
+}
+
+.community-hero {
+    background:
+        radial-gradient(circle at 88% 20%, color-mix(in srgb, var(--primary-2) 20%, transparent), transparent 34%),
+        linear-gradient(
+            125deg,
+            color-mix(in srgb, var(--primary) 16%, var(--surface-elevated)) 0%,
+            color-mix(in srgb, var(--surface) 94%, transparent) 100%
+        );
+}
+
+.community-hero-visual {
+    min-height: 150px;
+}
+
+.community-hero-image {
+    width: 100%;
+    max-width: 240px;
+    height: auto;
+    opacity: 0.95;
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.28));
+}
+
+.hero-safety-chips :deep(.sd-badge) {
+    font-size: 0.75rem;
+}
+
+.community-main-card {
+    background: color-mix(in srgb, var(--surface) 95%, transparent);
+}
+
+.community-metric-card {
+    background: color-mix(in srgb, var(--surface-elevated) 75%, transparent);
+}
+
+.community-topic-item {
+    transition: transform 140ms ease, border-color 140ms ease, background-color 140ms ease;
+}
+
+.community-topic-item:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--primary) 30%, var(--border));
+}
+
+.community-side-card {
+    background: color-mix(in srgb, var(--surface) 96%, transparent);
+}
+
+.community-gamification-card {
+    border-color: color-mix(in srgb, var(--primary-2) 24%, var(--border));
+}
+
+.community-xp-box {
+    border-radius: 0.85rem;
+    border: 1px solid color-mix(in srgb, var(--primary-2) 26%, var(--border));
+    padding: 0.7rem 0.75rem;
+    background: color-mix(in srgb, var(--primary-2) 10%, var(--surface-elevated));
+}
+
+.shortcut-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.65rem;
+    border-color: color-mix(in srgb, var(--primary) 20%, var(--border));
+}
+
+.shortcut-content {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+.shortcut-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 999px;
+    color: color-mix(in srgb, var(--primary-2) 78%, white);
+    background: color-mix(in srgb, var(--primary-2) 16%, transparent);
+}
+
+.shortcut-arrow {
+    color: color-mix(in srgb, var(--text) 60%, transparent);
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.community-overlay {
+    background: color-mix(in srgb, var(--bg) 80%, black);
+}
+
+.community-link {
+    color: color-mix(in srgb, var(--primary-2) 76%, white);
+}
+
+.community-link:hover {
+    color: color-mix(in srgb, var(--primary-2) 92%, white);
 }
 
 .topic-drawer-enter-active,

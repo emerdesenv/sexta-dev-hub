@@ -1,15 +1,25 @@
 <template>
-    <header class="sticky top-0 z-50 backdrop-blur bg-bg/75 border-b border-border/40 md:fixed md:left-0 md:right-0">
+    <header
+        :class="[
+            'sticky top-0 z-50 backdrop-blur bg-bg/75 border-b border-border/40 md:fixed md:left-0 md:right-0',
+            { 'header-community': variant === 'community' }
+        ]"
+    >
         <div class="sd-container header-inner flex items-center justify-between gap-4">
-            <router-link to="/" class="text-lg font-extrabold tracking-tight min-w-0 flex items-center">
-                <span class="md:hidden block text-base leading-none truncate max-w-[65vw]">Dev Hub</span>
-                <span class="hidden md:inline">
-                    <span class="text-primary-2">Dev</span> Hub
-                </span>
+            <router-link to="/" class="brand-link text-lg font-extrabold tracking-tight min-w-0 flex items-center gap-2">
+                <img
+                    :src="brandLogoMark"
+                    alt="Dev Hub"
+                    class="brand-mark md:hidden"
+                >
+                <img
+                    :src="brandLogoFull"
+                    alt="Dev Hub"
+                    class="brand-full hidden md:block"
+                >
             </router-link>
 
             <nav class="hidden md:flex items-center gap-2">
-                
                 <a
                     class="sd-button sd-button-secondary px-3 py-2 text-sm my-1"
                     href="/#episodios"
@@ -141,22 +151,24 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
+import brandLogoMark from '../assets/dev-hub-logo-mark.svg';
+import brandLogoFull from '../assets/dev-hub-logo-full.svg';
+
+defineProps({
+    variant: {
+        type: String,
+        default: 'default'
+    }
+});
 
 const auth = useAuthStore();
 const router = useRouter();
 const menuOpen = ref(false);
 const menuRef = ref(null);
-const themeOrder = ['system', 'light', 'dark'];
 
 const userInitial = computed(() => {
     const username = auth.user?.username || 'U';
     return username.charAt(0).toUpperCase();
-});
-
-const themeButtonLabel = computed(() => {
-    if (auth.uiTheme === 'light') return 'Tema: Claro';
-    if (auth.uiTheme === 'dark') return 'Tema: Escuro';
-    return 'Tema: Sistema';
 });
 
 function closeMenu() {
@@ -180,12 +192,6 @@ function handleLogout() {
     router.push('/');
 }
 
-function toggleTheme() {
-    const currentIndex = themeOrder.indexOf(auth.uiTheme);
-    const nextTheme = themeOrder[(currentIndex + 1) % themeOrder.length];
-    auth.setUiTheme(nextTheme);
-}
-
 onMounted(() => {
     document.addEventListener('click', handleClickOutside);
 });
@@ -199,6 +205,38 @@ onBeforeUnmount(() => {
 .header-inner {
     padding-top: 0.875rem;
     padding-bottom: 0.875rem;
+}
+
+.brand-link {
+    color: var(--text);
+}
+
+.brand-mark {
+    width: 1.85rem;
+    height: 1.85rem;
+    flex-shrink: 0;
+    filter: drop-shadow(0 2px 7px rgba(99, 102, 241, 0.34));
+}
+
+@media (min-width: 768px) {
+    .brand-mark {
+        width: 2.05rem;
+        height: 2.05rem;
+    }
+}
+
+.brand-full {
+    width: 10.2rem;
+    height: auto;
+    max-width: 42vw;
+    filter: drop-shadow(0 2px 7px rgba(99, 102, 241, 0.28));
+}
+
+.header-community {
+    background:
+        radial-gradient(circle at 16% 10%, color-mix(in srgb, var(--primary-2) 22%, transparent), transparent 36%),
+        color-mix(in srgb, var(--bg) 82%, transparent);
+    border-bottom-color: color-mix(in srgb, var(--primary-2) 24%, var(--border));
 }
 
 @media (min-width: 768px) {
