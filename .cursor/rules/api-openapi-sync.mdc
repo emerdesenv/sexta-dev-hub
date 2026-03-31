@@ -1,0 +1,25 @@
+---
+description: Exige sincronia entre endpoints e OpenAPI
+globs: backend/src/routes/**,backend/src/controllers/**,backend/src/docs/openapi.js,backend/src/app.js
+alwaysApply: false
+---
+
+# API + OpenAPI Sync
+
+Quando alterar ou criar endpoint no backend, atualize a documentação OpenAPI no mesmo trabalho.
+
+## Regras obrigatórias
+
+- Se houver mudança em `backend/src/routes/**` ou `backend/src/controllers/**`, revisar `backend/src/docs/openapi.js`.
+- Se endpoint for novo, incluir `path`, `method`, `summary`, `security` (quando aplicável), `requestBody` (quando houver) e respostas principais.
+- Se endpoint existente mudar contrato (params/body/status), refletir essa mudança na spec.
+- Manter tags corretas por domínio: `Auth`, `Episodes`, `Gamification`, `Events`, `Community`, `Health`.
+- Após atualizar a spec, validar localmente:
+  - `GET /api/docs`
+  - `GET /api/openapi.json`
+
+## Definição de pronto para mudanças de API
+
+- Endpoint implementado
+- OpenAPI atualizado em `backend/src/docs/openapi.js`
+- Testes backend passando

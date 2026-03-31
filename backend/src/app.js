@@ -10,6 +10,8 @@ import episodeRoutes from './routes/episodeRoutes.js';
 import gamificationRoutes from './routes/gamificationRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
 import communityRoutes from './routes/communityRoutes.js';
+import swaggerUi from 'swagger-ui-express';
+import openApiDocument from './docs/openapi.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { createCsrfProtection } from './middleware/csrf.js';
 
@@ -72,6 +74,10 @@ app.use('/uploads', express.static(path.resolve('uploads')));
 
 app.get('/health', (req, res) => res.status(200).json({ status: 'ok' }));
 app.get('/api/health', (req, res) => res.status(200).json({ status: 'ok' }));
+app.get('/api/openapi.json', (req, res) => {
+    res.status(200).json(openApiDocument);
+});
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openApiDocument));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/episodes', episodeRoutes);

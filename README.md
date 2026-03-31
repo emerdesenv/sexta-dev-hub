@@ -62,26 +62,48 @@ persistente via volume Docker
 
     sexta-dev-hub
     │
+    ├── .github
+    │   └── workflows
+    │
+    ├── ai
+    │   ├── agents
+    │   ├── context
+    │   └── workflows
+    │
     ├── backend
+    │   ├── docs
+    │   │   └── API_DOCUMENTATION_GUIDE.md
+    │   ├── scripts
     │   ├── src
+    │   │   ├── docs
+    │   │   ├── routes
+    │   │   ├── controllers
+    │   │   ├── models
+    │   │   └── services
+    │   ├── uploads
     │   ├── Dockerfile
+    │   ├── package-lock.json
     │   └── package.json
     │
     ├── frontend
+    │   ├── public
     │   ├── src
     │   ├── Dockerfile
+    │   ├── vite.config.js
     │   ├── nginx.conf
+    │   ├── package-lock.json
     │   └── package.json
-    │
-    ├── traefik
-    │   └── letsencrypt
     │
     ├── backup
     │   └── backup.sh
     │
+    ├── .env
+    ├── .env.example
     ├── docker-compose.yml
     ├── docker-compose.prod.yml
     ├── docker-compose.dev.yml
+    ├── DEPLOY_CHECKLIST.md
+    ├── setup-server.sh
     └── README.md
 
 ------------------------------------------------------------------------
@@ -117,6 +139,8 @@ Serviços disponíveis:
   ---------------------------- -----------------------
   Frontend (Vite Dev Server)   http://localhost:5173
   Backend API                  http://localhost:3000
+  API Docs (Swagger UI)        http://localhost:3000/api/docs
+  OpenAPI JSON                 http://localhost:3000/api/openapi.json
   MySQL                        localhost:3306
 
 ### Variáveis de ambiente (frontend)
@@ -173,6 +197,45 @@ Checklist operacional e armadilhas comuns: [DEPLOY_CHECKLIST.md](./DEPLOY_CHECKL
 **API:** https://app.momentodev.com/api/health
 
 **Healthcheck da API:** https://app.momentodev.com/health
+
+**API Docs (Swagger UI):** https://app.momentodev.com/api/docs
+
+**OpenAPI JSON:** https://app.momentodev.com/api/openapi.json
+
+------------------------------------------------------------------------
+
+# 📘 Documentação da API (OpenAPI + Swagger)
+
+A API possui documentação técnica interativa para consulta e testes manuais de endpoints.
+
+- Swagger UI: `GET /api/docs`
+- Especificação OpenAPI em JSON: `GET /api/openapi.json`
+- Fonte da especificação: `backend/src/docs/openapi.js`
+- Guia de manutenção do padrão: `backend/docs/API_DOCUMENTATION_GUIDE.md`
+
+### Como testar rapidamente
+
+1. Suba o ambiente de desenvolvimento:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+```
+
+2. Abra a documentação no navegador:
+
+```text
+http://localhost:3000/api/docs
+```
+
+3. Faça um teste de conectividade:
+
+- Execute `GET /health` pelo botão **Try it out**
+- Depois teste `POST /auth/login` com um usuário válido
+
+### Observações de autenticação
+
+- Endpoints protegidos usam cookie de sessão (`httpOnly`) e/ou Bearer token.
+- Para testar rotas autenticadas no Swagger, faça login primeiro para o navegador receber os cookies.
 
 ------------------------------------------------------------------------
 
