@@ -51,9 +51,9 @@ jobs:
             -t "${TARGET_URL}" \
             -m 5 \
             -T 2 \
-            -r /zap/wrk/.zap/zap-report.html \
-            -J /zap/wrk/.zap/zap-report.json \
-            -w /zap/wrk/.zap/zap-report.md
+            -r .zap/zap-report.html \
+            -J .zap/zap-report.json \
+            -w .zap/zap-report.md
 
       - name: Evaluate high-risk alerts
         shell: bash
