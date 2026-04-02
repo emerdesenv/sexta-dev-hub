@@ -1,8 +1,8 @@
 <template>
     <header
         :class="[
-            'sticky top-0 z-50 backdrop-blur bg-bg/75 border-b border-border/40 md:fixed md:left-0 md:right-0',
-            { 'header-community': variant === 'community' }
+            'public-header sticky top-0 z-50 md:fixed md:left-0 md:right-0',
+            { 'public-header--community header-community': variant === 'community' }
         ]"
     >
         <div class="sd-container header-inner flex items-center justify-between gap-4">
@@ -21,26 +21,32 @@
 
             <nav class="hidden md:flex items-center gap-2">
                 <a
-                    class="sd-button sd-button-secondary px-3 py-2 text-sm my-1"
+                    class="header-nav-btn my-1"
                     href="/#episodios"
                 >
                     Conteúdos
                 </a>
                 <router-link
-                    class="sd-button sd-button-secondary px-3 py-2 text-sm my-1"
+                    class="header-nav-btn my-1"
                     to="/gamificacao"
                 >
                     Gamificação
                 </router-link>
                 <router-link
-                    class="sd-button sd-button-secondary px-3 py-2 text-sm my-1"
+                    class="header-nav-btn my-1"
                     to="/comunidade"
                 >
                     Comunidade
                 </router-link>
                 <router-link
+                    class="header-nav-btn my-1"
+                    to="/vagas"
+                >
+                    Vagas
+                </router-link>
+                <router-link
                     v-if="!auth.isAuthenticated"
-                    class="sd-button sd-button-secondary px-3 py-2 text-sm my-1"
+                    class="header-nav-btn my-1"
                     to="/aluno"
                 >
                     Aluno
@@ -107,6 +113,13 @@
                             @click="closeMenu"
                         >
                             Comunidade
+                        </router-link>
+                        <router-link
+                            class="user-menu-item"
+                            to="/vagas"
+                            @click="closeMenu"
+                        >
+                            Vagas
                         </router-link>
                         <router-link
                             v-if="auth.user?.role === 'student'"
@@ -202,20 +215,36 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.public-header {
+    /* Barra superior escura: contraste com logo (texto #F8FAFC no SVG) + leitura confortável */
+    backdrop-filter: saturate(1.2) blur(12px);
+    background: linear-gradient(180deg, #1c2536 0%, #141c2c 100%);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.06),
+        0 8px 28px rgba(15, 23, 42, 0.28);
+}
+
+.public-header--community {
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.06),
+        0 10px 32px rgba(15, 23, 42, 0.32);
+}
+
 .header-inner {
     padding-top: 0.875rem;
     padding-bottom: 0.875rem;
 }
 
 .brand-link {
-    color: var(--text);
+    color: #e8edf7;
 }
 
 .brand-mark {
     width: 1.85rem;
     height: 1.85rem;
     flex-shrink: 0;
-    filter: drop-shadow(0 2px 7px rgba(99, 102, 241, 0.34));
+    filter: drop-shadow(0 2px 6px color-mix(in srgb, var(--primary) 28%, transparent));
 }
 
 @media (min-width: 768px) {
@@ -229,14 +258,51 @@ onBeforeUnmount(() => {
     width: 10.2rem;
     height: auto;
     max-width: 42vw;
-    filter: drop-shadow(0 2px 7px rgba(99, 102, 241, 0.28));
+    filter: drop-shadow(0 2px 6px color-mix(in srgb, var(--primary) 24%, transparent));
 }
 
 .header-community {
     background:
-        radial-gradient(circle at 16% 10%, color-mix(in srgb, var(--primary-2) 22%, transparent), transparent 36%),
-        color-mix(in srgb, var(--bg) 82%, transparent);
-    border-bottom-color: color-mix(in srgb, var(--primary-2) 24%, var(--border));
+        radial-gradient(circle at 16% 10%, rgba(122, 92, 255, 0.22), transparent 38%),
+        linear-gradient(180deg, #1e2739 0%, #151d2e 100%);
+    border-bottom-color: rgba(129, 140, 248, 0.38);
+}
+
+.header-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    font-weight: 700;
+    font-size: 0.875rem;
+    line-height: 1.25;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.07);
+    color: #e8edf7;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+        background-color 150ms ease,
+        border-color 150ms ease,
+        color 150ms ease,
+        transform 150ms ease;
+}
+
+.header-nav-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.24);
+    color: #f8fafc;
+}
+
+.header-nav-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(147, 164, 255, 0.55);
+}
+
+.header-nav-btn:active {
+    transform: translateY(1px);
 }
 
 @media (min-width: 768px) {
@@ -251,8 +317,8 @@ onBeforeUnmount(() => {
 }
 
 .user-menu-button {
-    border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
-    background: color-mix(in srgb, var(--surface) 94%, transparent);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.08);
     border-radius: 999px;
     padding: 2px;
     cursor: pointer;
@@ -279,7 +345,7 @@ onBeforeUnmount(() => {
     border-radius: 12px;
     border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
     background: color-mix(in srgb, var(--surface) 96%, transparent);
-    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.28);
+    box-shadow: 0 12px 26px rgba(15, 23, 42, 0.16);
     overflow: hidden;
     z-index: 70;
 }
@@ -301,6 +367,6 @@ onBeforeUnmount(() => {
 }
 
 .user-menu-item-danger {
-    color: color-mix(in srgb, var(--danger) 70%, white);
+    color: color-mix(in srgb, var(--danger) 78%, var(--text));
 }
 </style>

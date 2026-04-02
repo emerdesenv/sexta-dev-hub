@@ -1,7 +1,7 @@
 <template>
     <div class="min-h-screen flex flex-col">
         <PublicHeader />
-        <PageContainer class="pt-4 md:pt-6">
+        <PageContainer>
             <main class="py-8">
                 <div class="grid gap-6 lg:grid-cols-[300px_1fr]">
                     <aside class="lg:sticky lg:top-24 self-start">
@@ -1244,7 +1244,7 @@ onBeforeUnmount(() => {
     border-radius: 0.75rem;
     border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
     background: color-mix(in srgb, var(--surface) 96%, transparent);
-    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.14);
     overflow: hidden;
 }
 
@@ -1265,7 +1265,7 @@ onBeforeUnmount(() => {
 }
 
 .row-actions-item-danger {
-    color: color-mix(in srgb, var(--danger) 78%, white);
+    color: color-mix(in srgb, var(--danger) 78%, var(--text));
 }
 
 </style>

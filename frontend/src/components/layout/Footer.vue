@@ -1,8 +1,8 @@
 <template>
     <footer
         :class="[
-            'mt-auto pt-8 pb-10 bg-surface/30 footer-root-line',
-            { 'footer-community': variant === 'community' }
+            'site-footer mt-auto pt-8 pb-10 footer-root-line',
+            { 'site-footer--community footer-community': variant === 'community' }
         ]"
     >
         <div class="sd-container">
@@ -10,9 +10,9 @@
                 <div class="text-muted">
                     <span class="font-semibold">© {{ new Date().getFullYear() }} Dev Hub</span>
                     <span class="mx-2">•</span>
-                    <span>Comunidade ADS</span>
+                    <span>Comunidade de estudos tech</span>
                     <span class="mx-2">•</span>
-                    <span>Ambiente acadêmico</span>
+                    <span>Ambiente colaborativo</span>
                 </div>
 
                 <div class="footer-links">
@@ -100,17 +100,36 @@ const conductModalOpen = ref(false);
 </script>
 
 <style scoped>
+.site-footer {
+    background: linear-gradient(
+        180deg,
+        #121a2b 0%,
+        #0f1727 52%,
+        #0c1422 100%
+    );
+    border-top: 1px solid rgba(148, 163, 184, 0.26);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 -8px 24px rgba(2, 6, 23, 0.26);
+    color: #e7edf8;
+}
+
+.site-footer--community,
 .footer-community {
-    background:
-        linear-gradient(
-            180deg,
-            color-mix(in srgb, var(--surface) 76%, transparent),
-            color-mix(in srgb, var(--bg) 86%, transparent)
-        );
+    background: linear-gradient(
+        180deg,
+        #1a2235 0%,
+        #121a2b 48%,
+        #0d1524 100%
+    );
+}
+
+.site-footer :deep(.text-muted) {
+    color: rgba(215, 226, 245, 0.78);
 }
 
 .footer-link {
-    color: color-mix(in srgb, var(--primary-2) 75%, var(--text));
+    color: #c7d2fe;
     text-decoration: none;
     font-weight: 600;
 }
@@ -124,7 +143,7 @@ const conductModalOpen = ref(false);
 }
 
 .footer-link:hover {
-    color: var(--text);
+    color: #ffffff;
     text-decoration: underline;
     text-underline-offset: 4px;
 }
@@ -142,17 +161,7 @@ const conductModalOpen = ref(false);
 
 .footer-root-line {
     position: relative;
-    padding-top: 0.9rem;
-}
-
-.footer-root-line::before {
-    content: '';
-    position: absolute;
-    top: 0.9rem;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: color-mix(in srgb, var(--border) 74%, white);
+    padding-top: 0.5rem;
 }
 
 .footer-links {
@@ -168,9 +177,9 @@ const conductModalOpen = ref(false);
     align-items: center;
     gap: 0.45rem;
     border-radius: 999px;
-    border: 1px solid color-mix(in srgb, var(--success) 42%, transparent);
-    background: color-mix(in srgb, var(--success) 14%, transparent);
-    color: color-mix(in srgb, var(--success) 84%, white);
+    border: 1px solid color-mix(in srgb, var(--success) 58%, transparent);
+    background: color-mix(in srgb, var(--success) 20%, transparent);
+    color: #d1fae5;
     padding: 0.28rem 0.62rem;
     font-size: 0.75rem;
     font-weight: 700;

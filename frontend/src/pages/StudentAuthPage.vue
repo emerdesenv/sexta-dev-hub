@@ -1,7 +1,7 @@
 <template>
     <div class="min-h-screen flex flex-col">
         <PublicHeader />
-        <main class="sd-container pt-6 pb-10">
+        <main class="sd-container sd-page-body">
             <div class="max-w-md mx-auto sd-card p-6 md:p-8">
                 <div class="flex items-start justify-between gap-3">
                     <h1 class="text-2xl md:text-3xl font-extrabold">Área do aluno</h1>
@@ -221,10 +221,14 @@ async function handleSubmit() {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.4rem;
     width: 100%;
-    border: 1px solid rgba(47, 61, 102, 0.75);
+    border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
     border-radius: 0.95rem;
     padding: 0.35rem;
-    background: linear-gradient(180deg, rgba(26, 36, 64, 0.5), rgba(11, 19, 38, 0.5));
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--surface-2) 68%, var(--surface)),
+        color-mix(in srgb, var(--surface) 96%, transparent)
+    );
 }
 
 .sd-auth-tab-button {
@@ -242,20 +246,24 @@ async function handleSubmit() {
 
 .sd-auth-tab-button:hover {
     color: var(--text);
-    background: rgba(26, 36, 64, 0.58);
+    background: color-mix(in srgb, var(--surface-2) 68%, transparent);
 }
 
 .sd-auth-tab-button:focus-visible {
     outline: none;
-    border-color: rgba(37, 99, 235, 0.65);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+    border-color: color-mix(in srgb, var(--primary) 60%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 28%, transparent);
 }
 
 .sd-auth-tab-button.is-active {
-    color: #fff;
-    border-color: rgba(37, 99, 235, 0.72);
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.95), rgba(6, 182, 212, 0.9));
-    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.32);
+    color: #ffffff;
+    border-color: color-mix(in srgb, var(--primary) 62%, transparent);
+    background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--primary) 95%, #0f172a),
+        color-mix(in srgb, var(--primary-2) 90%, #1f2937)
+    );
+    box-shadow: 0 8px 18px color-mix(in srgb, var(--primary) 30%, transparent);
 }
 
 .register-success-panel {
@@ -268,9 +276,9 @@ async function handleSubmit() {
     background: linear-gradient(
         145deg,
         color-mix(in srgb, var(--primary) 14%, var(--surface-elevated)) 0%,
-        color-mix(in srgb, #22c55e 8%, var(--surface-elevated)) 100%
+        color-mix(in srgb, var(--success) 10%, var(--surface-elevated)) 100%
     );
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14);
 }
 
 .register-success-panel__icon {
@@ -281,7 +289,7 @@ async function handleSubmit() {
     width: 3rem;
     height: 3rem;
     border-radius: 9999px;
-    background: color-mix(in srgb, #22c55e 22%, transparent);
-    color: color-mix(in srgb, #86efac 92%, #14532d);
+    background: color-mix(in srgb, var(--success) 22%, transparent);
+    color: color-mix(in srgb, var(--success) 72%, var(--text));
 }
 </style>

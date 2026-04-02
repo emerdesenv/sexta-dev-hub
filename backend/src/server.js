@@ -3,11 +3,13 @@ import app from './app.js';
 import { connectDatabase } from './config/database.js';
 import { ensureSeedAdmin } from './scripts/seed.js';
 import { purgeExpiredDeletedAccounts } from './services/accountPurgeService.js';
+import { runExternalJobsSyncSafe } from './services/jobSyncService.js';
 
 dotenv.config();
 
 const port = Number(process.env.PORT || 3000);
 const purgeIntervalMs = Number(process.env.ACCOUNT_PURGE_INTERVAL_MS || 6 * 60 * 60 * 1000);
+const jobsSyncIntervalMs = Number(process.env.JOBS_SYNC_INTERVAL_MS || 60 * 60 * 1000);
 
 function ensureProductionSecurityConfig() {
     if (process.env.NODE_ENV !== 'production') return;
@@ -42,9 +44,14 @@ async function runAccountPurge(reason = 'startup') {
     }
 }
 
+async function runJobsSync(reason = 'startup') {
+    await runExternalJobsSyncSafe(reason);
+}
+
 connectDatabase()
 .then(ensureSeedAdmin)
 .then(() => runAccountPurge('startup'))
+.then(() => runJobsSync('startup'))
 .then(() => {
     app.listen(port, () => {
         console.log(`API rodando na porta ${port}`);
@@ -52,6 +59,9 @@ connectDatabase()
     setInterval(() => {
         runAccountPurge('interval');
     }, purgeIntervalMs);
+    setInterval(() => {
+        runJobsSync('interval');
+    }, jobsSyncIntervalMs);
 })
 .catch((error) => {
     console.error('Falha ao iniciar aplicação:', error);

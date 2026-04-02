@@ -22,6 +22,17 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+    # Evita o frontend (Vite) proxar /api antes da API estar escutando em :3000
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "node -e \"require('http').get('http://127.0.0.1:3000/health',(r)=>{r.resume();process.exit(r.statusCode===200?0:1);}).on('error',()=>process.exit(1))\"",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 120s
     restart: unless-stopped
     networks:
       - sexta_dev_net
@@ -40,7 +51,8 @@ services:
       - /app/node_modules
     command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - sexta_dev_net

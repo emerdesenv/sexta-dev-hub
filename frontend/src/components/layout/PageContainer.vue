@@ -1,5 +1,5 @@
 <template>
-    <div class="sd-container" v-bind="$attrs">
+    <div class="sd-container sd-page-body" v-bind="$attrs">
         <slot />
     </div>
 </template>

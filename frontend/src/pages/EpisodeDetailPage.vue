@@ -1,7 +1,7 @@
 <template>
     <div class="min-h-screen flex flex-col">
         <PublicHeader />
-        <PageContainer class="pt-6">
+        <PageContainer>
             <main class="py-10">
                 <div v-if="error" class="sd-error">
                     {{ error }}
@@ -461,6 +461,7 @@ import api from '../services/api';
 import PageContainer from '../components/layout/PageContainer.vue';
 import Badge from '../components/ui/Badge.vue';
 import Footer from '../components/layout/Footer.vue';
+import { useRewardToast } from '../composables/useRewardToast';
 import { useAuthStore } from '../stores/auth';
 
 const TROPHY_LABELS = {
@@ -497,6 +498,7 @@ const enablePdfPreview = String(import.meta.env.VITE_ENABLE_PDF_PREVIEW || 'true
 const showPdfPreview = ref(false);
 const pdfDownloadName = ref('episodio.pdf');
 const isDesktop = ref(false);
+const { showRewardToast } = useRewardToast();
 let desktopMediaQuery = null;
 const completing = ref(false);
 const completionMessage = ref('');
@@ -665,12 +667,35 @@ async function markCompleted() {
             completionMessage.value = 'Esse episódio já estava contabilizado na sua jornada.';
         } else {
             completionMessage.value = `Progresso salvo: +${data.awarded.xp} XP e +${data.awarded.coins} moedas.`;
+            announceEpisodeCompletionReward();
         }
     } catch (e) {
         completionMessage.value = e?.response?.data?.message || 'Não foi possível registrar a conclusão.';
     } finally {
         completing.value = false;
     }
+}
+
+function announceEpisodeCompletionReward() {
+    if (episode.value?.trophy_tier) {
+        showCompletionToast({
+            kind: 'trophy',
+            title: 'Nova conquista',
+            icon: '🏆',
+            message: `Você desbloqueou o troféu ${trophyTierLabel(episode.value.trophy_tier)} deste episódio.`
+        });
+        return;
+    }
+    showCompletionToast({
+        kind: 'study',
+        title: 'Atividade concluída',
+        icon: '✅',
+        message: 'Progresso registrado com sucesso. Continue avançando para manter sua evolução.'
+    });
+}
+
+function showCompletionToast(payload) {
+    showRewardToast(payload, 8000);
 }
 
 async function startAttempt() {
@@ -851,6 +876,7 @@ async function submitAttempt() {
             assessmentState.value.attemptId = null;
             assessmentState.value.lastResult = 'passed';
             assessmentState.value.message = `Aprovado! Nota ${data.score}%. Recompensa: +${data.xpEarned} XP.`;
+            announceEpisodeCompletionReward();
         } else {
             assessmentState.value.attemptId = null;
             assessmentState.value.lastResult = 'failed';
@@ -1101,7 +1127,7 @@ onBeforeUnmount(() => {
 .episode-gate-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(3, 8, 20, 0.72);
+    background: var(--modal-overlay);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1113,29 +1139,29 @@ onBeforeUnmount(() => {
     width: 100%;
     max-width: 420px;
     border-radius: 14px;
-    border: 1px solid rgba(47, 61, 102, 0.9);
-    background: #111a2f;
+    border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
+    background: color-mix(in srgb, var(--surface) 98%, transparent);
     padding: 18px;
-    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.38);
+    box-shadow: var(--modal-shadow);
 }
 
 .review-wrong-answer {
-    color: #fecaca;
-    background: rgba(185, 28, 28, 0.25);
+    color: color-mix(in srgb, var(--danger) 80%, var(--text));
+    background: color-mix(in srgb, var(--danger) 14%, transparent);
     padding: 2px 8px;
     border-radius: 8px;
 }
 
 .review-correct-answer {
-    color: #bbf7d0;
-    background: rgba(21, 128, 61, 0.28);
+    color: color-mix(in srgb, var(--success) 82%, var(--text));
+    background: color-mix(in srgb, var(--success) 14%, transparent);
     padding: 2px 8px;
     border-radius: 8px;
 }
 
 .review-status-ok {
-    color: #bbf7d0;
-    background: rgba(21, 128, 61, 0.28);
+    color: color-mix(in srgb, var(--success) 82%, var(--text));
+    background: color-mix(in srgb, var(--success) 14%, transparent);
     padding: 2px 8px;
     border-radius: 999px;
     font-size: 0.75rem;
@@ -1143,8 +1169,8 @@ onBeforeUnmount(() => {
 }
 
 .review-status-needs {
-    color: #fecaca;
-    background: rgba(185, 28, 28, 0.25);
+    color: color-mix(in srgb, var(--danger) 80%, var(--text));
+    background: color-mix(in srgb, var(--danger) 14%, transparent);
     padding: 2px 8px;
     border-radius: 999px;
     font-size: 0.75rem;
@@ -1152,10 +1178,10 @@ onBeforeUnmount(() => {
 }
 
 .mini-game-board {
-    border: 1px solid rgba(47, 61, 102, 0.8);
+    border: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
     border-radius: 12px;
     padding: 12px;
-    background: rgba(17, 26, 47, 0.42);
+    background: color-mix(in srgb, var(--surface-2) 40%, transparent);
     overflow-x: hidden;
     overscroll-behavior: contain;
     touch-action: pan-y;

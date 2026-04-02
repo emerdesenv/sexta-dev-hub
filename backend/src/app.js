@@ -10,6 +10,7 @@ import episodeRoutes from './routes/episodeRoutes.js';
 import gamificationRoutes from './routes/gamificationRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
 import communityRoutes from './routes/communityRoutes.js';
+import jobRoutes from './routes/jobRoutes.js';
 import swaggerUi from 'swagger-ui-express';
 import openApiDocument from './docs/openapi.js';
 import { errorHandler } from './middleware/errorHandler.js';
@@ -84,6 +85,7 @@ app.use('/api/episodes', episodeRoutes);
 app.use('/api/gamification', gamificationRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/community', communityRoutes);
+app.use('/api/jobs', jobRoutes);
 
 app.use(errorHandler);
 

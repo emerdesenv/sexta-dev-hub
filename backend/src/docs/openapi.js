@@ -4,7 +4,7 @@ const refreshCookieName = process.env.AUTH_REFRESH_COOKIE_NAME || 'sdh_refresh_t
 const openApiDocument = {
     openapi: '3.1.0',
     info: {
-        title: 'Sexta Dev Hub API',
+        title: 'Dev Hub API',
         version: '1.0.0',
         description: 'Documentacao tecnica e ambiente de testes dos endpoints da API.'
     },
@@ -17,7 +17,8 @@ const openApiDocument = {
         { name: 'Episodes', description: 'Catalogo e administracao de episodios' },
         { name: 'Gamification', description: 'Progressao, missoes, ranking e recompensas' },
         { name: 'Events', description: 'Eventos limitados e colecionaveis' },
-        { name: 'Community', description: 'Forum, respostas, votos e moderacao' }
+        { name: 'Community', description: 'Forum, respostas, votos e moderacao' },
+        { name: 'Jobs', description: 'Radar de vagas tech com cache de integracao externa' }
     ],
     components: {
         securitySchemes: {
@@ -202,6 +203,67 @@ const openApiDocument = {
                     author: { type: 'object', nullable: true, additionalProperties: true }
                 },
                 required: ['id', 'topicId', 'content']
+            },
+            PublicJobListItem: {
+                type: 'object',
+                properties: {
+                    id: { type: 'integer' },
+                    title: { type: 'string' },
+                    companyName: { type: 'string', nullable: true },
+                    location: { type: 'string', nullable: true },
+                    workModel: { type: 'string', enum: ['remote', 'hybrid', 'onsite', 'unknown'] },
+                    seniority: { type: 'string', enum: ['intern', 'junior', 'mid', 'senior', 'unknown'] },
+                    stacks: { type: 'array', items: { type: 'string' } },
+                    targetAudience: { type: 'array', items: { type: 'string' } },
+                    applyUrl: { type: 'string' },
+                    salaryLabel: { type: 'string', nullable: true },
+                    source: { type: 'string' },
+                    publishedAt: { type: 'string', format: 'date-time', nullable: true },
+                    regionTag: { type: 'string', enum: ['brazil', 'abroad', 'mixed', 'unknown'] }
+                },
+                required: ['id', 'title', 'workModel', 'seniority', 'stacks', 'targetAudience', 'applyUrl', 'source']
+            },
+            PublicJobsListResponse: {
+                type: 'object',
+                properties: {
+                    items: {
+                        type: 'array',
+                        items: { $ref: '#/components/schemas/PublicJobListItem' }
+                    },
+                    pagination: {
+                        type: 'object',
+                        properties: {
+                            page: { type: 'integer' },
+                            pageSize: { type: 'integer' },
+                            total: { type: 'integer' },
+                            hasNext: { type: 'boolean' }
+                        },
+                        required: ['page', 'pageSize', 'total', 'hasNext']
+                    }
+                },
+                required: ['items', 'pagination']
+            },
+            PublicJobDetail: {
+                type: 'object',
+                properties: {
+                    id: { type: 'integer' },
+                    title: { type: 'string' },
+                    companyName: { type: 'string', nullable: true },
+                    location: { type: 'string', nullable: true },
+                    workModel: { type: 'string', enum: ['remote', 'hybrid', 'onsite', 'unknown'] },
+                    seniority: { type: 'string', enum: ['intern', 'junior', 'mid', 'senior', 'unknown'] },
+                    contractType: { type: 'string' },
+                    stacks: { type: 'array', items: { type: 'string' } },
+                    targetAudience: { type: 'array', items: { type: 'string' } },
+                    description: { type: 'string', nullable: true },
+                    applyUrl: { type: 'string' },
+                    salaryLabel: { type: 'string', nullable: true },
+                    source: { type: 'string' },
+                    sourceUrl: { type: 'string', nullable: true },
+                    publishedAt: { type: 'string', format: 'date-time', nullable: true },
+                    regionTag: { type: 'string', enum: ['brazil', 'abroad', 'mixed', 'unknown'] }
+                },
+                required: ['id', 'title', 'workModel', 'seniority', 'contractType', 'stacks', 'targetAudience', 'applyUrl', 'source']
             }
         }
     },
@@ -1162,6 +1224,76 @@ const openApiDocument = {
                     }
                 },
                 responses: { 200: { description: 'Moderacao aplicada' } }
+            }
+        },
+        '/jobs/public': {
+            get: {
+                tags: ['Jobs'],
+                summary: 'Lista vagas publicas com filtros do Radar',
+                description:
+                    'Retorna apenas vagas ativas cuja data de publicacao (published_at) esta nos ultimos 7 dias.',
+                parameters: [
+                    { name: 'q', in: 'query', schema: { type: 'string' } },
+                    { name: 'seniority', in: 'query', schema: { type: 'string', enum: ['intern', 'junior', 'mid', 'senior'] } },
+                    { name: 'workModel', in: 'query', schema: { type: 'string', enum: ['remote', 'hybrid', 'onsite'] } },
+                    { name: 'region', in: 'query', schema: { type: 'string', enum: ['brazil', 'abroad'] } },
+                    { name: 'stack', in: 'query', schema: { type: 'string' } },
+                    { name: 'target', in: 'query', schema: { type: 'string' } },
+                    { name: 'page', in: 'query', schema: { type: 'integer', minimum: 1, default: 1 } },
+                    { name: 'pageSize', in: 'query', schema: { type: 'integer', minimum: 1, maximum: 5, default: 5 } },
+                    { name: 'sort', in: 'query', schema: { type: 'string', enum: ['recent', 'relevance'], default: 'recent' } }
+                ],
+                responses: {
+                    200: {
+                        description: 'Lista de vagas retornada',
+                        content: {
+                            'application/json': {
+                                schema: { $ref: '#/components/schemas/PublicJobsListResponse' }
+                            }
+                        }
+                    },
+                    400: { description: 'Filtros invalidos' }
+                }
+            }
+        },
+        '/jobs/public/{id}': {
+            get: {
+                tags: ['Jobs'],
+                summary: 'Retorna detalhe de vaga publica',
+                description:
+                    'Somente se a vaga estiver ativa e publicada nos ultimos 7 dias; caso contrario 404.',
+                parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
+                responses: {
+                    200: {
+                        description: 'Detalhe da vaga retornado',
+                        content: {
+                            'application/json': {
+                                schema: { $ref: '#/components/schemas/PublicJobDetail' }
+                            }
+                        }
+                    },
+                    400: { description: 'ID invalido' },
+                    404: { description: 'Vaga nao encontrada' }
+                }
+            }
+        },
+        '/jobs/public/{id}/click': {
+            post: {
+                tags: ['Jobs'],
+                summary: 'Registra clique de candidatura da vaga',
+                parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
+                responses: {
+                    202: {
+                        description: 'Clique registrado',
+                        content: {
+                            'application/json': {
+                                schema: { $ref: '#/components/schemas/MessageResponse' }
+                            }
+                        }
+                    },
+                    400: { description: 'ID invalido' },
+                    404: { description: 'Vaga nao encontrada' }
+                }
             }
         }
     }

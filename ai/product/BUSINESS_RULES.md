@@ -77,6 +77,18 @@ Documento voltado a **regras funcionais** (“o que o produto permite ou exige�
 
 ---
 
+## Radar de Vagas Tech
+
+- **Objetivo do produto:** conectar aprendizado e empregabilidade, exibindo vagas relevantes para estudantes sem operação manual de cadastro por professor.
+- **Origem das vagas:** as vagas devem ser consumidas de API(s) externa(s) no backend e disponibilizadas no site via cache interno.
+- **Sem publicação manual por professor:** professores não criam/editam vagas; o fluxo principal e de listagem é automatizado por sincronização.
+- **Atualização periódica:** sincronização padrão a cada 1 hora, com possibilidade de reprocessamento sob demanda por operação técnica.
+- **Segmentações estratégicas iniciais:** `junior`, `remota`, `ads`, `por stack` (ex.: `node`, `vue`, `java`).
+- **Escopo de responsabilidade:** backend normaliza e classifica vagas; frontend consome filtros prontos e exibe contexto de fonte e link de candidatura.
+- **Conformidade de fonte externa:** toda integração deve respeitar termos de uso, limites de taxa e política de redistribuição da plataforma de origem.
+
+---
+
 ## Como usar este documento com IA
 
 - Inclua nas tarefas: *“Respeitar `/ai/product/BUSINESS_RULES.md`”*.

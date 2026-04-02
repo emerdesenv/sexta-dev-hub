@@ -1,7 +1,7 @@
 <template>
     <div class="min-h-screen flex flex-col">
         <PublicHeader />
-        <main class="sd-container pt-6 pb-10">
+        <main class="sd-container sd-page-body">
             <div class="max-w-md mx-auto">
                 <form class="sd-card p-6 md:p-8 flex flex-col gap-5" @submit.prevent="handleLogin">
                     <div>

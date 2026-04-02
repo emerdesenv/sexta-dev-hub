@@ -1,7 +1,7 @@
 <template>
     <div class="min-h-screen flex flex-col">
         <PublicHeader />
-        <PageContainer class="pt-10 md:pt-10">
+        <PageContainer>
             <section class="sd-card sd-card-section p-7 home-hero md:grid md:grid-cols-[1.2fr_0.95fr] md:items-center md:gap-6">
                 <div>
                     <div class="flex flex-wrap items-center gap-2">
@@ -13,17 +13,23 @@
                             Escudo de streak: {{ streakShieldCount }}
                         </Badge>
                     </div>
-                    <h1 class="mt-4 text-4xl sm:text-5xl font-extrabold leading-tight">
-                        Microaulas de ADS
+                    <h1 class="mt-4 sd-page-hero-title">
+                        Conteúdos para sua evolução tech
                     </h1>
                     <p class="mt-4 text-base text-muted leading-7">
-                        Conteúdos rápidos do <b>Sexta Dev</b> com <b>PDF e áudio</b>, abordando práticas reais de desenvolvimento de software.
+                        Conteúdos rápidos do <b>Dev Hub</b> com <b>PDF e áudio</b>, cobrindo temas de Desenvolvimento de Software, QA, UI/UX, DevOps e outras trilhas práticas.
                     </p>
 
                     <div class="mt-6 flex flex-wrap gap-3">
                         <a href="#episodios" class="sd-button sd-button-primary">
                             Explorar episódios
                         </a>
+                        <router-link
+                            to="/vagas"
+                            class="sd-button sd-button-secondary"
+                        >
+                            Radar de vagas
+                        </router-link>
                         <router-link
                             v-if="auth.isAuthenticated"
                             to="/comunidade"
@@ -45,7 +51,7 @@
                 <div class="mt-6 md:mt-0 home-hero-visual-wrap">
                     <img
                         src="/home-hero-illustration.svg"
-                        alt="Ilustração da plataforma Sexta Dev com notebook e fones"
+                        alt="Ilustração da plataforma Dev Hub com notebook e fones"
                         class="home-hero-visual"
                     >
                 </div>
@@ -177,62 +183,43 @@
 
             <section id="episodios" class="mt-8">
                 <div class="sd-card sd-card-section p-5 md:p-6 home-filter-shell">
-                <div class="flex items-center justify-between gap-4 flex-wrap">
-                    <div
-                        class="episode-tab-switch home-tab-switch inline-flex rounded-2xl border border-border/50 bg-surface/40 p-1 shadow-sm"
-                        role="tablist"
-                        aria-label="Tipo de episódio"
-                    >
-                        <button
-                            type="button"
-                            class="episode-tab-btn"
-                            :class="{ 'episode-tab-btn--active': activeTab === 'study' }"
-                            @click="activeTab = 'study'"
-                            role="tab"
-                            :aria-selected="activeTab === 'study'"
-                        >
-                            Estudos
-                        </button>
-                        <button
-                            type="button"
-                            class="episode-tab-btn"
-                            :class="{ 'episode-tab-btn--active': activeTab === 'assessment' }"
-                            @click="activeTab = 'assessment'"
-                            role="tab"
-                            :aria-selected="activeTab === 'assessment'"
-                        >
-                            Atividades
-                        </button>
-                    </div>
-                </div>
-                <div class="mt-4 home-filter-grid">
-                    <label class="home-filter-field">
-                        <span class="sd-label">Ano</span>
-                        <select class="sd-input home-filter-input" v-model="filters.year">
-                            <option value="">Todos os anos</option>
-                            <option value="1">1º ano</option>
-                            <option value="2">2º ano</option>
-                            <option value="3">3º ano</option>
-                        </select>
-                    </label>
-
+                <div class="home-filter-grid">
                     <label class="home-filter-field">
                         <span class="sd-label">Categoria</span>
                         <input
                             class="sd-input home-filter-input"
                             v-model="filters.category"
-                            placeholder="Filtrar por categoria"
+                            placeholder="Buscar por categoria, título ou descrição"
                         />
                     </label>
-
-                    <button
-                        class="sd-button sd-button-primary home-filter-button"
-                        :disabled="loading"
-                        @click="loadEpisodes"
-                        type="button"
+                </div>
+                <div class="sd-scope-toolbar mt-3">
+                    <div
+                        class="sd-scope-segmented"
+                        role="tablist"
+                        aria-label="Tipo de episódio"
                     >
-                        {{ loading ? 'Carregando...' : 'Filtrar' }}
-                    </button>
+                        <button
+                            type="button"
+                            role="tab"
+                            class="sd-scope-seg"
+                            :class="{ 'sd-scope-seg--active': activeTab === 'study' }"
+                            :aria-selected="activeTab === 'study'"
+                            @click="activeTab = 'study'"
+                        >
+                            Estudos
+                        </button>
+                        <button
+                            type="button"
+                            role="tab"
+                            class="sd-scope-seg"
+                            :class="{ 'sd-scope-seg--active': activeTab === 'assessment' }"
+                            :aria-selected="activeTab === 'assessment'"
+                            @click="activeTab = 'assessment'"
+                        >
+                            Atividades
+                        </button>
+                    </div>
                 </div>
                 </div>
             </section>
@@ -303,7 +290,7 @@ import { useRouter } from 'vue-router';
 const episodes = ref([]);
 const loading = ref(false);
 const error = ref('');
-const filters = reactive({ year: '', category: '' });
+const filters = reactive({ category: '' });
 const githubUrl = import.meta.env.VITE_GITHUB_URL || '';
 const streakShieldCount = ref(0);
 const auth = useAuthStore();
@@ -393,11 +380,21 @@ function parseEpisodeDate(value) {
 }
 
 const filteredEpisodes = computed(() => {
-    const year = String(filters.year || '').trim();
-    const category = String(filters.category || '').trim().toLowerCase();
+    const query = String(filters.category || '').trim().toLowerCase();
     return (episodes.value || []).filter((episode) => {
-        if (year && String(episode.year_target) !== year) return false;
-        if (category && !String(episode.category || '').toLowerCase().includes(category)) return false;
+        if (!query) return true;
+
+        const searchableText = [
+            episode.category,
+            episode.title,
+            episode.summary,
+            episode.description,
+        ]
+            .filter(Boolean)
+            .join(' ')
+            .toLowerCase();
+
+        if (!searchableText.includes(query)) return false;
         return true;
     });
 });
@@ -444,7 +441,6 @@ function applyCompletionState(list) {
 
 async function loadEpisodes() {
     const params = {};
-    if (filters.year) params.year = filters.year;
     if (filters.category) params.category = filters.category;
 
     loading.value = true;
@@ -508,50 +504,22 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.episode-tab-btn {
-    border-radius: 0.9rem;
-    padding: 0.55rem 0.95rem;
-    font-size: 0.9rem;
-    font-weight: 800;
-    color: color-mix(in srgb, var(--text) 72%, transparent);
-    background: transparent;
-    border: 1px solid transparent;
-    transition:
-        background 160ms ease,
-        border-color 160ms ease,
-        color 160ms ease,
-        transform 120ms ease;
-}
-
-.episode-tab-btn:hover {
-    color: color-mix(in srgb, var(--text) 92%, transparent);
-    background: color-mix(in srgb, var(--surface-2) 58%, transparent);
-}
-
-.episode-tab-btn:active {
-    transform: translateY(1px);
-}
-
-.episode-tab-btn--active {
-    color: var(--text);
-    background: color-mix(in srgb, var(--primary) 18%, transparent);
-    border-color: color-mix(in srgb, var(--primary) 40%, transparent);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-}
-
-.episode-tab-btn:focus-visible {
-    outline: 2px solid color-mix(in srgb, var(--primary) 55%, transparent);
-    outline-offset: 2px;
+.home-radar-hint {
+    margin: 1rem 0 0;
+    max-width: 28rem;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: color-mix(in srgb, var(--text) 76%, transparent);
 }
 
 .event-banner {
     background: linear-gradient(
         120deg,
-        color-mix(in srgb, var(--primary) 28%, var(--surface-elevated)) 0%,
-        color-mix(in srgb, var(--primary-2) 18%, var(--surface-elevated)) 58%,
-        color-mix(in srgb, #f59e0b 18%, var(--surface-elevated)) 100%
+        color-mix(in srgb, var(--primary) 20%, var(--surface-elevated)) 0%,
+        color-mix(in srgb, var(--primary-2) 12%, var(--surface-elevated)) 58%,
+        color-mix(in srgb, var(--warning) 14%, var(--surface-elevated)) 100%
     );
-    border-color: color-mix(in srgb, #f59e0b 26%, var(--border));
+    border-color: color-mix(in srgb, var(--warning) 22%, var(--border));
     overflow: hidden;
     position: relative;
 }
@@ -562,8 +530,12 @@ onBeforeUnmount(() => {
     inset: 0;
     pointer-events: none;
     background:
-        radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.16), transparent 35%),
-        radial-gradient(circle at 82% 68%, rgba(56, 189, 248, 0.18), transparent 30%);
+        radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.2), transparent 35%),
+        radial-gradient(
+            circle at 82% 68%,
+            color-mix(in srgb, var(--info) 20%, transparent),
+            transparent 30%
+        );
 }
 
 .event-banner-grid {
@@ -617,7 +589,7 @@ onBeforeUnmount(() => {
     font-size: 4rem;
     border: 1px solid color-mix(in srgb, var(--primary-2) 35%, var(--border));
     background: radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--primary-2) 35%, transparent), color-mix(in srgb, var(--surface-elevated) 92%, transparent));
-    box-shadow: 0 22px 40px rgba(4, 10, 24, 0.35);
+    box-shadow: 0 14px 28px rgba(15, 23, 42, 0.14);
 }
 
 .event-time-card {
@@ -674,7 +646,7 @@ onBeforeUnmount(() => {
         color-mix(in srgb, var(--surface) 92%, transparent)
     );
     border: 1px solid color-mix(in srgb, var(--success) 46%, var(--border));
-    color: color-mix(in srgb, var(--success) 90%, white);
+    color: color-mix(in srgb, var(--success) 72%, var(--text));
     cursor: default;
     opacity: 1;
 }
@@ -690,9 +662,11 @@ onBeforeUnmount(() => {
 .home-hero {
     background: linear-gradient(
         130deg,
-        color-mix(in srgb, var(--primary) 14%, var(--surface)) 0%,
-        color-mix(in srgb, var(--surface) 96%, transparent) 100%
+        color-mix(in srgb, var(--primary) 19%, var(--surface)) 0%,
+        color-mix(in srgb, var(--surface) 92%, transparent) 100%
     );
+    border-color: color-mix(in srgb, var(--primary) 28%, var(--border));
+    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
 }
 
 .home-hero-visual-wrap {
@@ -703,15 +677,19 @@ onBeforeUnmount(() => {
 .home-hero-visual {
     width: min(100%, 29rem);
     height: auto;
-    filter: drop-shadow(0 14px 28px rgba(8, 18, 43, 0.42));
+    filter: drop-shadow(0 10px 22px rgba(15, 23, 42, 0.16));
 }
 
 .home-kpi-card {
     display: flex;
     align-items: center;
     gap: 0.72rem;
-    border-color: color-mix(in srgb, var(--primary) 24%, var(--border));
-    background: color-mix(in srgb, var(--surface-elevated) 76%, transparent);
+    /* Totalizadores: leitura “sólida”, neutro papel — sem lavanda do primary */
+    border-color: color-mix(in srgb, var(--border) 100%, #c4c2bc);
+    background: var(--surface);
+    box-shadow:
+        0 1px 0 color-mix(in srgb, #ffffff 88%, transparent),
+        0 4px 16px rgba(15, 23, 42, 0.05);
 }
 
 .home-kpi-icon {
@@ -722,21 +700,17 @@ onBeforeUnmount(() => {
     align-items: center;
     justify-content: center;
     font-size: 0.95rem;
-    border: 1px solid color-mix(in srgb, var(--primary) 24%, var(--border));
-    background: color-mix(in srgb, var(--primary) 18%, var(--surface));
-    color: color-mix(in srgb, var(--primary-2) 70%, white);
+    border: 1px solid color-mix(in srgb, var(--border) 92%, #b8b6af);
+    background: var(--surface-2);
+    color: var(--text-soft);
 }
 
 .home-filter-shell {
-    border-color: color-mix(in srgb, var(--primary) 24%, var(--border));
+    border-color: color-mix(in srgb, var(--primary) 34%, var(--border));
     background:
-        radial-gradient(circle at 12% 0%, color-mix(in srgb, var(--primary) 15%, transparent), transparent 40%),
-        color-mix(in srgb, var(--surface) 96%, transparent);
-}
-
-.home-tab-switch {
-    border-color: color-mix(in srgb, var(--primary) 28%, var(--border));
-    background: color-mix(in srgb, var(--surface-2) 35%, var(--surface));
+        radial-gradient(circle at 12% 0%, color-mix(in srgb, var(--primary) 22%, transparent), transparent 44%),
+        color-mix(in srgb, var(--surface) 92%, transparent);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
 }
 
 .home-filter-grid {
@@ -748,7 +722,7 @@ onBeforeUnmount(() => {
 
 @media (min-width: 900px) {
     .home-filter-grid {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+        grid-template-columns: minmax(0, 1fr);
     }
 }
 
@@ -758,25 +732,15 @@ onBeforeUnmount(() => {
 
 .home-filter-input {
     min-height: 3rem;
-    border-color: color-mix(in srgb, var(--primary) 22%, var(--border));
-    background: color-mix(in srgb, var(--surface-2) 36%, var(--surface));
-}
-
-.home-filter-button {
-    min-height: 3rem;
-    height: 3rem;
-    min-width: 6rem;
-    padding-left: 1.05rem;
-    padding-right: 1.05rem;
-    align-self: end;
-    border-radius: 0.8rem;
+    border-color: color-mix(in srgb, var(--primary) 34%, var(--border));
+    background: color-mix(in srgb, var(--surface-2) 52%, var(--surface));
 }
 
 body[data-theme='light'] .home-hero {
     background: linear-gradient(
         130deg,
-        color-mix(in srgb, var(--primary) 11%, #ffffff) 0%,
-        #ffffff 100%
+        color-mix(in srgb, var(--primary) 16%, #ffffff) 0%,
+        color-mix(in srgb, var(--surface-2) 26%, #ffffff) 100%
     );
 }
 </style>

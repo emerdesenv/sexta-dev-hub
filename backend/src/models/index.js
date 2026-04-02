@@ -17,6 +17,7 @@ import { CommunityVote } from './CommunityVote.js';
 import { CommunityReport } from './CommunityReport.js';
 import { CommunityModerationLog } from './CommunityModerationLog.js';
 import { UserSession } from './UserSession.js';
+import { ExternalJobPosting } from './ExternalJobPosting.js';
 
 User.hasOne(UserGamification, { foreignKey: 'user_id', onDelete: 'CASCADE' });
 UserGamification.belongsTo(User, { foreignKey: 'user_id' });
@@ -106,5 +107,6 @@ export {
     CommunityReply,
     CommunityVote,
     CommunityReport,
-    CommunityModerationLog
+    CommunityModerationLog,
+    ExternalJobPosting
 };

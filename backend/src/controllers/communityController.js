@@ -7,9 +7,18 @@ import {
     CommunityReport,
     CommunityTopic,
     CommunityVote,
+    GamificationEvent,
     User
 } from '../models/index.js';
 import { evaluateCommunityText } from '../services/contentModerationService.js';
+import { COMMUNITY_EVENT_TYPES } from '../constants/gamificationEvents.js';
+import {
+    awardForBestReply,
+    awardForReplyCreated,
+    awardForReplyUpvoted,
+    awardForTopicCreated,
+    reverseRewardsForModeratedContent
+} from '../services/communityGamificationService.js';
 
 function moderationBlockMessage(severity) {
     if (severity === 'high') {
@@ -67,6 +76,32 @@ function validationErrorResponse(res, parsed) {
 
 const COMMUNITY_AUTHOR_ATTRIBUTES = ['id', 'username', 'role', 'deleted_at'];
 const REMOVED_COMMUNITY_USER_LABEL = 'Usuário removido';
+
+async function registerCommunityEvent({
+    userId,
+    eventType,
+    referenceId = null,
+    metadata = null
+}) {
+    if (!userId || !eventType) return;
+    try {
+        await GamificationEvent.create({
+            user_id: Number(userId),
+            event_type: eventType,
+            reference_id: referenceId ? String(referenceId) : null,
+            xp_delta: 0,
+            coins_delta: 0,
+            metadata
+        });
+    } catch (error) {
+        console.warn('[community] gamification_event_failed', {
+            userId,
+            eventType,
+            referenceId,
+            message: error?.message
+        });
+    }
+}
 
 function toTopicSummary(topic, { viewerRole = '', viewerId = 0 } = {}) {
     const isAnonymous = Boolean(topic.is_anonymous);
@@ -256,6 +291,22 @@ export async function createTopic(req, res) {
         include: [{ model: User, as: 'author', attributes: COMMUNITY_AUTHOR_ATTRIBUTES }]
     });
 
+    await registerCommunityEvent({
+        userId: req.user.id,
+        eventType: COMMUNITY_EVENT_TYPES.TOPIC_CREATED,
+        referenceId: topic.id,
+        metadata: {
+            topicId: Number(topic.id),
+            category: topic.category,
+            isAnonymous: Boolean(topic.is_anonymous)
+        }
+    });
+    await awardForTopicCreated({
+        userId: req.user.id,
+        topicId: topic.id,
+        content: topic.content
+    });
+
     return res.status(201).json(toTopicSummary(
         { ...full.toJSON(), replies_count: 0 },
         { viewerRole: req.user?.role, viewerId: req.user?.id }
@@ -402,6 +453,23 @@ export async function createReply(req, res) {
         include: [{ model: User, as: 'author', attributes: COMMUNITY_AUTHOR_ATTRIBUTES }]
     });
 
+    await registerCommunityEvent({
+        userId: req.user.id,
+        eventType: COMMUNITY_EVENT_TYPES.REPLY_CREATED,
+        referenceId: reply.id,
+        metadata: {
+            topicId: Number(topicId),
+            replyId: Number(reply.id),
+            isOfficial: Boolean(reply.is_official)
+        }
+    });
+    await awardForReplyCreated({
+        userId: req.user.id,
+        replyId: reply.id,
+        topicId,
+        content: reply.content
+    });
+
     return res.status(201).json(toReplyPayload(full, { viewerRole: req.user?.role }));
 }
 
@@ -497,6 +565,23 @@ export async function voteReply(req, res) {
         reply_id: replyId,
         vote_type: 'up'
     });
+
+    await registerCommunityEvent({
+        userId: reply.author_user_id,
+        eventType: COMMUNITY_EVENT_TYPES.REPLY_UPVOTED,
+        referenceId: replyId,
+        metadata: {
+            replyId: Number(replyId),
+            topicId: Number(reply.topic_id),
+            voterUserId: Number(req.user.id)
+        }
+    });
+    await awardForReplyUpvoted({
+        userId: reply.author_user_id,
+        replyId,
+        topicId: reply.topic_id,
+        voterUserId: req.user.id
+    });
     return res.status(201).json({ voted: true });
 }
 
@@ -521,6 +606,24 @@ export async function setBestReply(req, res) {
     if (!reply) return res.status(404).json({ message: 'Resposta não encontrada neste tópico.' });
 
     await topic.update({ best_reply_id: replyId, status: 'resolved' });
+
+    await registerCommunityEvent({
+        userId: reply.author_user_id,
+        eventType: COMMUNITY_EVENT_TYPES.BEST_REPLY_SELECTED,
+        referenceId: replyId,
+        metadata: {
+            topicId: Number(topicId),
+            replyId: Number(replyId),
+            selectedByUserId: Number(req.user.id)
+        }
+    });
+    await awardForBestReply({
+        userId: reply.author_user_id,
+        replyId,
+        topicId,
+        selectedByUserId: req.user.id
+    });
+
     return res.json({ message: 'Melhor resposta definida com sucesso.' });
 }
 
@@ -671,6 +774,21 @@ export async function reviewReport(req, res) {
             action: 'hide',
             reason: data.reason || report.reason || null
         });
+
+        try {
+            await reverseRewardsForModeratedContent({
+                targetType: report.target_type,
+                targetId: report.target_id,
+                moderatorUserId: req.user.id,
+                reason: data.reason || report.reason || null
+            });
+        } catch (error) {
+            console.warn('[community] reward_reversal_failed', {
+                targetType: report.target_type,
+                targetId: report.target_id,
+                message: error?.message
+            });
+        }
     }
 
     await report.update({ status: data.status });
@@ -712,6 +830,23 @@ export async function moderateContent(req, res) {
         action: data.action,
         reason: data.reason || null
     });
+
+    if (data.action === 'hide') {
+        try {
+            await reverseRewardsForModeratedContent({
+                targetType,
+                targetId,
+                moderatorUserId: req.user.id,
+                reason: data.reason || null
+            });
+        } catch (error) {
+            console.warn('[community] reward_reversal_failed', {
+                targetType,
+                targetId,
+                message: error?.message
+            });
+        }
+    }
 
     return res.json({ message: 'Moderação aplicada com sucesso.' });
 }

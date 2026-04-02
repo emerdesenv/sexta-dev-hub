@@ -17,4 +17,18 @@ if (typeof document !== 'undefined') {
 }
 
 app.mount('#app');
-initVLibras();
+
+if (typeof window !== 'undefined') {
+    window.addEventListener(
+        'load',
+        () => {
+            const run = () => initVLibras();
+            if (typeof requestIdleCallback === 'function') {
+                requestIdleCallback(run, { timeout: 4000 });
+            } else {
+                setTimeout(run, 0);
+            }
+        },
+        { once: true }
+    );
+}

@@ -1,13 +1,13 @@
 <template>
     <div class="min-h-screen flex flex-col">
         <PublicHeader />
-        <PageContainer class="pt-8 md:pt-10 pb-12">
+        <PageContainer>
             <section class="sd-card sd-card-section p-6 md:p-7">
                 <div class="flex items-start justify-between gap-4 flex-wrap">
                     <div>
                         <Badge tone="primary">Gamificação</Badge>
                         <Badge v-if="isShowcase" tone="pdf" class="ml-2">Modo vitrine</Badge>
-                        <h1 class="mt-3 text-3xl sm:text-4xl font-extrabold">Sua jornada de evolução</h1>
+                        <h1 class="mt-4 sd-page-hero-title">Sua jornada de evolução</h1>
                         <p class="mt-3 text-muted max-w-3xl">
                             Complete episódios para ganhar XP e moedas, cumpra missões e colecione troféus por
                             atividade - a barra abaixo soma conquistas globais e troféus de episódios.
@@ -47,25 +47,75 @@
                         </span>
                     </div>
                     <div class="mt-3 text-xs text-muted max-w-3xl leading-relaxed">
-                        <b>Troféus</b> são coleção (não aumentam XP). <b>XP</b> representa progresso e pode ser usado em mecânicas do aluno.
-                        <b>Moedas</b> são para resgatar recompensas na loja. <b>Itens</b> colecionáveis vêm de eventos relâmpago por tempo limitado.
+                        Troféus mostram suas conquistas, pontos de evolução mostram seu progresso e moedas ajudam a liberar benefícios.
+                        <router-link
+                            v-if="auth.isAuthenticated"
+                            to="/aluno/conta"
+                            class="inline-flex ml-1 text-primary hover:underline"
+                        >
+                            Ver detalhes no perfil
+                        </router-link>
                     </div>
                 </div>
 
                 <div class="mt-5 grid gap-4 sm:grid-cols-2">
-                    <div class="sd-card-item p-4">
-                        <div class="text-muted text-sm">Streak</div>
-                        <strong class="text-3xl font-extrabold">{{ data.profile.streakDays }} dias</strong>
+                    <div class="sd-card-item p-4 gamif-stat-card gamif-stat-streak">
+                        <div class="text-muted text-sm gamif-stat-label">Streak</div>
+                        <strong class="text-3xl font-extrabold gamif-stat-value-streak">{{ data.profile.streakDays }} dias</strong>
                         <div class="text-muted text-sm mt-1">Consistencia ativa</div>
                         <div class="text-xs mt-2" :class="data.profile.streakShieldCount > 0 ? 'text-info' : 'text-muted'">
                             Escudo de streak: {{ data.profile.streakShieldCount || 0 }}
                         </div>
                     </div>
-                    <div class="sd-card-item p-4">
-                        <div class="text-muted text-sm">Moedas</div>
-                        <strong class="text-3xl font-extrabold">{{ data.profile.coins }}</strong>
+                    <div class="sd-card-item p-4 gamif-stat-card gamif-stat-coins">
+                        <div class="text-muted text-sm gamif-stat-label">Moedas</div>
+                        <strong class="text-3xl font-extrabold gamif-stat-value-coins">{{ data.profile.coins }}</strong>
                         <div class="text-muted text-sm mt-1">Para trocar por recompensas</div>
                     </div>
+                </div>
+
+                <div class="mt-5 grid gap-4 sm:grid-cols-2">
+                    <article class="sd-card-item p-4 community-summary-card gamif-summary-community">
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="text-muted text-sm">Comunidade</div>
+                            <Badge tone="info">Social</Badge>
+                        </div>
+                        <strong class="text-2xl font-extrabold mt-1 block">{{ communityBadges.length }} selo(s)</strong>
+                        <p class="text-xs text-muted mt-1">
+                            Selos de participação em tópicos, respostas e contribuições úteis.
+                        </p>
+                        <div v-if="communityBadges.length" class="mt-3 flex flex-wrap gap-2">
+                            <Badge
+                                v-for="badge in communityBadges.slice(0, 4)"
+                                :key="badge.key"
+                                tone="success"
+                                :title="badge.title"
+                            >
+                                {{ badge.title }}
+                            </Badge>
+                        </div>
+                        <div v-else class="text-xs text-muted mt-3">
+                            Interaja na comunidade para desbloquear seus primeiros selos sociais.
+                        </div>
+                    </article>
+                    <article class="sd-card-item p-4 community-summary-card gamif-summary-collectibles">
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="text-muted text-sm">Colecionáveis</div>
+                            <Badge tone="warning">Itens</Badge>
+                        </div>
+                        <strong class="text-2xl font-extrabold mt-1 block">{{ communityCollectiblesCount }}</strong>
+                        <p class="text-xs text-muted mt-1">
+                            Itens de eventos e marcos sociais já desbloqueados na sua jornada.
+                        </p>
+                        <div class="mt-3 flex flex-wrap gap-2">
+                            <router-link class="sd-button sd-button-secondary !py-1.5 !px-3 !text-xs" to="/comunidade">
+                                Ir para comunidade
+                            </router-link>
+                            <router-link class="sd-button sd-button-secondary !py-1.5 !px-3 !text-xs" to="/aluno/colecao">
+                                Ver coleção
+                            </router-link>
+                        </div>
+                    </article>
                 </div>
             </section>
 
@@ -77,7 +127,7 @@
                     <article
                         v-for="mission in data.missions"
                         :key="mission.key"
-                        class="sd-card sd-card-item p-5"
+                        class="sd-card sd-card-item p-5 gamif-mission-card"
                     >
                         <h3 class="sd-card-title">{{ mission.title }}</h3>
                         <div class="sd-card-meta">Progresso {{ mission.progress }}/{{ mission.target }}</div>
@@ -121,47 +171,20 @@
 
             <section class="mt-8">
                 <h2 class="sd-section-title">Desempenho em atividades</h2>
-                <div v-if="auth.isAuthenticated" class="mt-4 grid gap-4 md:grid-cols-4">
-                    <article class="sd-card sd-card-item p-4">
-                        <div class="text-muted text-sm">Média de nota</div>
+                <div v-if="auth.isAuthenticated" class="mt-4 grid gap-4 md:grid-cols-2">
+                    <article class="sd-card-item p-4 sd-stat-tile">
+                        <div class="text-muted text-sm">Atividades com nota</div>
                         <strong class="text-2xl font-extrabold">{{ assessmentStats.averageScore }}%</strong>
                     </article>
-                    <article class="sd-card sd-card-item p-4">
-                        <div class="text-muted text-sm">Taxa de aprovação</div>
+                    <article class="sd-card-item p-4 sd-stat-tile">
+                        <div class="text-muted text-sm">Concluídas com sucesso</div>
                         <strong class="text-2xl font-extrabold">{{ assessmentStats.passRate }}%</strong>
                     </article>
-                    <article class="sd-card sd-card-item p-4">
-                        <div class="text-muted text-sm">Tentativas totais</div>
-                        <strong class="text-2xl font-extrabold">{{ assessmentStats.totalAttempts }}</strong>
-                    </article>
-                    <article class="sd-card sd-card-item p-4">
-                        <div class="text-muted text-sm">Atividades avaliativas</div>
-                        <strong class="text-2xl font-extrabold">{{ assessmentStats.distinctActivities }}</strong>
-                    </article>
                 </div>
-                <div v-if="auth.isAuthenticated" class="sd-card sd-card-section mt-4 p-4">
-                    <h3 class="sd-card-title">Últimas tentativas</h3>
-                    <div v-if="assessmentAttempts.length" class="space-y-2 mt-3">
-                        <router-link
-                            v-for="attempt in assessmentAttempts.slice(0, 8)"
-                            :key="attempt.attemptId"
-                            :to="`/episodio/${attempt.slug}`"
-                            class="sd-list-item flex justify-between items-center p-3"
-                        >
-                            <span class="text-sm">
-                                {{ attempt.title }} • Tentativa {{ attempt.attemptNumber }}
-                            </span>
-                            <span class="inline-flex items-center gap-2">
-                                <span class="text-xs text-muted">Nota {{ attempt.score ?? '-' }}%</span>
-                                <Badge :tone="attempt.passed ? 'success' : 'neutral'">
-                                    {{ attempt.passed ? 'Aprovado' : 'Reprovado' }}
-                                </Badge>
-                            </span>
-                        </router-link>
-                    </div>
-                    <div v-else class="sd-notice mt-3">
-                        Sem tentativas avaliativas registradas ainda.
-                    </div>
+                <div v-if="auth.isAuthenticated" class="mt-3">
+                    <router-link to="/aluno/conta" class="sd-button sd-button-secondary sd-button-tonal">
+                        Ver análise completa no perfil
+                    </router-link>
                 </div>
                 <div v-else class="sd-notice mt-4">
                     Entre como aluno para acompanhar suas métricas de desempenho em atividades.
@@ -170,42 +193,53 @@
 
             <section class="mt-8">
                 <h2 class="sd-section-title">Conquistas</h2>
-                <div class="mt-4 grid gap-4 md:grid-cols-3">
-                    <article
-                        v-for="badge in data.badges"
-                        :key="badge.key"
-                        class="sd-card sd-card-item p-5"
-                    >
-                        <div class="flex flex-wrap items-center gap-2">
-                            <h3 class="sd-card-title">{{ badge.title }}</h3>
-                            <Badge v-if="badgeTierLabel(badge)" tone="neutral" class="!text-xs !py-0.5">
-                                {{ badgeTierLabel(badge) }}
-                            </Badge>
-                        </div>
-                        <p class="sd-card-meta" v-if="badge.target">
-                            {{ badge.progress || 0 }}/{{ badge.target }}
-                        </p>
-                        <p class="text-sm mt-2" :class="badge.unlocked ? 'text-success' : 'text-muted'">
-                            {{ badge.unlocked ? 'Desbloqueada' : 'Bloqueada' }}
-                        </p>
-                    </article>
+                <div class="sd-card sd-card-section mt-4 p-4 md:p-5">
+                    <p class="text-sm text-muted">
+                        Resumo rápido por trilha para acompanhar sua evolução.
+                    </p>
+                    <div class="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                        <article
+                            v-for="group in badgeGroups"
+                            :key="group.key"
+                            class="sd-card sd-card-section p-5 badge-group-card"
+                        >
+                            <div class="flex items-center justify-between gap-3">
+                                <h3 class="sd-card-title">{{ group.title }}</h3>
+                                <span class="badge-group-counter">{{ group.unlockedCount }}/{{ group.totalCount }}</span>
+                            </div>
+                            <p class="text-xs text-muted mt-1">
+                                {{ group.unlockedCount === group.totalCount ? 'Trilha concluida' : 'Conquistas desbloqueadas' }}
+                            </p>
+                            <div class="sd-progress mt-3">
+                                <div
+                                    class="sd-progress-fill sd-progress-fill-mission"
+                                    :style="{ width: `${group.progressPercent}%` }"
+                                ></div>
+                            </div>
+                        </article>
+                    </div>
+                    <div class="mt-4">
+                        <router-link
+                            v-if="auth.isAuthenticated"
+                            to="/aluno/conta"
+                            class="sd-button sd-button-secondary sd-button-tonal"
+                        >
+                            Ver trilhas e regras completas no perfil
+                        </router-link>
+                    </div>
                 </div>
             </section>
 
             <section class="mt-8 ranking-section">
                 <h2 class="sd-section-title">Ranking</h2>
                 <div class="sd-card sd-card-section mt-4 p-4 ranking-shell">
-                    <div class="ranking-toolbar">
+                    <div class="ranking-toolbar mb-3">
                         <p class="text-sm text-muted">
-                            <strong>{{ filteredLeaderboard.length }}</strong> participantes exibidos
+                            Top 3 da semana
                         </p>
-                        <input
-                            v-model.trim="rankingSearch"
-                            type="search"
-                            class="sd-input ranking-search-input"
-                            placeholder="Buscar participante"
-                            aria-label="Buscar participante no ranking"
-                        >
+                        <p v-if="auth.isAuthenticated && myRank" class="text-xs text-muted">
+                            Sua posição atual: <strong>#{{ myRank }}</strong>
+                        </p>
                     </div>
                     <div v-if="topThree.length" class="ranking-podium">
                         <article
@@ -236,34 +270,17 @@
                             <Badge v-if="player.profileProEnabled" tone="pro">PRO</Badge>
                         </article>
                     </div>
-                    <div class="space-y-2">
-                        <div
-                            v-for="player in rankedRows"
-                            :key="`${player.username}-${player.rank}`"
-                            class="sd-list-item ranking-list-item p-3"
-                            :class="{ 'ranking-list-item-top': player.rank === 1 }"
-                        >
-                            <span class="inline-flex items-center gap-2 min-w-0">
-                                <span class="ranking-position" :class="{ 'ranking-position-top': player.rank <= 3 }">#{{ player.rank }}</span>
-                                <span class="truncate">{{ player.username }}</span>
-                                <Badge v-if="player.profileProEnabled" tone="pro">PRO</Badge>
-                            </span>
-                            <span class="inline-flex items-center gap-3 text-sm text-muted">
-                                <span
-                                    title="Total de troféus na coleção"
-                                    class="ranking-inline-trophy"
-                                    aria-hidden="true"
-                                >
-                                    <svg viewBox="0 0 24 24" fill="none" class="h-4 w-4">
-                                        <path d="M8 4h8v2h2a2 2 0 0 1 2 2v2a5 5 0 0 1-5 5h-1.2A4.8 4.8 0 0 1 13 17.8V19h3v2H8v-2h3v-1.2A4.8 4.8 0 0 1 10.2 15H9a5 5 0 0 1-5-5V8a2 2 0 0 1 2-2h2V4Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-                                    </svg>
-                                </span>
-                                <span>N{{ player.level }} • {{ player.xpTotal }} XP</span>
-                            </span>
-                        </div>
-                    </div>
-                    <div v-if="!filteredLeaderboard.length" class="sd-notice mt-3">
+                    <div v-if="!topThree.length" class="sd-notice mt-3">
                         Nenhum participante encontrado para esse filtro.
+                    </div>
+                    <div class="mt-3">
+                        <router-link
+                            v-if="auth.isAuthenticated"
+                            to="/aluno/conta"
+                            class="sd-button sd-button-secondary sd-button-tonal"
+                        >
+                            Ver ranking completo no perfil
+                        </router-link>
                     </div>
                 </div>
             </section>
@@ -344,29 +361,76 @@ const data = ref({
     }
 });
 const leaderboard = ref([]);
-const rankingSearch = ref('');
 const loadingAction = ref(false);
 const notice = ref('');
 const errorMessage = ref('');
 const assessmentAttempts = ref([]);
+const communityCollectiblesCount = ref(0);
 const isShowcase = computed(() => !auth.isAuthenticated);
 
-const filteredLeaderboard = computed(() => {
-    const term = rankingSearch.value.trim().toLowerCase();
-    if (!term) return leaderboard.value;
-    return leaderboard.value.filter((player) =>
-        String(player?.username || '').toLowerCase().includes(term)
-    );
+const communityBadges = computed(() =>
+    (Array.isArray(data.value.badges) ? data.value.badges : []).filter(
+        (badge) => badge?.unlocked && String(badge?.key || '').startsWith('community_')
+    )
+);
+
+const badgeGroups = computed(() => {
+    const allBadges = Array.isArray(data.value.badges) ? data.value.badges : [];
+    const groups = [
+        { key: 'study', title: 'Estudos', badges: [] },
+        { key: 'activity', title: 'Atividades', badges: [] },
+        { key: 'community', title: 'Comunidade', badges: [] }
+    ];
+
+    allBadges.forEach((badge) => {
+        const key = String(badge?.key || '').toLowerCase();
+        if (key === 'community_mentor' || key.includes('mentor')) {
+            groups[1].badges.push(badge);
+            return;
+        }
+        if (key.startsWith('community_')) {
+            groups[2].badges.push(badge);
+            return;
+        }
+        groups[0].badges.push(badge);
+    });
+
+    return groups
+        .map((group) => {
+            const totalCount = group.badges.length;
+            const unlockedCount = group.badges.filter((badge) => Boolean(badge?.unlocked)).length;
+            const progressPercent = totalCount ? Math.round((unlockedCount / totalCount) * 100) : 0;
+            return {
+                ...group,
+                totalCount,
+                unlockedCount,
+                progressPercent
+            };
+        });
 });
 
-const rankedRows = computed(() =>
-    filteredLeaderboard.value.map((player, index) => ({
+const totalBadgeCount = computed(() => (
+    (Array.isArray(data.value.badges) ? data.value.badges : []).length
+));
+
+const visibleBadgeCount = computed(() => (
+    badgeGroups.value.reduce((sum, group) => sum + group.totalCount, 0)
+));
+const topThree = computed(() =>
+    (leaderboard.value || []).slice(0, 3).map((player, index) => ({
         ...player,
         rank: index + 1
     }))
 );
-
-const topThree = computed(() => rankedRows.value.slice(0, 3));
+const myRank = computed(() => {
+    if (!auth.isAuthenticated) return null;
+    const username = String(auth.user?.username || '').toLowerCase();
+    if (!username) return null;
+    const index = (leaderboard.value || []).findIndex(
+        (player) => String(player?.username || '').toLowerCase() === username
+    );
+    return index >= 0 ? index + 1 : null;
+});
 
 const levelPercent = computed(() => {
     const next = Number(data.value.profile.xpNextLevel || 0);
@@ -377,18 +441,6 @@ const levelPercent = computed(() => {
 function missionPercent(mission) {
     if (!mission?.target) return 0;
     return Math.min(100, Math.round((mission.progress / mission.target) * 100));
-}
-
-const TIER_LABELS = {
-    platinum: 'Platina',
-    gold: 'Ouro',
-    silver: 'Prata',
-    bronze: 'Bronze'
-};
-
-function badgeTierLabel(badge) {
-    const t = typeof badge?.tier === 'string' ? badge.tier.toLowerCase() : '';
-    return TIER_LABELS[t] || '';
 }
 
 const assessmentStats = computed(() => {
@@ -449,11 +501,13 @@ async function loadData() {
     ];
     if (auth.isAuthenticated) {
         requests.push(api.get('/gamification/history/me'));
+        requests.push(api.get('/events/collectibles/me'));
     }
     const responses = await Promise.all(requests);
     const snapshot = responses[0].data;
     const ranking = responses[1].data;
     const historyData = auth.isAuthenticated ? responses[2].data : null;
+    const collectiblesData = auth.isAuthenticated ? responses[3].data : null;
 
     data.value = {
         profile: snapshot.profile,
@@ -468,6 +522,9 @@ async function loadData() {
     assessmentAttempts.value = Array.isArray(historyData?.assessmentAttempts)
         ? historyData.assessmentAttempts
         : [];
+    communityCollectiblesCount.value = Array.isArray(collectiblesData?.items)
+        ? collectiblesData.items.length
+        : 0;
     leaderboard.value = ranking?.length ? ranking : (snapshot.leaderboard || []);
 }
 
@@ -520,16 +577,223 @@ onMounted(loadData);
 </script>
 
 <style scoped>
+.gamif-stat-card {
+    position: relative;
+    overflow: hidden;
+    border-width: 1px;
+    border-style: solid;
+}
+
+.gamif-stat-label {
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+}
+
+.gamif-stat-streak {
+    border-color: color-mix(in srgb, var(--info) 40%, var(--border));
+    background: linear-gradient(
+        145deg,
+        color-mix(in srgb, var(--info) 17%, var(--surface)),
+        color-mix(in srgb, var(--surface) 90%, var(--info) 8%)
+    );
+    box-shadow:
+        inset 0 3px 0 color-mix(in srgb, var(--info) 32%, transparent),
+        0 6px 18px color-mix(in srgb, var(--info) 10%, transparent);
+}
+
+.gamif-stat-value-streak {
+    color: color-mix(in srgb, var(--info) 28%, var(--text));
+}
+
+.gamif-stat-coins {
+    border-color: color-mix(in srgb, var(--warning) 44%, var(--border));
+    background: linear-gradient(
+        145deg,
+        color-mix(in srgb, var(--warning) 18%, var(--surface)),
+        color-mix(in srgb, var(--surface) 88%, var(--warning) 10%)
+    );
+    box-shadow:
+        inset 0 3px 0 color-mix(in srgb, var(--warning) 36%, transparent),
+        0 6px 18px color-mix(in srgb, var(--warning) 10%, transparent);
+}
+
+.gamif-stat-value-coins {
+    color: color-mix(in srgb, var(--warning) 22%, var(--text));
+}
+
+.community-summary-card {
+    border-width: 1px;
+    border-style: solid;
+}
+
+.gamif-summary-community {
+    border-color: color-mix(in srgb, var(--info) 38%, var(--border));
+    background: linear-gradient(
+        160deg,
+        color-mix(in srgb, var(--info) 15%, var(--surface-elevated)),
+        color-mix(in srgb, var(--surface) 91%, var(--info) 9%)
+    );
+    box-shadow: 0 6px 16px color-mix(in srgb, var(--info) 8%, transparent);
+}
+
+.gamif-summary-collectibles {
+    border-color: color-mix(in srgb, var(--primary-2) 40%, var(--border));
+    background: linear-gradient(
+        160deg,
+        color-mix(in srgb, var(--primary-2) 16%, var(--surface-elevated)),
+        color-mix(in srgb, var(--surface) 90%, var(--primary-2) 10%)
+    );
+    box-shadow: 0 6px 16px color-mix(in srgb, var(--primary-2) 9%, transparent);
+}
+
+.gamif-mission-card {
+    border-color: color-mix(in srgb, var(--primary) 22%, var(--border));
+    background: linear-gradient(
+        98deg,
+        color-mix(in srgb, var(--surface) 94%, var(--primary) 5%),
+        color-mix(in srgb, var(--surface-2) 35%, var(--surface))
+    );
+    box-shadow: 0 6px 18px color-mix(in srgb, var(--primary) 5%, transparent);
+}
+
+.badge-group-card {
+    border-color: color-mix(in srgb, var(--primary) 24%, var(--border));
+    background:
+        radial-gradient(circle at 10% 0%, color-mix(in srgb, var(--primary) 12%, transparent), transparent 36%),
+        color-mix(in srgb, var(--surface) 96%, transparent);
+}
+
+.badge-group-counter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 3.1rem;
+    border-radius: 999px;
+    padding: 0.2rem 0.62rem;
+    font-size: 0.78rem;
+    font-weight: 800;
+    border: 1px solid color-mix(in srgb, var(--primary) 28%, var(--border));
+    background: color-mix(in srgb, var(--surface-2) 46%, var(--surface));
+}
+
+.badge-item {
+    border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
+    border-radius: 0.8rem;
+    padding: 0.72rem 0.78rem;
+    background: color-mix(in srgb, var(--surface-2) 38%, transparent);
+}
+
+.badge-item-unlocked {
+    border-color: color-mix(in srgb, var(--success) 42%, var(--border));
+    background: color-mix(in srgb, var(--success) 14%, transparent);
+}
+
+.badge-item-title {
+    font-size: 0.98rem;
+    font-weight: 800;
+    line-height: 1.25;
+}
+
+.badge-item-meta {
+    margin-top: 0.25rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+.badge-guide-toggle {
+    border: 1px solid color-mix(in srgb, var(--primary) 35%, var(--border));
+    background: color-mix(in srgb, var(--primary) 12%, transparent);
+    color: var(--text);
+    border-radius: 0.6rem;
+    padding: 0.3rem 0.62rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.badge-guide-toggle:hover {
+    background: color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+.badge-guide-box {
+    margin-top: 0.55rem;
+    border-radius: 0.75rem;
+    border: 1px solid color-mix(in srgb, var(--border) 84%, transparent);
+    background: color-mix(in srgb, var(--surface-2) 34%, transparent);
+    padding: 0.62rem 0.68rem;
+}
+
+.badge-guide-title {
+    font-size: 0.78rem;
+    font-weight: 800;
+    margin: 0;
+}
+
+.badge-guide-list {
+    margin: 0.4rem 0 0;
+    padding-left: 1rem;
+    display: grid;
+    gap: 0.28rem;
+    font-size: 0.76rem;
+    color: var(--muted);
+}
+
+.badge-filter-chip {
+    border: 1px solid transparent;
+    border-radius: 0.6rem;
+    padding: 0.34rem 0.7rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: color-mix(in srgb, var(--text) 74%, transparent);
+    background: transparent;
+    cursor: pointer;
+}
+
+.badge-filter-chip:hover {
+    background: color-mix(in srgb, var(--surface-2) 62%, transparent);
+    color: var(--text);
+}
+
+.badge-filter-chip-active {
+    border-color: color-mix(in srgb, var(--primary) 42%, var(--border));
+    background: color-mix(in srgb, var(--primary) 18%, transparent);
+    color: var(--text);
+}
+
+.badge-filter-row {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.badge-filter-summary {
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
 .ranking-section {
     position: relative;
 }
 
 .ranking-shell {
     background:
-        radial-gradient(circle at 20% 0%, color-mix(in srgb, var(--primary) 18%, transparent), transparent 36%),
-        radial-gradient(circle at 90% 10%, color-mix(in srgb, var(--primary-2) 14%, transparent), transparent 30%),
-        color-mix(in srgb, var(--surface) 95%, transparent);
-    border-color: color-mix(in srgb, var(--primary) 24%, var(--border));
+        radial-gradient(circle at 18% 0%, color-mix(in srgb, var(--primary) 26%, transparent), transparent 38%),
+        radial-gradient(circle at 92% 8%, color-mix(in srgb, var(--primary-2) 22%, transparent), transparent 32%),
+        radial-gradient(circle at 50% 120%, color-mix(in srgb, var(--warning) 14%, transparent), transparent 44%),
+        linear-gradient(
+            165deg,
+            color-mix(in srgb, var(--surface-2) 40%, var(--surface)),
+            color-mix(in srgb, var(--surface) 92%, var(--primary) 5%)
+        );
+    border-color: color-mix(in srgb, var(--primary) 32%, var(--border));
+    box-shadow:
+        inset 0 1px 0 color-mix(in srgb, white 42%, transparent),
+        inset 0 -1px 0 color-mix(in srgb, var(--warning) 14%, transparent),
+        0 10px 32px color-mix(in srgb, var(--primary) 11%, transparent);
 }
 
 .ranking-toolbar {
@@ -556,7 +820,7 @@ onMounted(loadData);
 .ranking-podium {
     display: grid;
     grid-template-columns: repeat(1, minmax(0, 1fr));
-    gap: 0.65rem;
+    gap: 0.75rem;
     margin-bottom: 0.85rem;
 }
 
@@ -568,28 +832,89 @@ onMounted(loadData);
 
 .ranking-podium-item {
     border-radius: 0.9rem;
-    border: 1px solid color-mix(in srgb, var(--primary) 20%, var(--border));
-    background: color-mix(in srgb, var(--surface-elevated) 84%, transparent);
+    border: 1px solid color-mix(in srgb, var(--primary) 28%, var(--border));
+    background: linear-gradient(
+        145deg,
+        color-mix(in srgb, var(--surface-2) 38%, var(--surface)),
+        color-mix(in srgb, var(--surface) 91%, var(--primary) 5%)
+    );
     padding: 0.82rem;
     display: flex;
     flex-direction: column;
     gap: 0.45rem;
+    box-shadow:
+        0 1px 0 color-mix(in srgb, white 48%, transparent),
+        0 5px 16px color-mix(in srgb, var(--primary) 8%, transparent);
+    transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.ranking-podium-item:hover {
+    border-color: color-mix(in srgb, var(--primary) 38%, var(--border));
+    box-shadow:
+        0 1px 0 color-mix(in srgb, white 52%, transparent),
+        0 8px 22px color-mix(in srgb, var(--primary) 12%, transparent);
 }
 
 .ranking-podium-item-1 {
-    border-color: color-mix(in srgb, var(--warning) 70%, var(--border));
-    background: linear-gradient(135deg, color-mix(in srgb, var(--warning) 14%, var(--surface-elevated)), color-mix(in srgb, var(--surface-elevated) 90%, transparent));
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--warning) 18%, transparent);
+    border-color: color-mix(in srgb, var(--warning) 72%, var(--border));
+    background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--warning) 22%, var(--surface)),
+        color-mix(in srgb, var(--surface-elevated) 82%, var(--warning) 10%)
+    );
+    box-shadow:
+        inset 0 1px 0 color-mix(in srgb, white 35%, transparent),
+        0 0 0 1px color-mix(in srgb, var(--warning) 20%, transparent),
+        0 8px 22px color-mix(in srgb, var(--warning) 16%, transparent);
 }
 
 .ranking-podium-item-2 {
-    border-color: color-mix(in srgb, var(--primary) 58%, var(--border));
-    background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 16%, var(--surface-elevated)), color-mix(in srgb, var(--surface-elevated) 88%, transparent));
+    border-color: color-mix(in srgb, var(--primary) 62%, var(--border));
+    background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--primary) 22%, var(--surface-elevated)),
+        color-mix(in srgb, var(--surface) 86%, var(--primary) 8%)
+    );
+    box-shadow:
+        0 1px 0 color-mix(in srgb, white 40%, transparent),
+        0 6px 18px color-mix(in srgb, var(--primary) 12%, transparent);
 }
 
 .ranking-podium-item-3 {
-    border-color: color-mix(in srgb, var(--primary-2) 52%, var(--border));
-    background: linear-gradient(135deg, color-mix(in srgb, var(--primary-2) 14%, var(--surface-elevated)), color-mix(in srgb, var(--surface-elevated) 88%, transparent));
+    border-color: color-mix(in srgb, var(--primary-2) 58%, var(--border));
+    background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--primary-2) 20%, var(--surface-elevated)),
+        color-mix(in srgb, var(--surface) 86%, var(--primary-2) 9%)
+    );
+    box-shadow:
+        0 1px 0 color-mix(in srgb, white 40%, transparent),
+        0 6px 18px color-mix(in srgb, var(--primary-2) 11%, transparent);
+}
+
+.ranking-podium-item-1:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--warning) 80%, var(--border));
+    box-shadow:
+        inset 0 1px 0 color-mix(in srgb, white 38%, transparent),
+        0 0 0 1px color-mix(in srgb, var(--warning) 24%, transparent),
+        0 10px 26px color-mix(in srgb, var(--warning) 20%, transparent);
+}
+
+.ranking-podium-item-2:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--primary) 72%, var(--border));
+    box-shadow:
+        0 1px 0 color-mix(in srgb, white 48%, transparent),
+        0 9px 24px color-mix(in srgb, var(--primary) 16%, transparent);
+}
+
+.ranking-podium-item-3:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--primary-2) 68%, var(--border));
+    box-shadow:
+        0 1px 0 color-mix(in srgb, white 48%, transparent),
+        0 9px 24px color-mix(in srgb, var(--primary-2) 15%, transparent);
 }
 
 .ranking-podium-rank-chip {
@@ -598,12 +923,17 @@ onMounted(loadData);
     gap: 0.45rem;
     width: fit-content;
     border-radius: 999px;
-    padding: 0.2rem 0.56rem;
+    padding: 0.22rem 0.58rem;
     font-size: 0.8rem;
     color: var(--text);
     font-weight: 800;
-    border: 1px solid color-mix(in srgb, var(--primary) 22%, var(--border));
-    background: color-mix(in srgb, var(--surface) 60%, transparent);
+    border: 1px solid color-mix(in srgb, var(--primary) 32%, var(--border));
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--surface) 75%, var(--primary) 8%),
+        color-mix(in srgb, var(--surface-2) 55%, var(--surface))
+    );
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 40%, transparent);
 }
 
 .ranking-podium-icon {

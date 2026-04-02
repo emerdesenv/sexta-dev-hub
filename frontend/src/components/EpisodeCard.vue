@@ -10,9 +10,9 @@
             <span v-else class="text-sm text-muted">Sem capa</span>
         </div>
 
-        <div class="p-5 flex flex-col gap-3 flex-1">
+        <div class="p-5 flex flex-col gap-4 flex-1">
             <!-- Linha 1: decisão (poucos sinais com alto destaque) -->
-            <div class="flex flex-wrap gap-2 items-center">
+            <div class="flex flex-wrap gap-2 items-center episode-card-hero-badges">
                 <Badge
                     v-if="episode.completed"
                     tone="success"
@@ -74,20 +74,25 @@
                 </Badge>
             </div>
 
-            <!-- Linha 2: contexto (baixo destaque) -->
-            <div class="episode-card-meta flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
-                <span v-for="item in contextItemsVisible" :key="item" class="episode-card-meta-item">
+            <!-- Linha 2: contexto (chips alinhados à hierarquia dos badges) -->
+            <div
+                class="episode-card-context-row flex flex-wrap items-center gap-2"
+                aria-label="Detalhes do conteúdo"
+            >
+                <span
+                    v-for="(item, ctxIdx) in contextItemsVisible"
+                    :key="`ctx-${ctxIdx}-${item}`"
+                    class="episode-context-chip"
+                >
                     {{ item }}
                 </span>
-                <Badge
+                <span
                     v-if="contextItemsOverflowCount > 0"
-                    tone="neutral"
-                    class="!text-xs"
+                    class="episode-context-chip episode-context-chip--more"
                     :title="`${contextItemsOverflowCount} detalhe(s) a mais`"
-                    aria-label="Mais detalhes"
                 >
                     +{{ contextItemsOverflowCount }} mais
-                </Badge>
+                </span>
             </div>
 
             <h3 class="sd-card-title">
@@ -190,10 +195,41 @@ function goToStudentAuth() {
     border-color: color-mix(in srgb, var(--primary) 38%, var(--border));
 }
 
-.episode-card-meta-item:not(:last-child)::after {
-    content: '•';
-    margin-left: 0.75rem;
-    color: color-mix(in srgb, var(--muted) 65%, transparent);
+.episode-card-context-row {
+    margin-top: 0.1rem;
+}
+
+.episode-context-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 1.85rem;
+    padding: 0.28rem 0.72rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    line-height: 1.2;
+    border-radius: 9999px;
+    border: 1px solid color-mix(in srgb, var(--border) 72%, var(--primary) 14%);
+    background: linear-gradient(
+        165deg,
+        color-mix(in srgb, var(--surface) 94%, var(--surface-2) 6%),
+        color-mix(in srgb, var(--surface-2) 38%, var(--surface))
+    );
+    color: color-mix(in srgb, var(--text) 82%, var(--muted));
+    box-shadow: 0 1px 0 color-mix(in srgb, white 55%, transparent);
+}
+
+.episode-context-chip--more {
+    border-style: dashed;
+    border-color: color-mix(in srgb, var(--primary) 26%, var(--border));
+    background: linear-gradient(
+        165deg,
+        color-mix(in srgb, var(--primary) 8%, var(--surface)),
+        color-mix(in srgb, var(--surface) 94%, var(--primary-2) 6%)
+    );
+    color: color-mix(in srgb, var(--primary) 35%, var(--text));
+    box-shadow: none;
 }
 
 .episode-card-summary {

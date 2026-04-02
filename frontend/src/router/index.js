@@ -1,20 +1,23 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
-import PublicHomePage from '../pages/PublicHomePage.vue';
-import EpisodeDetailPage from '../pages/EpisodeDetailPage.vue';
-import ProfessorLoginPage from '../pages/ProfessorLoginPage.vue';
-import ProfessorDashboardPage from '../pages/ProfessorDashboardPage.vue';
-import GamificationPage from '../pages/GamificationPage.vue';
-import StudentAuthPage from '../pages/StudentAuthPage.vue';
-import StudentAccountPage from '../pages/StudentAccountPage.vue';
-import StudentCollectionPage from '../pages/StudentCollectionPage.vue';
-import CommunityPage from '../pages/CommunityPage.vue';
+
+const PublicHomePage = () => import('../pages/PublicHomePage.vue');
+const EpisodeDetailPage = () => import('../pages/EpisodeDetailPage.vue');
+const ProfessorLoginPage = () => import('../pages/ProfessorLoginPage.vue');
+const ProfessorDashboardPage = () => import('../pages/ProfessorDashboardPage.vue');
+const GamificationPage = () => import('../pages/GamificationPage.vue');
+const StudentAuthPage = () => import('../pages/StudentAuthPage.vue');
+const StudentAccountPage = () => import('../pages/StudentAccountPage.vue');
+const StudentCollectionPage = () => import('../pages/StudentCollectionPage.vue');
+const CommunityPage = () => import('../pages/CommunityPage.vue');
+const JobsRadarPage = () => import('../pages/JobsRadarPage.vue');
 
 const routes = [
     { path: '/', name: 'home', component: PublicHomePage },
     { path: '/gamificacao', name: 'gamification', component: GamificationPage },
     { path: '/aluno', name: 'student-auth', component: StudentAuthPage },
     { path: '/comunidade', name: 'community', component: CommunityPage },
+    { path: '/vagas', name: 'jobs-radar', component: JobsRadarPage },
     { path: '/aluno/conta', name: 'student-account', component: StudentAccountPage, meta: { requiresAuth: true, requiresRole: 'student' } },
     { path: '/aluno/colecao', name: 'student-collection', component: StudentCollectionPage, meta: { requiresAuth: true, requiresRole: 'student' } },
     { path: '/episodio/:slug', name: 'episode-detail', component: EpisodeDetailPage },
@@ -33,7 +36,7 @@ router.beforeEach((to) => {
     if (to.meta.requiresRole && auth.user?.role !== to.meta.requiresRole) {
         return { name: 'gamification' };
     }
-    
+
     if (to.name === 'professor-login' && auth.isAuthenticated && auth.user?.role === 'professor') {
         return { name: 'professor-dashboard' };
     }

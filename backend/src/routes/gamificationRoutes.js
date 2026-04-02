@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { authRequired, professorRequired } from '../middleware/auth.js';
 import {
     activateReward,
+    getAdminCommunityEventMetrics,
     claimMission,
     completeEpisode,
     getAdminMetrics,
@@ -29,5 +30,6 @@ router.post('/missions/:missionKey/claim', authRequired, claimMission);
 router.post('/rewards/:rewardKey/redeem', authRequired, redeemReward);
 router.post('/rewards/:rewardKey/activate', authRequired, activateReward);
 router.get('/admin/metrics', authRequired, professorRequired, getAdminMetrics);
+router.get('/admin/community-events-metrics', authRequired, professorRequired, getAdminCommunityEventMetrics);
 
 export default router;

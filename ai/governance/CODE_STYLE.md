@@ -29,7 +29,8 @@ Aplicar este documento em toda criação, alteração e revisão de código.
 - separar apresentação, estado e integração com API
 - evitar componentes monolíticos; extrair subcomponentes reutilizáveis
 - não usar estilos inline, exceto casos pontuais e justificados
-- garantir acessibilidade básica (labels, foco visível, semântica)
+- garantir acessibilidade conforme WCAG 2.2 AA (contraste, foco visível, semântica e navegação por teclado)
+- em telas públicas, considerar SEO técnico e semântico (title, meta description, heading hierarchy, links descritivos)
 
 ## Backend (Node/Express)
 - manter separação em `routes`, `controllers`, `services` e `repositories`
@@ -52,3 +53,4 @@ Aplicar este documento em toda criação, alteração e revisão de código.
 - `/ai/governance/DELIVERY_CHECKLIST.md`
 - `/ai/context/ARCHITECTURE.md`
 - `/ai/docs/DOCUMENT_TEMPLATES.md`
+- `/ai/governance/UX_ACCESSIBILITY_SEO_GUIDELINES.md`

@@ -1,8 +1,11 @@
-# 🚀 Sexta Dev Hub
+# 🚀 Dev Hub
 
-O **Sexta Dev Hub** é um projeto full stack desenvolvido para
-centralizar aplicações, experimentos e ferramentas utilizadas no projeto
-**Sexta Dev**.
+O **Dev Hub** é um projeto full stack desenvolvido para centralizar
+conteúdos, aplicações, experimentos e ferramentas de estudo para a comunidade tech.
+
+A plataforma evoluiu para um hub de aprendizado em áreas como
+**Desenvolvimento de Software, QA, UI/UX, DevOps** e outros temas
+essenciais do mercado.
 
 A aplicação utiliza uma arquitetura moderna baseada em **containers
 Docker**, com **Traefik como reverse proxy**, permitindo gerenciamento
@@ -160,6 +163,10 @@ O frontend possui integração com o **VLibras** para ampliar acessibilidade em 
 
 - integração global no app (SPA), com proteção contra inicialização duplicada
 - habilitação por variável de ambiente (`VITE_ENABLE_VLIBRAS`)
+
+Além do VLibras, o projeto adota baseline de **WCAG 2.2 AA**, **SEO técnico/semântico** e boas práticas de UX para estudantes em:
+
+- `ai/governance/UX_ACCESSIBILITY_SEO_GUIDELINES.md`
 
 ### Características do ambiente de desenvolvimento
 
@@ -373,6 +380,7 @@ Documentos principais:
 - `ai/workflows/AI_AGENT_ORCHESTRATOR.md`: define quando usar múltiplos agentes, ordem de atuação e consolidação final
 - `ai/agents/README.md`: índice de agentes e responsabilidades de cada papel
 - `ai/context/ARCHITECTURE.md`: referência obrigatória para decisões técnicas e limites arquiteturais
+- `ai/governance/UX_ACCESSIBILITY_SEO_GUIDELINES.md`: baseline obrigatório para UX de estudante, acessibilidade (WCAG) e SEO
 
 Exemplo de comando no Cursor:
 

@@ -1,6 +1,8 @@
 import { Op } from 'sequelize';
 import { sequelize } from '../config/database.js';
 import {
+    CommunityReply,
+    CommunityTopic,
     Episode,
     EpisodeAttempt,
     GamificationEvent,
@@ -11,6 +13,7 @@ import {
     UserMissionClaim,
     UserRewardRedemption
 } from '../models/index.js';
+import { COMMUNITY_EVENT_TYPE_LIST } from '../constants/gamificationEvents.js';
 
 const XP_PER_EPISODE = 40;
 const COINS_PER_EPISODE = 12;
@@ -133,7 +136,7 @@ async function getProgressCounters(userId) {
     const startOfWeek = getStartOfWeek(now);
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    const [completedEpisodes, todayCompleted, weekCompleted, monthCompleted] = await Promise.all([
+    const [completedEpisodes, todayCompleted, weekCompleted, monthCompleted, topicsCreated, repliesCreated, repliesUpvoted, bestReplies] = await Promise.all([
         UserEpisodeProgress.count({ where: { user_id: userId } }),
         UserEpisodeProgress.count({
             where: {
@@ -152,10 +155,35 @@ async function getProgressCounters(userId) {
                 user_id: userId,
                 completed_at: { [Op.gte]: startOfMonth }
             }
+        }),
+        CommunityTopic.count({ where: { author_user_id: userId } }),
+        CommunityReply.count({ where: { author_user_id: userId, is_hidden: false } }),
+        GamificationEvent.count({
+            where: {
+                user_id: userId,
+                event_type: 'community_reply_upvoted'
+            }
+        }),
+        GamificationEvent.count({
+            where: {
+                user_id: userId,
+                event_type: 'community_best_reply_selected'
+            }
         })
     ]);
 
-    return { completedEpisodes, todayCompleted, weekCompleted, monthCompleted };
+    return {
+        completedEpisodes,
+        todayCompleted,
+        weekCompleted,
+        monthCompleted,
+        community: {
+            topicsCreated,
+            repliesCreated,
+            repliesUpvoted,
+            bestReplies
+        }
+    };
 }
 
 function buildMissions(counters, claimState, now = new Date()) {
@@ -199,6 +227,7 @@ function buildMissions(counters, claimState, now = new Date()) {
 }
 
 function buildBadges(counters, streakDays) {
+    const community = counters.community || {};
     return [
         {
             key: 'first_episode',
@@ -221,6 +250,38 @@ function buildBadges(counters, streakDays) {
             unlocked: counters.weekCompleted >= 5,
             progress: Math.min(counters.weekCompleted, 5),
             target: 5
+        },
+        {
+            key: 'community_first_topic',
+            title: 'Iniciante da Comunidade',
+            tier: 'bronze',
+            unlocked: Number(community.topicsCreated || 0) >= 1,
+            progress: Math.min(Number(community.topicsCreated || 0), 1),
+            target: 1
+        },
+        {
+            key: 'community_collaborator',
+            title: 'Colaborador',
+            tier: 'silver',
+            unlocked: Number(community.repliesCreated || 0) >= 10,
+            progress: Math.min(Number(community.repliesCreated || 0), 10),
+            target: 10
+        },
+        {
+            key: 'community_helpful',
+            title: 'Construtor de Soluções',
+            tier: 'gold',
+            unlocked: Number(community.repliesUpvoted || 0) >= 25,
+            progress: Math.min(Number(community.repliesUpvoted || 0), 25),
+            target: 25
+        },
+        {
+            key: 'community_mentor',
+            title: 'Mentor em formação',
+            tier: 'gold',
+            unlocked: Number(community.bestReplies || 0) >= 3,
+            progress: Math.min(Number(community.bestReplies || 0), 3),
+            target: 3
         }
     ];
 }
@@ -1089,6 +1150,87 @@ export async function getAdminMetrics(req, res) {
             rewardKey: event.reward_key,
             createdAt: event.created_at
         }))
+    });
+}
+
+export async function getAdminCommunityEventMetrics(req, res) {
+    const daysRaw = Number(req.query.days || 7);
+    const days = Number.isInteger(daysRaw) ? Math.min(90, Math.max(1, daysRaw)) : 7;
+    const startDate = new Date();
+    startDate.setHours(0, 0, 0, 0);
+    startDate.setDate(startDate.getDate() - (days - 1));
+
+    const where = {
+        event_type: { [Op.in]: COMMUNITY_EVENT_TYPE_LIST },
+        created_at: { [Op.gte]: startDate }
+    };
+
+    const [eventsByDayAndType, eventsByType, topUsersRaw, totalEvents] = await Promise.all([
+        GamificationEvent.findAll({
+            where,
+            attributes: [
+                [sequelize.fn('DATE', sequelize.col('created_at')), 'day'],
+                'event_type',
+                [sequelize.fn('COUNT', sequelize.col('id')), 'count']
+            ],
+            group: [sequelize.fn('DATE', sequelize.col('created_at')), 'event_type'],
+            order: [[sequelize.fn('DATE', sequelize.col('created_at')), 'DESC']],
+            raw: true
+        }),
+        GamificationEvent.findAll({
+            where,
+            attributes: ['event_type', [sequelize.fn('COUNT', sequelize.col('id')), 'count']],
+            group: ['event_type'],
+            raw: true
+        }),
+        GamificationEvent.findAll({
+            where,
+            attributes: ['user_id', [sequelize.fn('COUNT', sequelize.col('id')), 'count']],
+            group: ['user_id'],
+            order: [[sequelize.literal('count'), 'DESC']],
+            limit: 20,
+            raw: true
+        }),
+        GamificationEvent.count({ where })
+    ]);
+
+    const userIds = topUsersRaw.map((row) => Number(row.user_id)).filter((id) => Number.isInteger(id) && id > 0);
+    const users = userIds.length
+        ? await User.findAll({
+            where: { id: userIds },
+            attributes: ['id', 'username', 'role'],
+            raw: true
+        })
+        : [];
+    const userById = new Map(users.map((u) => [Number(u.id), u]));
+
+    return res.json({
+        period: {
+            days,
+            startDate: startDate.toISOString()
+        },
+        totals: {
+            events: totalEvents
+        },
+        byEventType: eventsByType.map((row) => ({
+            eventType: row.event_type,
+            count: Number(row.count || 0)
+        })),
+        byDay: eventsByDayAndType.map((row) => ({
+            day: String(row.day),
+            eventType: row.event_type,
+            count: Number(row.count || 0)
+        })),
+        topUsers: topUsersRaw.map((row) => {
+            const userId = Number(row.user_id);
+            const user = userById.get(userId);
+            return {
+                userId,
+                username: user?.username || `usuario-${userId}`,
+                role: user?.role || null,
+                count: Number(row.count || 0)
+            };
+        })
     });
 }
 

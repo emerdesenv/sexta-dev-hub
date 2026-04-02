@@ -59,7 +59,7 @@ function emitAuth() {
 .student-gate-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(3, 8, 20, 0.72);
+    background: var(--modal-overlay);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -71,9 +71,9 @@ function emitAuth() {
     width: 100%;
     max-width: 420px;
     border-radius: 14px;
-    border: 1px solid rgba(47, 61, 102, 0.9);
-    background: #111a2f;
+    border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
+    background: color-mix(in srgb, var(--surface) 98%, transparent);
     padding: 18px;
-    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.38);
+    box-shadow: var(--modal-shadow);
 }
 </style>
