@@ -164,7 +164,7 @@
                                     <p class="jobs-card-meta">
                                         {{ relativePostedLabel(job) || 'Agora mesmo' }}
                                         <span aria-hidden="true">•</span>
-                                        Via {{ job.source }}
+                                        Fonte: Via {{ job.source }}
                                     </p>
                                 </div>
                             </div>
