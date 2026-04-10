@@ -19,16 +19,19 @@ if (typeof document !== 'undefined') {
 app.mount('#app');
 
 if (typeof window !== 'undefined') {
-    window.addEventListener(
-        'load',
-        () => {
-            const run = () => initVLibras();
-            if (typeof requestIdleCallback === 'function') {
-                requestIdleCallback(run, { timeout: 4000 });
-            } else {
-                setTimeout(run, 0);
-            }
-        },
-        { once: true }
-    );
+    const scheduleVLibras = () => {
+        const run = () => initVLibras();
+        if (typeof requestIdleCallback === 'function') {
+            requestIdleCallback(run, { timeout: 4000 });
+        } else {
+            setTimeout(run, 0);
+        }
+    };
+    // `load` pode já ter disparado antes deste módulo (cache, injeção tardia, etc.).
+    // Só escutar `load` nesses casos impede initVLibras() de rodar nunca.
+    if (document.readyState === 'complete') {
+        scheduleVLibras();
+    } else {
+        window.addEventListener('load', scheduleVLibras, { once: true });
+    }
 }
