@@ -1178,10 +1178,12 @@ onBeforeUnmount(() => {
 }
 
 .mini-game-board {
-    border: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
+    border: 1px solid color-mix(in srgb, var(--border) 90%, var(--primary) 8%);
     border-radius: 12px;
     padding: 12px;
-    background: color-mix(in srgb, var(--surface-2) 40%, transparent);
+    /* Alinhado ao “papel” do app: leve, sem blocos pretos */
+    background: color-mix(in srgb, var(--surface) 92%, var(--primary) 8%);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--text) 5%, transparent);
     overflow-x: hidden;
     overscroll-behavior: contain;
     touch-action: pan-y;
@@ -1197,15 +1199,29 @@ onBeforeUnmount(() => {
 }
 
 .mini-game-pill {
-    border: 1px solid rgba(59, 130, 246, 0.4);
+    border: 1px solid color-mix(in srgb, var(--primary) 28%, var(--border));
     border-radius: 999px;
     padding: 8px 10px;
-    background: rgba(15, 23, 42, 0.9);
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--surface) 88%, var(--primary) 12%),
+        color-mix(in srgb, var(--surface-2) 75%, var(--primary) 8%)
+    );
+    color: var(--text);
     font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.35;
+    text-align: left;
     cursor: grab;
     touch-action: none;
     -webkit-user-select: none;
     user-select: none;
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--text) 6%, transparent);
+}
+
+.mini-game-pill:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--primary) 55%, var(--focus-ring));
+    outline-offset: 2px;
 }
 
 .mini-game-pill:active {
@@ -1236,32 +1252,37 @@ onBeforeUnmount(() => {
 
 .mini-game-slot {
     min-height: 76px;
-    border: 1px dashed rgba(71, 85, 105, 0.9);
+    border: 1px dashed color-mix(in srgb, var(--border) 55%, var(--primary) 28%);
     border-radius: 10px;
     padding: 8px;
-    background: rgba(15, 23, 42, 0.75);
+    background: color-mix(in srgb, var(--surface) 96%, var(--primary) 4%);
 }
 
 .mini-game-slot-active {
-    border-color: rgba(59, 130, 246, 0.95);
-    background: rgba(30, 58, 138, 0.35);
-    box-shadow: inset 0 0 0 2px rgba(59, 130, 246, 0.35);
+    border-color: color-mix(in srgb, var(--primary) 52%, var(--border));
+    border-style: solid;
+    background: color-mix(in srgb, var(--primary) 11%, var(--surface));
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 22%, transparent);
 }
 
 .mini-game-slot-label {
     font-size: 0.75rem;
-    color: #93c5fd;
+    font-weight: 600;
+    color: color-mix(in srgb, var(--text-soft) 70%, var(--primary) 30%);
 }
 
 .mini-game-slot-empty {
     margin-top: 4px;
     font-size: 0.75rem;
-    color: #94a3b8;
+    color: var(--muted);
 }
 
 .mini-game-slot-card {
     margin-top: 4px;
     font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--text);
 }
 
 .assessment-badge-live {
