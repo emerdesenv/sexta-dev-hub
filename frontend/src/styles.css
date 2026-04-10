@@ -725,6 +725,11 @@ a {
     }
 }
 
+/* VLibras: acima de header (70), barra mobile (60) e overlays comuns */
+#vlibras-plugin-root [vw-access-button] {
+    z-index: 10050 !important;
+}
+
 /* Keep VLibras from overlapping core mobile actions/tabs */
 @media (max-width: 767px) {
     #vlibras-plugin-root [vw-access-button] {
@@ -732,6 +737,5 @@ a {
         bottom: calc(74px + env(safe-area-inset-bottom)) !important;
         transform: scale(0.88);
         transform-origin: bottom right;
-        z-index: 45 !important;
     }
 }
