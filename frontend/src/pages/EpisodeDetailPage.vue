@@ -215,12 +215,14 @@
                                 </div>
 
                                 <div v-else-if="assessmentState.attemptId && episode.assessment_mode === 'open_text'" class="flex flex-col gap-2">
-                                    <p class="text-sm">{{ episode.assessment_config?.prompt || 'Escreva sua resposta:' }}</p>
+                                    <p v-if="assessmentPromptHtml" class="text-sm assessment-prompt-markdown" v-html="assessmentPromptHtml" />
+                                    <p v-else class="text-sm">Escreva sua resposta:</p>
                                     <textarea class="sd-input" rows="5" v-model="assessmentState.openTextAnswer" />
                                 </div>
 
                                 <div v-else-if="assessmentState.attemptId && episode.assessment_mode === 'semver'" class="flex flex-col gap-3">
-                                    <p class="text-sm">{{ episode.assessment_config?.prompt || 'Preencha a versão correta (MAJOR.MINOR.PATCH)' }}</p>
+                                    <p v-if="assessmentPromptHtml" class="text-sm assessment-prompt-markdown" v-html="assessmentPromptHtml" />
+                                    <p v-else class="text-sm">Preencha a versão correta (MAJOR.MINOR.PATCH)</p>
                                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                         <label class="flex flex-col gap-2">
                                             <span class="sd-label">MAJOR</span>
@@ -238,7 +240,8 @@
                                 </div>
 
                                 <div v-else-if="assessmentState.attemptId" class="flex flex-col gap-3">
-                                    <p class="text-sm">{{ episode.assessment_config?.prompt || 'Ordene os itens na sequência correta' }}</p>
+                                    <p v-if="assessmentPromptHtml" class="text-sm assessment-prompt-markdown" v-html="assessmentPromptHtml" />
+                                    <p v-else class="text-sm">Ordene os itens na sequência correta</p>
                                     <div class="mini-game-board">
                                         <div class="mini-game-pool">
                                             <button
@@ -669,6 +672,100 @@ const assessmentAnswerProgress = computed(() => {
         label: `${text.length} caracteres`
     };
 });
+
+function escapeHtml(value) {
+    return String(value || '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+}
+
+function formatInlineMarkdown(value) {
+    let output = escapeHtml(value);
+    output = output.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    output = output.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    output = output.replace(/`(.+?)`/g, '<code>$1</code>');
+    return output;
+}
+
+function renderPromptMarkdown(value) {
+    const source = String(value || '').trim();
+    if (!source) return '';
+    const lines = source.replace(/\r\n/g, '\n').split('\n');
+    const chunks = [];
+    let paragraphBuffer = [];
+    let listType = null;
+    let listBuffer = [];
+
+    const flushParagraph = () => {
+        if (!paragraphBuffer.length) return;
+        const html = paragraphBuffer.map((line) => formatInlineMarkdown(line)).join('<br />');
+        chunks.push(`<p>${html}</p>`);
+        paragraphBuffer = [];
+    };
+
+    const flushList = () => {
+        if (!listType || !listBuffer.length) return;
+        const tag = listType === 'ol' ? 'ol' : 'ul';
+        const items = listBuffer.map((line) => `<li>${formatInlineMarkdown(line)}</li>`).join('');
+        chunks.push(`<${tag}>${items}</${tag}>`);
+        listType = null;
+        listBuffer = [];
+    };
+
+    for (const rawLine of lines) {
+        const line = rawLine.trimEnd();
+        const trimmed = line.trim();
+
+        if (!trimmed) {
+            flushParagraph();
+            flushList();
+            continue;
+        }
+
+        const headingMatch = trimmed.match(/^(#{1,3})\s+(.+)$/);
+        if (headingMatch) {
+            flushParagraph();
+            flushList();
+            const level = Math.min(3, headingMatch[1].length);
+            chunks.push(`<h${level}>${formatInlineMarkdown(headingMatch[2])}</h${level}>`);
+            continue;
+        }
+
+        const unorderedMatch = trimmed.match(/^-\s+(.+)$/);
+        if (unorderedMatch) {
+            flushParagraph();
+            if (listType !== 'ul') {
+                flushList();
+                listType = 'ul';
+            }
+            listBuffer.push(unorderedMatch[1]);
+            continue;
+        }
+
+        const orderedMatch = trimmed.match(/^\d+\.\s+(.+)$/);
+        if (orderedMatch) {
+            flushParagraph();
+            if (listType !== 'ol') {
+                flushList();
+                listType = 'ol';
+            }
+            listBuffer.push(orderedMatch[1]);
+            continue;
+        }
+
+        flushList();
+        paragraphBuffer.push(trimmed);
+    }
+
+    flushParagraph();
+    flushList();
+    return chunks.join('');
+}
+
+const assessmentPromptHtml = computed(() => renderPromptMarkdown(episode.value?.assessment_config?.prompt || ''));
 
 function syncDesktopState() {
     if (!desktopMediaQuery) return;
@@ -1517,6 +1614,39 @@ onBeforeUnmount(() => {
     color: color-mix(in srgb, #f59e0b 72%, var(--text));
     font-size: 0.78rem;
     font-weight: 600;
+}
+
+.assessment-prompt-markdown {
+    line-height: 1.45;
+}
+
+.assessment-prompt-markdown :deep(p) {
+    margin: 0.35rem 0;
+}
+
+.assessment-prompt-markdown :deep(ul),
+.assessment-prompt-markdown :deep(ol) {
+    margin: 0.35rem 0 0.35rem 1.25rem;
+    padding: 0;
+}
+
+.assessment-prompt-markdown :deep(li) {
+    margin: 0.15rem 0;
+}
+
+.assessment-prompt-markdown :deep(h1),
+.assessment-prompt-markdown :deep(h2),
+.assessment-prompt-markdown :deep(h3) {
+    margin: 0.45rem 0 0.25rem;
+    font-weight: 700;
+}
+
+.assessment-prompt-markdown :deep(code) {
+    background: color-mix(in srgb, var(--surface-2) 70%, transparent);
+    border: 1px solid color-mix(in srgb, var(--border) 65%, transparent);
+    border-radius: 6px;
+    padding: 0.05rem 0.35rem;
+    font-size: 0.82em;
 }
 
 .assessment-progress-block {

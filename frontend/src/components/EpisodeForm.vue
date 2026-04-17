@@ -151,13 +151,49 @@
                     <span class="sd-label">Enunciado</span>
                     <textarea class="sd-input" rows="4" v-model="form.assessment_config.prompt" />
                 </label>
+                <div class="flex flex-wrap gap-2">
+                    <Button type="button" variant="secondary" class="px-3 py-2 text-xs" @click="applyPromptFormat('bold')">
+                        + Negrito
+                    </Button>
+                    <Button type="button" variant="secondary" class="px-3 py-2 text-xs" @click="applyPromptFormat('bullet')">
+                        + Tópicos
+                    </Button>
+                    <Button type="button" variant="secondary" class="px-3 py-2 text-xs" @click="applyPromptFormat('numbered')">
+                        + Lista numerada
+                    </Button>
+                </div>
+                <p class="text-xs text-muted">
+                    Dica: o enunciado aceita Markdown (ex.: <code>**negrito**</code>, <code>- item</code>, <code>1. passo</code>).
+                </p>
+                <div v-if="promptPreviewHtml" class="prompt-preview-box">
+                    <div class="prompt-preview-title">Pré-visualização do enunciado</div>
+                    <div class="prompt-preview-content" v-html="promptPreviewHtml" />
+                </div>
             </div>
 
             <div v-else-if="form.assessment_mode === 'mini_game'" class="flex flex-col gap-3">
                 <label class="flex flex-col gap-2">
                     <span class="sd-label">Tema do mini game (ordenação)</span>
-                    <input class="sd-input" v-model="form.assessment_config.prompt" />
+                    <textarea class="sd-input" rows="4" v-model="form.assessment_config.prompt" />
                 </label>
+                <div class="flex flex-wrap gap-2">
+                    <Button type="button" variant="secondary" class="px-3 py-2 text-xs" @click="applyPromptFormat('bold')">
+                        + Negrito
+                    </Button>
+                    <Button type="button" variant="secondary" class="px-3 py-2 text-xs" @click="applyPromptFormat('bullet')">
+                        + Tópicos
+                    </Button>
+                    <Button type="button" variant="secondary" class="px-3 py-2 text-xs" @click="applyPromptFormat('numbered')">
+                        + Lista numerada
+                    </Button>
+                </div>
+                <p class="text-xs text-muted">
+                    Dica: o enunciado aceita Markdown (ex.: <code>**negrito**</code>, <code>- item</code>, <code>1. passo</code>).
+                </p>
+                <div v-if="promptPreviewHtml" class="prompt-preview-box">
+                    <div class="prompt-preview-title">Pré-visualização do enunciado</div>
+                    <div class="prompt-preview-content" v-html="promptPreviewHtml" />
+                </div>
                 <div class="flex items-center justify-between">
                     <span class="sd-label">Itens em ordem correta</span>
                     <Button type="button" variant="secondary" class="px-3 py-2 text-sm" @click="addOrderingItem">
@@ -175,6 +211,24 @@
                     <span class="sd-label">Enunciado</span>
                     <textarea class="sd-input" rows="4" v-model="form.assessment_config.prompt" />
                 </label>
+                <div class="flex flex-wrap gap-2">
+                    <Button type="button" variant="secondary" class="px-3 py-2 text-xs" @click="applyPromptFormat('bold')">
+                        + Negrito
+                    </Button>
+                    <Button type="button" variant="secondary" class="px-3 py-2 text-xs" @click="applyPromptFormat('bullet')">
+                        + Tópicos
+                    </Button>
+                    <Button type="button" variant="secondary" class="px-3 py-2 text-xs" @click="applyPromptFormat('numbered')">
+                        + Lista numerada
+                    </Button>
+                </div>
+                <p class="text-xs text-muted">
+                    Dica: o enunciado aceita Markdown (ex.: <code>**negrito**</code>, <code>- item</code>, <code>1. passo</code>).
+                </p>
+                <div v-if="promptPreviewHtml" class="prompt-preview-box">
+                    <div class="prompt-preview-title">Pré-visualização do enunciado</div>
+                    <div class="prompt-preview-content" v-html="promptPreviewHtml" />
+                </div>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <label class="flex flex-col gap-2">
                         <span class="sd-label">MAJOR esperado</span>
@@ -243,7 +297,7 @@
 </template>
 
 <script setup>
-import { reactive, watch } from 'vue';
+import { computed, reactive, watch } from 'vue';
 
 import Button from './ui/Button.vue';
 
@@ -273,6 +327,7 @@ const defaults = {
     assessment_config: { questions: [] }
 };
 const form = reactive({ ...defaults });
+const promptPreviewHtml = computed(() => renderPromptMarkdown(form.assessment_config?.prompt || ''));
 
 watch(() => props.modelValue, (value) => {
     Object.assign(form, { ...defaults }, value || {});
@@ -349,6 +404,113 @@ function addOrderingItem() {
     form.assessment_config.items.push({ id: `item_${nextIndex}`, label: '' });
 }
 
+function applyPromptFormat(type) {
+    if (!form.assessment_config || typeof form.assessment_config !== 'object') return;
+    const current = String(form.assessment_config.prompt || '');
+    const prefix = current.trim().length ? '\n' : '';
+    let snippet = '';
+    if (type === 'bold') {
+        snippet = '**texto em negrito**';
+    } else if (type === 'bullet') {
+        snippet = '- item 1\n- item 2';
+    } else if (type === 'numbered') {
+        snippet = '1. passo 1\n2. passo 2';
+    }
+    form.assessment_config.prompt = `${current}${prefix}${snippet}`.trimStart();
+}
+
+function escapeHtml(value) {
+    return String(value || '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+}
+
+function formatInlineMarkdown(value) {
+    let output = escapeHtml(value);
+    output = output.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    output = output.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    output = output.replace(/`(.+?)`/g, '<code>$1</code>');
+    return output;
+}
+
+function renderPromptMarkdown(value) {
+    const source = String(value || '').trim();
+    if (!source) return '';
+    const lines = source.replace(/\r\n/g, '\n').split('\n');
+    const chunks = [];
+    let paragraphBuffer = [];
+    let listType = null;
+    let listBuffer = [];
+
+    const flushParagraph = () => {
+        if (!paragraphBuffer.length) return;
+        const html = paragraphBuffer.map((line) => formatInlineMarkdown(line)).join('<br />');
+        chunks.push(`<p>${html}</p>`);
+        paragraphBuffer = [];
+    };
+
+    const flushList = () => {
+        if (!listType || !listBuffer.length) return;
+        const tag = listType === 'ol' ? 'ol' : 'ul';
+        const items = listBuffer.map((line) => `<li>${formatInlineMarkdown(line)}</li>`).join('');
+        chunks.push(`<${tag}>${items}</${tag}>`);
+        listType = null;
+        listBuffer = [];
+    };
+
+    for (const rawLine of lines) {
+        const line = rawLine.trimEnd();
+        const trimmed = line.trim();
+
+        if (!trimmed) {
+            flushParagraph();
+            flushList();
+            continue;
+        }
+
+        const headingMatch = trimmed.match(/^(#{1,3})\s+(.+)$/);
+        if (headingMatch) {
+            flushParagraph();
+            flushList();
+            const level = Math.min(3, headingMatch[1].length);
+            chunks.push(`<h${level}>${formatInlineMarkdown(headingMatch[2])}</h${level}>`);
+            continue;
+        }
+
+        const unorderedMatch = trimmed.match(/^-\s+(.+)$/);
+        if (unorderedMatch) {
+            flushParagraph();
+            if (listType !== 'ul') {
+                flushList();
+                listType = 'ul';
+            }
+            listBuffer.push(unorderedMatch[1]);
+            continue;
+        }
+
+        const orderedMatch = trimmed.match(/^\d+\.\s+(.+)$/);
+        if (orderedMatch) {
+            flushParagraph();
+            if (listType !== 'ol') {
+                flushList();
+                listType = 'ol';
+            }
+            listBuffer.push(orderedMatch[1]);
+            continue;
+        }
+
+        flushList();
+        paragraphBuffer.push(trimmed);
+    }
+
+    flushParagraph();
+    flushList();
+    return chunks.join('');
+}
+
 function submitForm() {
     const payload = new FormData();
     Object.entries(form).forEach(([key, value]) => {
@@ -388,3 +550,53 @@ function submitForm() {
     emit('submit', payload);
 }
 </script>
+
+<style scoped>
+.prompt-preview-box {
+    border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+    background: color-mix(in srgb, var(--surface-2) 40%, transparent);
+    border-radius: 10px;
+    padding: 0.7rem;
+}
+
+.prompt-preview-title {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-bottom: 0.35rem;
+    font-weight: 600;
+}
+
+.prompt-preview-content {
+    font-size: 0.92rem;
+    line-height: 1.45;
+}
+
+.prompt-preview-content :deep(p) {
+    margin: 0.35rem 0;
+}
+
+.prompt-preview-content :deep(ul),
+.prompt-preview-content :deep(ol) {
+    margin: 0.35rem 0 0.35rem 1.2rem;
+    padding: 0;
+}
+
+.prompt-preview-content :deep(li) {
+    margin: 0.15rem 0;
+}
+
+.prompt-preview-content :deep(h1),
+.prompt-preview-content :deep(h2),
+.prompt-preview-content :deep(h3) {
+    margin: 0.45rem 0 0.25rem;
+    font-weight: 700;
+}
+
+.prompt-preview-content :deep(code) {
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
+    border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+    border-radius: 6px;
+    padding: 0.05rem 0.35rem;
+    font-size: 0.82em;
+}
+</style>
