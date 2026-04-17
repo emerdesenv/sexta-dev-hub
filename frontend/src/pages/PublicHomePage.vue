@@ -67,9 +67,9 @@
                         </div>
                     </div>
                     <div class="sd-card-item p-4 home-kpi-card">
-                        <div class="home-kpi-icon" aria-hidden="true">📄</div>
+                        <div class="home-kpi-icon" aria-hidden="true">🖼️</div>
                         <div>
-                            <strong class="text-xl font-extrabold leading-none">PDF + Áudio</strong>
+                            <strong class="text-xl font-extrabold leading-none">PDF + Áudio + Imagem</strong>
                             <div class="text-muted text-sm mt-1">microlearning centralizado</div>
                         </div>
                     </div>

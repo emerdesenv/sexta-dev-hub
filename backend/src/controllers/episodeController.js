@@ -7,6 +7,16 @@ import { validateUploadedFilesSignature } from '../services/upload.js';
 
 const TROPHY_TIER_VALUES = ['bronze', 'silver', 'gold', 'platinum'];
 
+function parseBooleanLike(value) {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'number') return value === 1;
+    if (typeof value !== 'string') return undefined;
+    const normalized = value.trim().toLowerCase();
+    if (['true', '1', 'on', 'yes', 'y', 'sim'].includes(normalized)) return true;
+    if (['false', '0', 'off', 'no', 'n', 'nao', 'não'].includes(normalized)) return false;
+    return undefined;
+}
+
 const episodeSchema = z.object({
     ordering: z.coerce.number().int().min(0).optional().default(0),
     title: z.string().min(3),
@@ -14,15 +24,15 @@ const episodeSchema = z.object({
     year_target: z.coerce.number().int().min(1).max(3),
     category: z.string().min(2),
     episode_type: z.enum(['study', 'assessment']).optional().default('study'),
-    assessment_mode: z.enum(['quiz', 'open_text', 'mini_game']).optional().nullable(),
+    assessment_mode: z.enum(['quiz', 'open_text', 'mini_game', 'semver']).optional().nullable(),
     assessment_config: z.union([z.string(), z.record(z.any()), z.array(z.any())]).optional().nullable(),
     max_attempts: z.coerce.number().int().min(1).max(10).optional().default(1),
     passing_score: z.coerce.number().int().min(0).max(100).optional().default(60),
     time_limit_sec: z.coerce.number().int().min(30).max(7200).optional().nullable(),
     xp_reward: z.coerce.number().int().min(0).max(1000).optional().default(40),
     trophy_tier: z.enum(TROPHY_TIER_VALUES).nullable().optional().default(null),
-    is_published: z.coerce.boolean().optional().default(false),
-    early_access_only: z.coerce.boolean().optional().default(false),
+    is_published: z.boolean().optional().default(false),
+    early_access_only: z.boolean().optional().default(false),
     duration_label: z.string().max(40).optional().or(z.literal('')),
     tags: z.string().optional().default('')
 });
@@ -38,6 +48,17 @@ function normalizeTrophyTierInBody(body) {
     }
     const s = String(raw).toLowerCase();
     body.trophy_tier = TROPHY_TIER_VALUES.includes(s) ? s : null;
+}
+
+function normalizeBooleanFieldsInBody(body, fields = []) {
+    if (!body || typeof body !== 'object') return;
+    for (const field of fields) {
+        if (!Object.prototype.hasOwnProperty.call(body, field)) continue;
+        const parsed = parseBooleanLike(body[field]);
+        if (parsed !== undefined) {
+            body[field] = parsed;
+        }
+    }
 }
 
 function parseAssessmentConfig(input) {
@@ -72,6 +93,7 @@ function toEpisodeResponse(episode, { includeAnswerKey = false } = {}) {
         ...json,
         assessment_config: sanitizeAssessmentConfig(json.assessment_config, includeAnswerKey),
         cover_url: json.cover_path ? `/${json.cover_path.replace(/^\/+/, '')}` : null,
+        image_url: json.image_path ? `/${json.image_path.replace(/^\/+/, '')}` : null,
         audio_url: json.audio_path ? `/${json.audio_path.replace(/^\/+/, '')}` : null,
         pdf_url: json.pdf_path ? `/${json.pdf_path.replace(/^\/+/, '')}` : null
     };
@@ -133,6 +155,32 @@ function buildWrongAnswersReview(episode, attempt) {
                 submittedLabel: submittedPosition > 0 ? `${submittedPosition}ª posição` : 'Não ordenado',
                 expectedLabel: `${expectedPosition}ª posição`,
                 status: submittedPosition === expectedPosition ? 'ok' : 'needs_attention'
+            };
+        });
+    }
+
+    if (episode.assessment_mode === 'semver') {
+        const expected = config?.expected && typeof config.expected === 'object' ? config.expected : {};
+        const submitted = attempt?.answers && typeof attempt.answers === 'object' ? attempt.answers : {};
+        const parts = ['major', 'minor', 'patch'];
+        return parts.map((part) => {
+            const expectedValue = Number(expected?.[part]);
+            const submittedValue = Number(submitted?.[part]);
+            const expectedLabel = Number.isInteger(expectedValue) && expectedValue >= 0
+                ? String(expectedValue)
+                : 'Não definido';
+            const submittedLabel = Number.isInteger(submittedValue) && submittedValue >= 0
+                ? String(submittedValue)
+                : 'Não informado';
+            const status = expectedLabel !== 'Não definido' && submittedValue === expectedValue
+                ? 'ok'
+                : 'needs_attention';
+            return {
+                questionId: `semver_${part}`,
+                prompt: `Componente ${part.toUpperCase()}`,
+                submittedLabel,
+                expectedLabel,
+                status
             };
         });
     }
@@ -348,6 +396,7 @@ function removeFileIfExists(relativePath) {
 export async function createEpisode(req, res) {
     await validateUploadedFilesSignature(req.files || {});
     normalizeTrophyTierInBody(req.body);
+    normalizeBooleanFieldsInBody(req.body, ['is_published', 'early_access_only']);
     const parsed = episodeSchema.safeParse(req.body);
     if (!parsed.success) {
         return res.status(400).json({ message: 'Dados inválidos para criar episódio.' });
@@ -367,6 +416,7 @@ export async function createEpisode(req, res) {
         slug: finalSlug,
         tags: data.tags ? data.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
         cover_path: req.files?.cover?.[0] ? path.posix.join('uploads/images', req.files.cover[0].filename) : null,
+        image_path: req.files?.image?.[0] ? path.posix.join('uploads/images', req.files.image[0].filename) : null,
         audio_path: req.files?.audio?.[0] ? path.posix.join('uploads/audio', req.files.audio[0].filename) : null,
         pdf_path: req.files?.pdf?.[0] ? path.posix.join('uploads/pdf', req.files.pdf[0].filename) : null,
     });
@@ -380,6 +430,7 @@ export async function updateEpisode(req, res) {
 
     await validateUploadedFilesSignature(req.files || {});
     normalizeTrophyTierInBody(req.body);
+    normalizeBooleanFieldsInBody(req.body, ['is_published', 'early_access_only']);
     const parsed = episodeSchema.partial().safeParse(req.body);
     if (!parsed.success) {
         return res.status(400).json({ message: 'Dados inválidos para atualizar episódio.' });
@@ -418,6 +469,11 @@ export async function updateEpisode(req, res) {
         updatePayload.cover_path = path.posix.join('uploads/images', req.files.cover[0].filename);
     }
 
+    if (req.files?.image?.[0]) {
+        removeFileIfExists(episode.image_path);
+        updatePayload.image_path = path.posix.join('uploads/images', req.files.image[0].filename);
+    }
+
     if (req.files?.audio?.[0]) {
         removeFileIfExists(episode.audio_path);
         updatePayload.audio_path = path.posix.join('uploads/audio', req.files.audio[0].filename);
@@ -437,6 +493,7 @@ export async function deleteEpisode(req, res) {
     if (!episode) return res.status(404).json({ message: 'Episódio não encontrado.' });
 
     removeFileIfExists(episode.cover_path);
+    removeFileIfExists(episode.image_path);
     removeFileIfExists(episode.audio_path);
     removeFileIfExists(episode.pdf_path);
     await episode.destroy();

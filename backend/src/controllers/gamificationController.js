@@ -416,6 +416,32 @@ function evaluateOrdering(config = {}, rawAnswers = {}) {
     };
 }
 
+function evaluateSemver(config = {}, rawAnswers = {}) {
+    const expected = config?.expected && typeof config.expected === 'object' ? config.expected : {};
+    const submitted = rawAnswers && typeof rawAnswers === 'object' ? rawAnswers : {};
+    const components = ['major', 'minor', 'patch'];
+    let correctCount = 0;
+    const feedback = [];
+
+    for (const part of components) {
+        const expectedValue = Number(expected?.[part]);
+        const submittedValue = Number(submitted?.[part]);
+        const hasExpected = Number.isInteger(expectedValue) && expectedValue >= 0;
+        const validSubmitted = Number.isInteger(submittedValue) && submittedValue >= 0;
+        const correct = hasExpected && validSubmitted && submittedValue === expectedValue;
+        if (correct) correctCount += 1;
+        feedback.push({
+            part,
+            expected: hasExpected ? expectedValue : null,
+            submitted: validSubmitted ? submittedValue : null,
+            correct
+        });
+    }
+
+    const score = Math.round((correctCount / components.length) * 100);
+    return { score, feedback };
+}
+
 function normalizeText(value = '') {
     return String(value)
         .normalize('NFD')
@@ -465,6 +491,7 @@ function evaluateOpenText(config = {}, rawAnswers = {}) {
 function evaluateAssessment(episode, answers) {
     if (episode.assessment_mode === 'quiz') return evaluateQuiz(episode.assessment_config || {}, answers);
     if (episode.assessment_mode === 'mini_game') return evaluateOrdering(episode.assessment_config || {}, answers);
+    if (episode.assessment_mode === 'semver') return evaluateSemver(episode.assessment_config || {}, answers);
     return evaluateOpenText(episode.assessment_config || {}, answers);
 }
 

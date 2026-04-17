@@ -84,6 +84,7 @@
                         <option value="quiz">Quiz</option>
                         <option value="open_text">Resposta aberta</option>
                         <option value="mini_game">Mini game</option>
+                        <option value="semver">Versionamento (SemVer)</option>
                     </select>
                 </label>
                 <label class="flex flex-col gap-2">
@@ -152,7 +153,7 @@
                 </label>
             </div>
 
-            <div v-else class="flex flex-col gap-3">
+            <div v-else-if="form.assessment_mode === 'mini_game'" class="flex flex-col gap-3">
                 <label class="flex flex-col gap-2">
                     <span class="sd-label">Tema do mini game (ordenação)</span>
                     <input class="sd-input" v-model="form.assessment_config.prompt" />
@@ -167,6 +168,27 @@
                     <span class="sd-label">Posição {{ index + 1 }}</span>
                     <input class="sd-input" v-model="item.label" />
                 </label>
+            </div>
+
+            <div v-else class="flex flex-col gap-3">
+                <label class="flex flex-col gap-2">
+                    <span class="sd-label">Enunciado</span>
+                    <textarea class="sd-input" rows="4" v-model="form.assessment_config.prompt" />
+                </label>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <label class="flex flex-col gap-2">
+                        <span class="sd-label">MAJOR esperado</span>
+                        <input class="sd-input" type="number" min="0" v-model.number="form.assessment_config.expected.major" />
+                    </label>
+                    <label class="flex flex-col gap-2">
+                        <span class="sd-label">MINOR esperado</span>
+                        <input class="sd-input" type="number" min="0" v-model.number="form.assessment_config.expected.minor" />
+                    </label>
+                    <label class="flex flex-col gap-2">
+                        <span class="sd-label">PATCH esperado</span>
+                        <input class="sd-input" type="number" min="0" v-model.number="form.assessment_config.expected.patch" />
+                    </label>
+                </div>
             </div>
         </div>
 
@@ -187,6 +209,15 @@
                     accept="audio/*"
                     class="block w-full text-sm text-muted file:mr-4 file:rounded-xl file:border file:border-border/90 file:bg-surface file:px-4 file:py-2 file:text-text hover:file:bg-surface-2"
                     @change="setFile($event, 'audio')"
+                />
+            </label>
+            <label class="flex flex-col gap-2">
+                <span class="sd-label">Imagem complementar</span>
+                <input
+                    type="file"
+                    accept="image/*"
+                    class="block w-full text-sm text-muted file:mr-4 file:rounded-xl file:border file:border-border/90 file:bg-surface file:px-4 file:py-2 file:text-text hover:file:bg-surface-2"
+                    @change="setFile($event, 'image')"
                 />
             </label>
             <label class="flex flex-col gap-2">
@@ -230,6 +261,7 @@ const defaults = {
     early_access_only: false,
     summary: '',
     cover: null,
+    image: null,
     audio: null,
     pdf: null,
     episode_type: 'study',
@@ -280,13 +312,24 @@ function ensureAssessmentShape() {
         if (typeof form.assessment_config?.prompt !== 'string') {
             form.assessment_config = { prompt: '' };
         }
-    } else {
+    } else if (form.assessment_mode === 'mini_game') {
         if (!Array.isArray(form.assessment_config?.items)) {
             form.assessment_config = {
                 prompt: '',
                 items: [{ id: 'item_1', label: '' }, { id: 'item_2', label: '' }]
             };
         }
+    } else {
+        const maybeExpected = form.assessment_config?.expected;
+        const expected = {
+            major: Number.isInteger(Number(maybeExpected?.major)) ? Math.max(0, Number(maybeExpected.major)) : 0,
+            minor: Number.isInteger(Number(maybeExpected?.minor)) ? Math.max(0, Number(maybeExpected.minor)) : 0,
+            patch: Number.isInteger(Number(maybeExpected?.patch)) ? Math.max(0, Number(maybeExpected.patch)) : 0
+        };
+        form.assessment_config = {
+            prompt: typeof form.assessment_config?.prompt === 'string' ? form.assessment_config.prompt : '',
+            expected
+        };
     }
 }
 
@@ -325,6 +368,15 @@ function submitForm() {
                             .filter(Boolean)
                             .map((label, index) => ({ id: `item_${index + 1}`, label, correctPosition: index + 1 }))
                     }
+                    : form.assessment_mode === 'semver'
+                        ? {
+                            prompt: String(form.assessment_config.prompt || '').trim(),
+                            expected: {
+                                major: Math.max(0, Number(form.assessment_config?.expected?.major || 0)),
+                                minor: Math.max(0, Number(form.assessment_config?.expected?.minor || 0)),
+                                patch: Math.max(0, Number(form.assessment_config?.expected?.patch || 0))
+                            }
+                        }
                     : form.assessment_config;
                 payload.append('assessment_config', JSON.stringify(config));
             }

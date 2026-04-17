@@ -134,6 +134,7 @@ const openApiDocument = {
                     duration_label: { type: 'string', nullable: true },
                     tags: { type: 'array', items: { type: 'string' } },
                     cover_url: { type: 'string', nullable: true },
+                    image_url: { type: 'string', nullable: true },
                     audio_url: { type: 'string', nullable: true },
                     pdf_url: { type: 'string', nullable: true }
                 },
@@ -148,7 +149,7 @@ const openApiDocument = {
                     year_target: { type: 'integer', minimum: 1, maximum: 3 },
                     category: { type: 'string' },
                     episode_type: { type: 'string', enum: ['study', 'assessment'] },
-                    assessment_mode: { type: 'string', enum: ['quiz', 'open_text', 'mini_game'], nullable: true },
+                    assessment_mode: { type: 'string', enum: ['quiz', 'open_text', 'mini_game', 'semver'], nullable: true },
                     assessment_config: { oneOf: [{ type: 'string' }, { type: 'object', additionalProperties: true }] },
                     max_attempts: { type: 'integer', minimum: 1, maximum: 10 },
                     passing_score: { type: 'integer', minimum: 0, maximum: 100 },
@@ -160,6 +161,7 @@ const openApiDocument = {
                     duration_label: { type: 'string' },
                     tags: { type: 'string', description: 'CSV, ex.: matematica,enem' },
                     cover: { type: 'string', format: 'binary' },
+                    image: { type: 'string', format: 'binary' },
                     audio: { type: 'string', format: 'binary' },
                     pdf: { type: 'string', format: 'binary' }
                 }

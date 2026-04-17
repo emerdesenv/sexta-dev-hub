@@ -107,6 +107,9 @@
                                         Tentativa em andamento
                                     </span>
                                 </div>
+                                <p v-if="assessmentState.attemptId" class="assessment-attempt-warning">
+                                    Evite atualizar ou sair desta página agora para não perder a tentativa em andamento.
+                                </p>
 
                                 <div
                                     v-if="assessmentAnswerProgress"
@@ -216,6 +219,24 @@
                                     <textarea class="sd-input" rows="5" v-model="assessmentState.openTextAnswer" />
                                 </div>
 
+                                <div v-else-if="assessmentState.attemptId && episode.assessment_mode === 'semver'" class="flex flex-col gap-3">
+                                    <p class="text-sm">{{ episode.assessment_config?.prompt || 'Preencha a versão correta (MAJOR.MINOR.PATCH)' }}</p>
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                        <label class="flex flex-col gap-2">
+                                            <span class="sd-label">MAJOR</span>
+                                            <input class="sd-input" type="number" min="0" step="1" v-model="assessmentState.semverAnswer.major" />
+                                        </label>
+                                        <label class="flex flex-col gap-2">
+                                            <span class="sd-label">MINOR</span>
+                                            <input class="sd-input" type="number" min="0" step="1" v-model="assessmentState.semverAnswer.minor" />
+                                        </label>
+                                        <label class="flex flex-col gap-2">
+                                            <span class="sd-label">PATCH</span>
+                                            <input class="sd-input" type="number" min="0" step="1" v-model="assessmentState.semverAnswer.patch" />
+                                        </label>
+                                    </div>
+                                </div>
+
                                 <div v-else-if="assessmentState.attemptId" class="flex flex-col gap-3">
                                     <p class="text-sm">{{ episode.assessment_config?.prompt || 'Ordene os itens na sequência correta' }}</p>
                                     <div class="mini-game-board">
@@ -315,6 +336,19 @@
                                     {{ episode.summary }}
                                 </p>
 
+                                <button
+                                    v-if="episode.image_url"
+                                    type="button"
+                                    class="episode-tip-pulse"
+                                    @click="openSupportImagePreview"
+                                >
+                                    <span class="episode-tip-pulse-dot" aria-hidden="true">i</span>
+                                    <span class="episode-tip-pulse-copy">
+                                        <strong>Olhe aqui:</strong> uma dica para você.
+                                    </span>
+                                    <span class="episode-tip-pulse-action">Clique para ampliar</span>
+                                </button>
+
                                 <audio
                                     v-if="episode.audio_url"
                                     class="w-full"
@@ -391,6 +425,30 @@
 
         <Teleport to="body">
             <div
+                v-if="supportImagePreviewOpen && episode?.image_url"
+                class="episode-gate-overlay"
+                role="dialog"
+                aria-modal="true"
+                aria-label="Visualização da imagem complementar"
+                @click.self="closeSupportImagePreview"
+            >
+                <div class="episode-image-preview-modal" @click.stop>
+                    <button
+                        type="button"
+                        class="sd-button sd-button-secondary px-3 py-2 text-sm self-end"
+                        @click="closeSupportImagePreview"
+                    >
+                        Fechar
+                    </button>
+                    <img
+                        :src="episode.image_url"
+                        alt="Imagem complementar da atividade ampliada"
+                        class="episode-image-preview-full"
+                    />
+                </div>
+            </div>
+
+            <div
                 v-if="assessmentState.showReviewModal"
                 class="episode-gate-overlay"
                 role="dialog"
@@ -455,7 +513,7 @@
 
 <script setup>
 import { computed, defineAsyncComponent, onBeforeUnmount, onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { onBeforeRouteLeave, useRoute } from 'vue-router';
 import PublicHeader from '../components/PublicHeader.vue';
 import api from '../services/api';
 import PageContainer from '../components/layout/PageContainer.vue';
@@ -496,6 +554,7 @@ const loading = ref(false);
 const error = ref('');
 const enablePdfPreview = String(import.meta.env.VITE_ENABLE_PDF_PREVIEW || 'true').toLowerCase() === 'true';
 const showPdfPreview = ref(false);
+const supportImagePreviewOpen = ref(false);
 const pdfDownloadName = ref('episodio.pdf');
 const isDesktop = ref(false);
 const { showRewardToast } = useRewardToast();
@@ -518,7 +577,8 @@ const assessmentState = ref({
     attemptHistory: [],
     quizAnswers: [],
     openTextAnswer: '',
-    orderingItems: []
+    orderingItems: [],
+    semverAnswer: { major: '', minor: '', patch: '' }
 });
 const miniGamePoolItems = ref([]);
 const miniGameSlots = ref([]);
@@ -530,6 +590,7 @@ const miniGameFeedbackToneClass = computed(() => (
         ? 'review-status-needs'
         : 'review-status-ok'
 ));
+const hasActiveAssessmentAttempt = computed(() => Boolean(assessmentState.value.attemptId));
 
 /** Evita repeat(auto-fit) refazer colunas quando a largura útil oscila no arraste. */
 const miniGameColumnCount = computed(() => Math.max(1, miniGameSlots.value.length || 1));
@@ -540,6 +601,7 @@ const showEpisodeMaterialSection = computed(() => {
     if (!episode.value) return false;
     const e = episode.value;
     if (String(e.summary || '').trim()) return true;
+    if (e.image_url) return true;
     if (e.audio_url) return true;
     if (e.pdf_url) return true;
     if (auth.isAuthenticated && e.episode_type !== 'assessment') return true;
@@ -587,6 +649,17 @@ const assessmentAnswerProgress = computed(() => {
             label: `${filled}/${total} posições`
         };
     }
+    if (mode === 'semver') {
+        const values = assessmentState.value.semverAnswer || {};
+        const filled = ['major', 'minor', 'patch'].filter((part) => {
+            const raw = values?.[part];
+            return raw !== '' && raw !== null && raw !== undefined;
+        }).length;
+        return {
+            pct: Math.round((filled / 3) * 100),
+            label: `${filled}/3 componentes`
+        };
+    }
     const text = String(assessmentState.value.openTextAnswer || '');
     const cfg = episode.value.assessment_config || {};
     const minLen = Number(cfg.minLength) > 0 ? Number(cfg.minLength) : 80;
@@ -601,6 +674,20 @@ function syncDesktopState() {
     if (!desktopMediaQuery) return;
     isDesktop.value = desktopMediaQuery.matches;
     if (!isDesktop.value) showPdfPreview.value = false;
+}
+
+function openSupportImagePreview() {
+    supportImagePreviewOpen.value = true;
+}
+
+function closeSupportImagePreview() {
+    supportImagePreviewOpen.value = false;
+}
+
+function handleAttemptBeforeUnload(event) {
+    if (!hasActiveAssessmentAttempt.value) return;
+    event.preventDefault();
+    event.returnValue = '';
 }
 async function loadEpisode() {
     loading.value = true;
@@ -626,6 +713,7 @@ async function loadEpisode() {
             assessmentState.value.locked = Boolean(data.assessment_locked);
             assessmentState.value.quizAnswers = new Array((data.assessment_config?.questions || []).length).fill(null);
             assessmentState.value.openTextAnswer = '';
+            assessmentState.value.semverAnswer = { major: '', minor: '', patch: '' };
             assessmentState.value.showReviewModal = false;
             assessmentState.value.wrongAnswers = Array.isArray(data.assessment_wrong_answers)
                 ? data.assessment_wrong_answers
@@ -724,6 +812,8 @@ async function startAttempt() {
                 .sort(() => Math.random() - 0.5);
             assessmentState.value.orderingItems = shuffled;
             resetMiniGameBoard(shuffled);
+        } else if (mode === 'semver') {
+            assessmentState.value.semverAnswer = { major: '', minor: '', patch: '' };
         }
     } catch (e) {
         assessmentState.value.message = e?.response?.data?.message || 'Não foi possível iniciar a avaliação.';
@@ -765,6 +855,13 @@ function buildAssessmentAnswers() {
     }
     if (episode.value.assessment_mode === 'mini_game') {
         return { orderedItemIds: miniGameSlots.value.map((item) => item?.id).filter(Boolean) };
+    }
+    if (episode.value.assessment_mode === 'semver') {
+        return {
+            major: Number(assessmentState.value.semverAnswer?.major),
+            minor: Number(assessmentState.value.semverAnswer?.minor),
+            patch: Number(assessmentState.value.semverAnswer?.patch)
+        };
     }
     return { text: assessmentState.value.openTextAnswer };
 }
@@ -817,6 +914,21 @@ function buildReviewFromFeedback(feedback = []) {
         return rows;
     }
 
+    if (episode.value?.assessment_mode === 'semver') {
+        const labels = { major: 'MAJOR', minor: 'MINOR', patch: 'PATCH' };
+        return (Array.isArray(feedback) ? feedback : []).map((item) => ({
+            questionId: `semver_${item.part || 'part'}`,
+            prompt: `Componente ${labels[item.part] || String(item.part || '').toUpperCase()}`,
+            submittedLabel: Number.isInteger(Number(item.submitted)) && Number(item.submitted) >= 0
+                ? String(Number(item.submitted))
+                : 'Não informado',
+            expectedLabel: Number.isInteger(Number(item.expected)) && Number(item.expected) >= 0
+                ? String(Number(item.expected))
+                : 'Não definido',
+            status: Boolean(item.correct) ? 'ok' : 'needs_attention'
+        }));
+    }
+
     const questions = episode.value?.assessment_config?.questions || [];
     const questionMap = new Map(questions.map((question, index) => [String(question.id || `q_${index}`), question]));
     return feedback
@@ -845,6 +957,18 @@ async function submitAttempt() {
     if (episode.value.assessment_mode === 'mini_game' && miniGameSlots.value.some((slot) => !slot)) {
         assessmentState.value.message = 'Preencha todas as posições antes de enviar a avaliação.';
         return;
+    }
+    if (episode.value.assessment_mode === 'semver') {
+        const semver = assessmentState.value.semverAnswer || {};
+        const hasInvalid = ['major', 'minor', 'patch'].some((part) => {
+            const raw = semver?.[part];
+            const value = Number(raw);
+            return raw === '' || raw === null || raw === undefined || !Number.isInteger(value) || value < 0;
+        });
+        if (hasInvalid) {
+            assessmentState.value.message = 'Informe MAJOR, MINOR e PATCH com números inteiros maiores ou iguais a 0.';
+            return;
+        }
     }
     assessmentState.value.loading = true;
     assessmentState.value.message = '';
@@ -964,16 +1088,25 @@ function removeMiniGamePointerListeners() {
 }
 onMounted(loadEpisode);
 onMounted(() => {
+    if (typeof window !== 'undefined') {
+        window.addEventListener('beforeunload', handleAttemptBeforeUnload);
+    }
     if (typeof window === 'undefined' || !window.matchMedia) return;
     desktopMediaQuery = window.matchMedia('(min-width: 1024px)');
     syncDesktopState();
     desktopMediaQuery.addEventListener('change', syncDesktopState);
 });
 
+onBeforeRouteLeave(() => {
+    if (!hasActiveAssessmentAttempt.value) return true;
+    return window.confirm('Você tem uma tentativa em andamento. Se sair agora, ela pode ser perdida. Deseja realmente sair?');
+});
+
 onBeforeUnmount(() => {
     if (desktopMediaQuery) {
         desktopMediaQuery.removeEventListener('change', syncDesktopState);
     }
+    window.removeEventListener('beforeunload', handleAttemptBeforeUnload);
     removeMiniGamePointerListeners();
 });
 </script>
@@ -1074,6 +1207,84 @@ onBeforeUnmount(() => {
     margin: 0;
     padding-bottom: 0.15rem;
     border-bottom: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
+}
+
+.episode-tip-pulse {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    width: 100%;
+    border: 1px solid color-mix(in srgb, var(--primary) 35%, var(--border));
+    border-radius: 12px;
+    padding: 0.65rem 0.75rem;
+    background: linear-gradient(
+        140deg,
+        color-mix(in srgb, var(--primary) 12%, var(--surface)),
+        color-mix(in srgb, var(--surface-2) 70%, transparent)
+    );
+    cursor: zoom-in;
+    text-align: left;
+    animation: episode-tip-pulse-glow 2s ease-in-out infinite;
+}
+
+.episode-tip-pulse-dot {
+    width: 1.55rem;
+    height: 1.55rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: color-mix(in srgb, var(--primary) 80%, #fff);
+    background: color-mix(in srgb, var(--primary) 18%, var(--surface));
+    border: 1px solid color-mix(in srgb, var(--primary) 45%, transparent);
+    flex-shrink: 0;
+}
+
+.episode-tip-pulse-copy {
+    font-size: 0.9rem;
+    line-height: 1.35;
+    color: color-mix(in srgb, var(--text) 94%, var(--text-muted));
+}
+
+.episode-tip-pulse-action {
+    margin-left: auto;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: color-mix(in srgb, var(--primary) 85%, #fff);
+    white-space: nowrap;
+}
+
+@keyframes episode-tip-pulse-glow {
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 22%, transparent);
+    }
+    50% {
+        box-shadow: 0 0 0 6px color-mix(in srgb, var(--primary) 8%, transparent);
+    }
+}
+
+.episode-image-preview-modal {
+    width: min(92vw, 64rem);
+    max-height: 90vh;
+    overflow: auto;
+    border-radius: 14px;
+    border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+    background: color-mix(in srgb, var(--surface) 96%, transparent);
+    padding: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.episode-image-preview-full {
+    width: 100%;
+    max-height: calc(90vh - 4.2rem);
+    object-fit: contain;
+    display: block;
+    border-radius: 10px;
 }
 
 .episode-action-btn {
@@ -1295,6 +1506,17 @@ onBeforeUnmount(() => {
     background: color-mix(in srgb, var(--primary) 14%, transparent);
     border-radius: 999px;
     padding: 0.25rem 0.6rem;
+}
+
+.assessment-attempt-warning {
+    margin: 0;
+    padding: 0.55rem 0.7rem;
+    border-radius: 10px;
+    border: 1px solid color-mix(in srgb, #f59e0b 45%, transparent);
+    background: color-mix(in srgb, #f59e0b 12%, var(--surface));
+    color: color-mix(in srgb, #f59e0b 72%, var(--text));
+    font-size: 0.78rem;
+    font-weight: 600;
 }
 
 .assessment-progress-block {

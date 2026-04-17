@@ -113,6 +113,28 @@ const MOCK_EPISODES = [
         category: 'Segurança',
         duration_label: '7min',
         tags: ['mock', 'segurança', 'auth']
+    },
+    {
+        ordering: 113,
+        title: 'Mock EP 13 - SemVer na Prática',
+        summary: 'Desafio avaliativo de versionamento semântico para preencher MAJOR.MINOR.PATCH.',
+        year_target: 2,
+        category: 'Git e Versionamento',
+        duration_label: '4min',
+        tags: ['mock', 'semver', 'versionamento'],
+        episode_type: 'assessment',
+        assessment_mode: 'semver',
+        assessment_config: {
+            prompt: 'Você lançou uma nova funcionalidade compatível com versões anteriores e corrigiu um bug sem quebrar API. A versão atual era 2.3.4. Qual deve ser a nova versão?',
+            expected: {
+                major: 2,
+                minor: 4,
+                patch: 0
+            }
+        },
+        max_attempts: 2,
+        passing_score: 100,
+        xp_reward: 65
     }
 ];
 
@@ -129,16 +151,28 @@ async function run() {
             defaults: {
                 ...item,
                 slug,
-                is_published: true
+                is_published: true,
+                episode_type: item.episode_type || 'study',
+                assessment_mode: item.assessment_mode || null,
+                assessment_config: item.assessment_config || null,
+                max_attempts: item.max_attempts || 1,
+                passing_score: item.passing_score || 60,
+                xp_reward: item.xp_reward || 40
             }
         });
 
         if (!isCreated) {
             skipped += 1;
-            // Mantém o episódio publicado para facilitar testes
-            if (!episode.is_published) {
-                await episode.update({ is_published: true });
-            }
+            // Mantém o episódio publicado e sincroniza campos importantes para facilitar testes.
+            await episode.update({
+                is_published: true,
+                episode_type: item.episode_type || 'study',
+                assessment_mode: item.assessment_mode || null,
+                assessment_config: item.assessment_config || null,
+                max_attempts: item.max_attempts || 1,
+                passing_score: item.passing_score || 60,
+                xp_reward: item.xp_reward || 40
+            });
             continue;
         }
 

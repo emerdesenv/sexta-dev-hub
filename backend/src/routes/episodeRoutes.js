@@ -7,6 +7,7 @@ const router = Router();
 
 const multipart = upload.fields([
     { name: 'cover', maxCount: 1 },
+    { name: 'image', maxCount: 1 },
     { name: 'audio', maxCount: 1 },
     { name: 'pdf', maxCount: 1 }
 ]);

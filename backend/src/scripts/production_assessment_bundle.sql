@@ -3,7 +3,7 @@
 -- =========================================================
 -- Inclui:
 -- 1) Migração de estrutura (episode + episode_attempt)
--- 2) Upsert de 3 atividades avaliativas (quiz/open_text/mini_game)
+-- 2) Upsert de 4 atividades avaliativas (quiz/open_text/mini_game/semver)
 -- 3) Update avançado para critérios de resposta aberta
 -- 4) Bloco opcional de reset para homologação/teste (comentado)
 --
@@ -19,12 +19,15 @@ START TRANSACTION;
 
 ALTER TABLE episode
     ADD COLUMN IF NOT EXISTS episode_type ENUM('study', 'assessment') NOT NULL DEFAULT 'study' AFTER category,
-    ADD COLUMN IF NOT EXISTS assessment_mode ENUM('quiz', 'open_text', 'mini_game') NULL AFTER episode_type,
+    ADD COLUMN IF NOT EXISTS assessment_mode ENUM('quiz', 'open_text', 'mini_game', 'semver') NULL AFTER episode_type,
     ADD COLUMN IF NOT EXISTS assessment_config JSON NULL AFTER assessment_mode,
     ADD COLUMN IF NOT EXISTS max_attempts INT NOT NULL DEFAULT 1 AFTER assessment_config,
     ADD COLUMN IF NOT EXISTS passing_score INT NOT NULL DEFAULT 60 AFTER max_attempts,
     ADD COLUMN IF NOT EXISTS time_limit_sec INT NULL AFTER passing_score,
     ADD COLUMN IF NOT EXISTS xp_reward INT NOT NULL DEFAULT 40 AFTER time_limit_sec;
+
+ALTER TABLE episode
+    ADD COLUMN IF NOT EXISTS image_path VARCHAR(255) NULL AFTER cover_path;
 
 CREATE TABLE IF NOT EXISTS episode_attempt (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -187,6 +190,55 @@ INSERT INTO episode (
     NULL, NULL, NULL,
     '10:00',
     'engenharia de software,mini game,ordenacao,avaliativo',
+    NOW(), NOW()
+)
+ON DUPLICATE KEY UPDATE
+    ordering = VALUES(ordering),
+    title = VALUES(title),
+    summary = VALUES(summary),
+    year_target = VALUES(year_target),
+    category = VALUES(category),
+    episode_type = VALUES(episode_type),
+    assessment_mode = VALUES(assessment_mode),
+    assessment_config = VALUES(assessment_config),
+    max_attempts = VALUES(max_attempts),
+    passing_score = VALUES(passing_score),
+    time_limit_sec = VALUES(time_limit_sec),
+    xp_reward = VALUES(xp_reward),
+    is_published = VALUES(is_published),
+    early_access_only = VALUES(early_access_only),
+    duration_label = VALUES(duration_label),
+    tags = VALUES(tags),
+    updated_at = NOW();
+
+-- 2.4) SemVer - Versionamento de Releases
+INSERT INTO episode (
+    ordering, title, slug, summary, year_target, category,
+    episode_type, assessment_mode, assessment_config,
+    max_attempts, passing_score, time_limit_sec, xp_reward,
+    is_published, early_access_only,
+    cover_path, audio_path, pdf_path,
+    duration_label, tags, created_at, updated_at
+) VALUES (
+    1002,
+    'Missão ESW-04: SemVer em Release',
+    'missao-esw-04-semver-release',
+    'Atividade avaliativa sobre versionamento semântico com preenchimento de MAJOR.MINOR.PATCH.',
+    2,
+    'Git e Versionamento',
+    'assessment',
+    'semver',
+    JSON_OBJECT(
+        'prompt',
+        'A versão atual é 2.3.4. Você adicionou uma funcionalidade compatível com versões anteriores e corrigiu um bug sem quebrar API. Qual a próxima versão?',
+        'expected',
+        JSON_OBJECT('major', 2, 'minor', 4, 'patch', 0)
+    ),
+    2, 100, 420, 65,
+    1, 0,
+    NULL, NULL, NULL,
+    '07:00',
+    'engenharia de software,semver,versionamento,avaliativo',
     NOW(), NOW()
 )
 ON DUPLICATE KEY UPDATE

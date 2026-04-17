@@ -41,6 +41,10 @@ const FIELD_RULES = {
         mimes: new Set(['image/png', 'image/jpeg', 'image/jpg', 'image/webp']),
         exts: new Set(['.png', '.jpg', '.jpeg', '.webp'])
     },
+    image: {
+        mimes: new Set(['image/png', 'image/jpeg', 'image/jpg', 'image/webp']),
+        exts: new Set(['.png', '.jpg', '.jpeg', '.webp'])
+    },
     audio: {
         mimes: new Set([
             'audio/mpeg', 'audio/mp3', 'audio/ogg', 'audio/wav',
@@ -68,6 +72,10 @@ export function isAccepted(file) {
 
 const SIGNATURE_RULES = {
     cover: {
+        mimes: new Set(['image/png', 'image/jpeg', 'image/webp']),
+        exts: new Set(['png', 'jpg', 'jpeg', 'webp'])
+    },
+    image: {
         mimes: new Set(['image/png', 'image/jpeg', 'image/webp']),
         exts: new Set(['png', 'jpg', 'jpeg', 'webp'])
     },

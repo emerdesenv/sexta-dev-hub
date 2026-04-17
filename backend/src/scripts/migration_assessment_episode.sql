@@ -3,12 +3,15 @@
 
 ALTER TABLE episode
     ADD COLUMN episode_type ENUM('study', 'assessment') NOT NULL DEFAULT 'study' AFTER category,
-    ADD COLUMN assessment_mode ENUM('quiz', 'open_text', 'mini_game') NULL AFTER episode_type,
+    ADD COLUMN assessment_mode ENUM('quiz', 'open_text', 'mini_game', 'semver') NULL AFTER episode_type,
     ADD COLUMN assessment_config JSON NULL AFTER assessment_mode,
     ADD COLUMN max_attempts INT NOT NULL DEFAULT 1 AFTER assessment_config,
     ADD COLUMN passing_score INT NOT NULL DEFAULT 60 AFTER max_attempts,
     ADD COLUMN time_limit_sec INT NULL AFTER passing_score,
     ADD COLUMN xp_reward INT NOT NULL DEFAULT 40 AFTER time_limit_sec;
+
+ALTER TABLE episode
+    ADD COLUMN image_path VARCHAR(255) NULL AFTER cover_path;
 
 CREATE TABLE IF NOT EXISTS episode_attempt (
     id INT AUTO_INCREMENT PRIMARY KEY,
