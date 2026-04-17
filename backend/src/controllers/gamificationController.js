@@ -442,6 +442,80 @@ function evaluateSemver(config = {}, rawAnswers = {}) {
     return { score, feedback };
 }
 
+function evaluateClassification(config = {}, rawAnswers = {}) {
+    const items = Array.isArray(config.items) ? config.items : [];
+    const placements = Array.isArray(rawAnswers?.placements) ? rawAnswers.placements : [];
+    const placementMap = new Map(placements.map((entry) => [String(entry.itemId), String(entry.groupId)]));
+    let correct = 0;
+    const feedback = [];
+    for (let index = 0; index < items.length; index += 1) {
+        const item = items[index] || {};
+        const itemId = String(item.id || `item_${index + 1}`);
+        const expectedGroupId = String(item.correctGroupId || '');
+        const submittedGroupId = placementMap.get(itemId) || '';
+        const isCorrect = expectedGroupId && submittedGroupId === expectedGroupId;
+        if (isCorrect) correct += 1;
+        feedback.push({
+            itemId,
+            expectedGroupId: expectedGroupId || null,
+            submittedGroupId: submittedGroupId || null,
+            correct: isCorrect
+        });
+    }
+    const score = items.length ? Math.round((correct / items.length) * 100) : 0;
+    return { score, feedback };
+}
+
+function evaluateFillBlanks(config = {}, rawAnswers = {}) {
+    const blanks = Array.isArray(config.blanks) ? config.blanks : [];
+    const answers = Array.isArray(rawAnswers?.blanks) ? rawAnswers.blanks : [];
+    const answerMap = new Map(answers.map((entry) => [String(entry.blankId), String(entry.value || '')]));
+    let correct = 0;
+    const feedback = [];
+    for (let index = 0; index < blanks.length; index += 1) {
+        const blank = blanks[index] || {};
+        const blankId = String(blank.id || `blank_${index + 1}`);
+        const caseSensitive = Boolean(blank.caseSensitive);
+        const accepted = Array.isArray(blank.answers) ? blank.answers.map((item) => String(item || '').trim()) : [];
+        const submitted = String(answerMap.get(blankId) || '').trim();
+        const submittedNorm = caseSensitive ? submitted : normalizeText(submitted);
+        const isCorrect = accepted.some((option) => (caseSensitive ? option : normalizeText(option)) === submittedNorm);
+        if (isCorrect) correct += 1;
+        feedback.push({
+            blankId,
+            submitted: submitted || null,
+            accepted,
+            correct: isCorrect
+        });
+    }
+    const score = blanks.length ? Math.round((correct / blanks.length) * 100) : 0;
+    return { score, feedback };
+}
+
+function evaluateMatching(config = {}, rawAnswers = {}) {
+    const pairs = Array.isArray(config.pairs) ? config.pairs : [];
+    const answers = Array.isArray(rawAnswers?.pairs) ? rawAnswers.pairs : [];
+    const answerMap = new Map(answers.map((entry) => [String(entry.leftId), String(entry.rightId)]));
+    let correct = 0;
+    const feedback = [];
+    for (let index = 0; index < pairs.length; index += 1) {
+        const pair = pairs[index] || {};
+        const leftId = String(pair.leftId || `left_${index + 1}`);
+        const expectedRightId = String(pair.rightId || '');
+        const submittedRightId = answerMap.get(leftId) || '';
+        const isCorrect = expectedRightId && submittedRightId === expectedRightId;
+        if (isCorrect) correct += 1;
+        feedback.push({
+            leftId,
+            expectedRightId: expectedRightId || null,
+            submittedRightId: submittedRightId || null,
+            correct: isCorrect
+        });
+    }
+    const score = pairs.length ? Math.round((correct / pairs.length) * 100) : 0;
+    return { score, feedback };
+}
+
 function normalizeText(value = '') {
     return String(value)
         .normalize('NFD')
@@ -492,6 +566,9 @@ function evaluateAssessment(episode, answers) {
     if (episode.assessment_mode === 'quiz') return evaluateQuiz(episode.assessment_config || {}, answers);
     if (episode.assessment_mode === 'mini_game') return evaluateOrdering(episode.assessment_config || {}, answers);
     if (episode.assessment_mode === 'semver') return evaluateSemver(episode.assessment_config || {}, answers);
+    if (episode.assessment_mode === 'classification') return evaluateClassification(episode.assessment_config || {}, answers);
+    if (episode.assessment_mode === 'fill_blanks') return evaluateFillBlanks(episode.assessment_config || {}, answers);
+    if (episode.assessment_mode === 'matching') return evaluateMatching(episode.assessment_config || {}, answers);
     return evaluateOpenText(episode.assessment_config || {}, answers);
 }
 
@@ -1166,7 +1243,16 @@ export async function getAdminMetrics(req, res) {
             rewardsRedeemed
         },
         assessmentSummary: summary,
-        assessmentEpisodes: episodesMetrics.sort((a, b) => a.passRate - b.passRate),
+        assessmentEpisodes: episodesMetrics.sort((a, b) => {
+            if (b.studentsTried !== a.studentsTried) return b.studentsTried - a.studentsTried;
+            if (b.attemptsPerStudent !== a.attemptsPerStudent) {
+                return b.attemptsPerStudent - a.attemptsPerStudent;
+            }
+            const ta = a.lastAttemptAt ? new Date(a.lastAttemptAt).getTime() : 0;
+            const tb = b.lastAttemptAt ? new Date(b.lastAttemptAt).getTime() : 0;
+            if (tb !== ta) return tb - ta;
+            return String(a.title || '').localeCompare(String(b.title || ''), 'pt-BR', { sensitivity: 'base' });
+        }),
         recentEvents: events.map((event) => ({
             id: event.id,
             username: event.user?.username || 'usuário',

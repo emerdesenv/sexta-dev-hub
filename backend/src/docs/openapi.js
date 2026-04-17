@@ -149,7 +149,11 @@ const openApiDocument = {
                     year_target: { type: 'integer', minimum: 1, maximum: 3 },
                     category: { type: 'string' },
                     episode_type: { type: 'string', enum: ['study', 'assessment'] },
-                    assessment_mode: { type: 'string', enum: ['quiz', 'open_text', 'mini_game', 'semver'], nullable: true },
+                    assessment_mode: {
+                        type: 'string',
+                        enum: ['quiz', 'open_text', 'mini_game', 'semver', 'classification', 'fill_blanks', 'matching'],
+                        nullable: true
+                    },
                     assessment_config: { oneOf: [{ type: 'string' }, { type: 'object', additionalProperties: true }] },
                     max_attempts: { type: 'integer', minimum: 1, maximum: 10 },
                     passing_score: { type: 'integer', minimum: 0, maximum: 100 },
@@ -829,7 +833,8 @@ const openApiDocument = {
                 security: [{ accessCookieAuth: [] }, { bearerAuth: [] }],
                 responses: {
                     200: {
-                        description: 'Metricas',
+                        description:
+                            'Metricas. O array assessmentEpisodes vem ordenado por engajamento: mais alunos distintos que tentaram, depois maior media de tentativas por aluno, depois atividade com tentativa mais recente.',
                         content: {
                             'application/json': { schema: { type: 'object', additionalProperties: true } }
                         }

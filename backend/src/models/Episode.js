@@ -10,7 +10,10 @@ export const Episode = sequelize.define('episode', {
     year_target: { type: DataTypes.INTEGER, allowNull: false },
     category: { type: DataTypes.STRING(80), allowNull: false },
     episode_type: { type: DataTypes.ENUM('study', 'assessment'), allowNull: false, defaultValue: 'study' },
-    assessment_mode: { type: DataTypes.ENUM('quiz', 'open_text', 'mini_game', 'semver'), allowNull: true },
+    assessment_mode: {
+        type: DataTypes.ENUM('quiz', 'open_text', 'mini_game', 'semver', 'classification', 'fill_blanks', 'matching'),
+        allowNull: true
+    },
     assessment_config: { type: DataTypes.JSON, allowNull: true },
     max_attempts: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 1 },
     passing_score: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 60 },

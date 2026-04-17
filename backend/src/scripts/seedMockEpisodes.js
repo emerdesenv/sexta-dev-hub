@@ -135,6 +135,194 @@ const MOCK_EPISODES = [
         max_attempts: 2,
         passing_score: 100,
         xp_reward: 65
+    },
+    {
+        ordering: 114,
+        title: 'Mock EP 14 - Debug por Logs',
+        summary: 'Atividade avaliativa de diagnóstico com base em logs de erro e causa raiz.',
+        year_target: 2,
+        category: 'Debugging',
+        duration_label: '6min',
+        tags: ['mock', 'debug', 'logs'],
+        episode_type: 'assessment',
+        assessment_mode: 'quiz',
+        assessment_config: {
+            questions: [
+                {
+                    id: 'dbg_q1',
+                    prompt: 'Log: "SequelizeHostNotFoundError: getaddrinfo ENOTFOUND mysql". Qual é a causa mais provável?',
+                    options: [
+                        'Senha do banco inválida',
+                        'Host do banco não resolvido/rede entre containers inconsistente',
+                        'Tabela episode sem coluna',
+                        'Token JWT expirado'
+                    ],
+                    correctOptionIndex: 1,
+                    weight: 1
+                },
+                {
+                    id: 'dbg_q2',
+                    prompt: 'Com MySQL healthy e backend caindo por ENOTFOUND mysql, qual ação é mais assertiva primeiro?',
+                    options: [
+                        'Executar npm audit fix',
+                        'Trocar porta da API para 3001',
+                        'Verificar rede/aliases do Docker e recriar containers se necessário',
+                        'Resetar todo o banco'
+                    ],
+                    correctOptionIndex: 2,
+                    weight: 1
+                },
+                {
+                    id: 'dbg_q3',
+                    prompt: 'Após corrigir rede, qual validação rápida confirma o cenário saudável?',
+                    options: [
+                        'Rodar seed de eventos limitados',
+                        'Subir frontend sem backend',
+                        'Conferir backend conectado ao DB e /health respondendo 200',
+                        'Apenas limpar cache do navegador'
+                    ],
+                    correctOptionIndex: 2,
+                    weight: 1
+                }
+            ]
+        },
+        max_attempts: 2,
+        passing_score: 70,
+        xp_reward: 70
+    },
+    {
+        ordering: 115,
+        title: 'Mock EP 15 - Code Review de Diff',
+        summary: 'Atividade avaliativa para identificar riscos e melhorias em um diff de código.',
+        year_target: 3,
+        category: 'Code Review',
+        duration_label: '7min',
+        tags: ['mock', 'code-review', 'diff'],
+        episode_type: 'assessment',
+        assessment_mode: 'quiz',
+        assessment_config: {
+            questions: [
+                {
+                    id: 'cr_q1',
+                    prompt: 'No diff, um endpoint expõe stack trace completo em produção. Qual o principal risco?',
+                    options: [
+                        'Apenas ruído visual no log',
+                        'Vazamento de detalhes internos e aumento da superfície de ataque',
+                        'Redução de performance no front',
+                        'Incompatibilidade com SemVer'
+                    ],
+                    correctOptionIndex: 1,
+                    weight: 1
+                },
+                {
+                    id: 'cr_q2',
+                    prompt: 'No diff, um campo booleano usa coerção genérica e "false" vira true. Melhor ajuste?',
+                    options: [
+                        'Manter coerção e documentar no README',
+                        'Converter todos os booleans para string',
+                        'Implementar parse explícito de boolean (true/false/1/0) antes de validar',
+                        'Remover o campo do payload'
+                    ],
+                    correctOptionIndex: 2,
+                    weight: 1
+                },
+                {
+                    id: 'cr_q3',
+                    prompt: 'No diff, foi adicionada nova feature sem teste de regressão. O que priorizar no review?',
+                    options: [
+                        'Apenas ajustes de nomenclatura',
+                        'Solicitar teste cobrindo comportamento novo e caso de borda',
+                        'Aumentar limite de timeout global',
+                        'Subir direto em produção para validar'
+                    ],
+                    correctOptionIndex: 1,
+                    weight: 1
+                }
+            ]
+        },
+        max_attempts: 2,
+        passing_score: 70,
+        xp_reward: 75
+    },
+    {
+        ordering: 116,
+        title: 'Mock EP 16 - Classificação de Mudanças',
+        summary: 'Classifique mudanças de release em MAJOR, MINOR ou PATCH.',
+        year_target: 2,
+        category: 'Git e Versionamento',
+        duration_label: '6min',
+        tags: ['mock', 'classification', 'semver'],
+        episode_type: 'assessment',
+        assessment_mode: 'classification',
+        assessment_config: {
+            prompt: 'Classifique cada mudança no grupo correto.',
+            groups: [
+                { id: 'g_major', label: 'MAJOR' },
+                { id: 'g_minor', label: 'MINOR' },
+                { id: 'g_patch', label: 'PATCH' }
+            ],
+            items: [
+                { id: 'i_1', label: 'Quebra de contrato da API pública', correctGroupId: 'g_major' },
+                { id: 'i_2', label: 'Nova funcionalidade compatível', correctGroupId: 'g_minor' },
+                { id: 'i_3', label: 'Correção de bug sem quebrar compatibilidade', correctGroupId: 'g_patch' }
+            ]
+        },
+        max_attempts: 2,
+        passing_score: 70,
+        xp_reward: 70
+    },
+    {
+        ordering: 117,
+        title: 'Mock EP 17 - Complete as Lacunas (Git)',
+        summary: 'Preencha lacunas com comandos e termos corretos do fluxo Git.',
+        year_target: 2,
+        category: 'Git e Versionamento',
+        duration_label: '6min',
+        tags: ['mock', 'fill-blanks', 'git'],
+        episode_type: 'assessment',
+        assessment_mode: 'fill_blanks',
+        assessment_config: {
+            prompt: 'Complete: Para enviar uma branch local para o remoto usamos {{b1}}. Para atualizar com mudanças do remoto usamos {{b2}}.',
+            blanks: [
+                { id: 'b1', answers: ['git push', 'push'], caseSensitive: false },
+                { id: 'b2', answers: ['git pull', 'pull'], caseSensitive: false }
+            ]
+        },
+        max_attempts: 2,
+        passing_score: 70,
+        xp_reward: 70
+    },
+    {
+        ordering: 118,
+        title: 'Mock EP 18 - Correspondência de Debug',
+        summary: 'Relacione cada erro técnico com sua causa mais provável.',
+        year_target: 3,
+        category: 'Debugging',
+        duration_label: '7min',
+        tags: ['mock', 'matching', 'debug'],
+        episode_type: 'assessment',
+        assessment_mode: 'matching',
+        assessment_config: {
+            prompt: 'Associe cada erro à causa principal.',
+            leftItems: [
+                { id: 'l1', label: 'ENOTFOUND mysql' },
+                { id: 'l2', label: '401 Unauthorized' },
+                { id: 'l3', label: '404 Endpoint não encontrado' }
+            ],
+            rightItems: [
+                { id: 'r1', label: 'Host/alias de banco não resolvido' },
+                { id: 'r2', label: 'Credenciais inválidas ou token expirado' },
+                { id: 'r3', label: 'Rota incorreta ou recurso inexistente' }
+            ],
+            pairs: [
+                { leftId: 'l1', rightId: 'r1' },
+                { leftId: 'l2', rightId: 'r2' },
+                { leftId: 'l3', rightId: 'r3' }
+            ]
+        },
+        max_attempts: 2,
+        passing_score: 70,
+        xp_reward: 75
     }
 ];
 

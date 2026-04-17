@@ -3,7 +3,7 @@
 -- =========================================================
 -- Inclui:
 -- 1) Migração de estrutura (episode + episode_attempt)
--- 2) Upsert de 4 atividades avaliativas (quiz/open_text/mini_game/semver)
+-- 2) Upsert de 6 atividades avaliativas (quiz/open_text/mini_game/semver + debug + code review)
 -- 3) Update avançado para critérios de resposta aberta
 -- 4) Bloco opcional de reset para homologação/teste (comentado)
 --
@@ -19,7 +19,7 @@ START TRANSACTION;
 
 ALTER TABLE episode
     ADD COLUMN IF NOT EXISTS episode_type ENUM('study', 'assessment') NOT NULL DEFAULT 'study' AFTER category,
-    ADD COLUMN IF NOT EXISTS assessment_mode ENUM('quiz', 'open_text', 'mini_game', 'semver') NULL AFTER episode_type,
+    ADD COLUMN IF NOT EXISTS assessment_mode ENUM('quiz', 'open_text', 'mini_game', 'semver', 'classification', 'fill_blanks', 'matching') NULL AFTER episode_type,
     ADD COLUMN IF NOT EXISTS assessment_config JSON NULL AFTER assessment_mode,
     ADD COLUMN IF NOT EXISTS max_attempts INT NOT NULL DEFAULT 1 AFTER assessment_config,
     ADD COLUMN IF NOT EXISTS passing_score INT NOT NULL DEFAULT 60 AFTER max_attempts,
@@ -239,6 +239,138 @@ INSERT INTO episode (
     NULL, NULL, NULL,
     '07:00',
     'engenharia de software,semver,versionamento,avaliativo',
+    NOW(), NOW()
+)
+ON DUPLICATE KEY UPDATE
+    ordering = VALUES(ordering),
+    title = VALUES(title),
+    summary = VALUES(summary),
+    year_target = VALUES(year_target),
+    category = VALUES(category),
+    episode_type = VALUES(episode_type),
+    assessment_mode = VALUES(assessment_mode),
+    assessment_config = VALUES(assessment_config),
+    max_attempts = VALUES(max_attempts),
+    passing_score = VALUES(passing_score),
+    time_limit_sec = VALUES(time_limit_sec),
+    xp_reward = VALUES(xp_reward),
+    is_published = VALUES(is_published),
+    early_access_only = VALUES(early_access_only),
+    duration_label = VALUES(duration_label),
+    tags = VALUES(tags),
+    updated_at = NOW();
+
+-- 2.5) Debug por Logs
+INSERT INTO episode (
+    ordering, title, slug, summary, year_target, category,
+    episode_type, assessment_mode, assessment_config,
+    max_attempts, passing_score, time_limit_sec, xp_reward,
+    is_published, early_access_only,
+    cover_path, image_path, audio_path, pdf_path,
+    duration_label, tags, created_at, updated_at
+) VALUES (
+    1003,
+    'Missão ESW-05: Debug por Logs',
+    'missao-esw-05-debug-por-logs',
+    'Quiz avaliativo de diagnóstico técnico com foco em leitura de logs, causa raiz e validação de correção.',
+    2,
+    'Debugging',
+    'assessment',
+    'quiz',
+    JSON_OBJECT(
+        'questions',
+        JSON_ARRAY(
+            JSON_OBJECT(
+                'id','dbg_q1',
+                'prompt','Log: "SequelizeHostNotFoundError: getaddrinfo ENOTFOUND mysql". Qual é a causa mais provável?',
+                'options',JSON_ARRAY('Senha do banco inválida','Host do banco não resolvido/rede entre containers inconsistente','Tabela episode sem coluna','Token JWT expirado'),
+                'correctOptionIndex',1,'weight',1
+            ),
+            JSON_OBJECT(
+                'id','dbg_q2',
+                'prompt','Com MySQL healthy e backend caindo por ENOTFOUND mysql, qual ação é mais assertiva primeiro?',
+                'options',JSON_ARRAY('Executar npm audit fix','Trocar porta da API para 3001','Verificar rede/aliases do Docker e recriar containers se necessário','Resetar todo o banco'),
+                'correctOptionIndex',2,'weight',1
+            ),
+            JSON_OBJECT(
+                'id','dbg_q3',
+                'prompt','Após corrigir rede, qual validação rápida confirma o cenário saudável?',
+                'options',JSON_ARRAY('Rodar seed de eventos limitados','Subir frontend sem backend','Conferir backend conectado ao DB e /health respondendo 200','Apenas limpar cache do navegador'),
+                'correctOptionIndex',2,'weight',1
+            )
+        )
+    ),
+    2, 70, 600, 70,
+    1, 0,
+    NULL, NULL, NULL, NULL,
+    '08:00',
+    'debug,logs,diagnostico,avaliativo',
+    NOW(), NOW()
+)
+ON DUPLICATE KEY UPDATE
+    ordering = VALUES(ordering),
+    title = VALUES(title),
+    summary = VALUES(summary),
+    year_target = VALUES(year_target),
+    category = VALUES(category),
+    episode_type = VALUES(episode_type),
+    assessment_mode = VALUES(assessment_mode),
+    assessment_config = VALUES(assessment_config),
+    max_attempts = VALUES(max_attempts),
+    passing_score = VALUES(passing_score),
+    time_limit_sec = VALUES(time_limit_sec),
+    xp_reward = VALUES(xp_reward),
+    is_published = VALUES(is_published),
+    early_access_only = VALUES(early_access_only),
+    duration_label = VALUES(duration_label),
+    tags = VALUES(tags),
+    updated_at = NOW();
+
+-- 2.6) Code Review em Diff
+INSERT INTO episode (
+    ordering, title, slug, summary, year_target, category,
+    episode_type, assessment_mode, assessment_config,
+    max_attempts, passing_score, time_limit_sec, xp_reward,
+    is_published, early_access_only,
+    cover_path, image_path, audio_path, pdf_path,
+    duration_label, tags, created_at, updated_at
+) VALUES (
+    1004,
+    'Missão ESW-06: Code Review em Diff',
+    'missao-esw-06-code-review-em-diff',
+    'Quiz avaliativo para identificar riscos, regressões e melhorias em alterações de código.',
+    3,
+    'Code Review',
+    'assessment',
+    'quiz',
+    JSON_OBJECT(
+        'questions',
+        JSON_ARRAY(
+            JSON_OBJECT(
+                'id','cr_q1',
+                'prompt','No diff, um endpoint expõe stack trace completo em produção. Qual o principal risco?',
+                'options',JSON_ARRAY('Apenas ruído visual no log','Vazamento de detalhes internos e aumento da superfície de ataque','Redução de performance no front','Incompatibilidade com SemVer'),
+                'correctOptionIndex',1,'weight',1
+            ),
+            JSON_OBJECT(
+                'id','cr_q2',
+                'prompt','No diff, um campo booleano usa coerção genérica e "false" vira true. Melhor ajuste?',
+                'options',JSON_ARRAY('Manter coerção e documentar no README','Converter todos os booleans para string','Implementar parse explícito de boolean (true/false/1/0) antes de validar','Remover o campo do payload'),
+                'correctOptionIndex',2,'weight',1
+            ),
+            JSON_OBJECT(
+                'id','cr_q3',
+                'prompt','No diff, foi adicionada nova feature sem teste de regressão. O que priorizar no review?',
+                'options',JSON_ARRAY('Apenas ajustes de nomenclatura','Solicitar teste cobrindo comportamento novo e caso de borda','Aumentar limite de timeout global','Subir direto em produção para validar'),
+                'correctOptionIndex',1,'weight',1
+            )
+        )
+    ),
+    2, 70, 600, 75,
+    1, 0,
+    NULL, NULL, NULL, NULL,
+    '08:00',
+    'code-review,diff,qualidade,avaliativo',
     NOW(), NOW()
 )
 ON DUPLICATE KEY UPDATE

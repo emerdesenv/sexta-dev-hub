@@ -215,7 +215,7 @@
                                 {{ report.target.replyPreview }}
                             </div>
                             <div class="text-xs text-muted mt-1">
-                                por {{ report.reporter?.username || 'usuário' }} — {{ report.reason }}
+                                por {{ report.reporter?.username || 'usuário' }} - {{ report.reason }}
                             </div>
                             <div class="mt-2 flex items-center gap-2">
                                 <button class="sd-button sd-button-secondary !py-1 !px-2 !text-xs" :disabled="loadingAction" @click="reviewReport(report.id, 'actioned')">

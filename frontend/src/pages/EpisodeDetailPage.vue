@@ -226,15 +226,62 @@
                                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                         <label class="flex flex-col gap-2">
                                             <span class="sd-label">MAJOR</span>
-                                            <input class="sd-input" type="number" min="0" step="1" v-model="assessmentState.semverAnswer.major" />
+                                            <input class="sd-input assessment-answer-input" type="number" min="0" step="1" placeholder="Ex.: 2" v-model="assessmentState.semverAnswer.major" />
                                         </label>
                                         <label class="flex flex-col gap-2">
                                             <span class="sd-label">MINOR</span>
-                                            <input class="sd-input" type="number" min="0" step="1" v-model="assessmentState.semverAnswer.minor" />
+                                            <input class="sd-input assessment-answer-input" type="number" min="0" step="1" placeholder="Ex.: 4" v-model="assessmentState.semverAnswer.minor" />
                                         </label>
                                         <label class="flex flex-col gap-2">
                                             <span class="sd-label">PATCH</span>
-                                            <input class="sd-input" type="number" min="0" step="1" v-model="assessmentState.semverAnswer.patch" />
+                                            <input class="sd-input assessment-answer-input" type="number" min="0" step="1" placeholder="Ex.: 0" v-model="assessmentState.semverAnswer.patch" />
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div v-else-if="assessmentState.attemptId && episode.assessment_mode === 'classification'" class="flex flex-col gap-3">
+                                    <p v-if="assessmentPromptHtml" class="text-sm assessment-prompt-markdown" v-html="assessmentPromptHtml" />
+                                    <p v-else class="text-sm">Classifique os itens nos grupos corretos</p>
+                                    <div v-for="(placement, index) in assessmentState.classificationPlacements" :key="`classification-${placement.itemId}`" class="sd-card p-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div class="text-sm font-medium">
+                                            {{ index + 1 }}. {{ (episode.assessment_config?.items || [])[index]?.label || placement.itemId }}
+                                        </div>
+                                        <label class="flex flex-col gap-2">
+                                            <span class="sd-label">Grupo</span>
+                                            <select class="sd-input assessment-answer-select" v-model="placement.groupId">
+                                                <option value="" disabled>Selecione</option>
+                                                <option v-for="group in (episode.assessment_config?.groups || [])" :key="`group-${group.id}`" :value="group.id">
+                                                    {{ group.label || group.id }}
+                                                </option>
+                                            </select>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div v-else-if="assessmentState.attemptId && episode.assessment_mode === 'fill_blanks'" class="flex flex-col gap-3">
+                                    <p v-if="assessmentPromptHtml" class="text-sm assessment-prompt-markdown" v-html="assessmentPromptHtml" />
+                                    <p v-else class="text-sm">Preencha as lacunas abaixo</p>
+                                    <label v-for="(blank, index) in assessmentState.fillBlankAnswers" :key="`fill-${blank.blankId}`" class="flex flex-col gap-2">
+                                        <span class="sd-label">Lacuna {{ index + 1 }} ({{ blank.blankId }})</span>
+                                        <input class="sd-input assessment-answer-input" v-model="blank.value" />
+                                    </label>
+                                </div>
+
+                                <div v-else-if="assessmentState.attemptId && episode.assessment_mode === 'matching'" class="flex flex-col gap-3">
+                                    <p v-if="assessmentPromptHtml" class="text-sm assessment-prompt-markdown" v-html="assessmentPromptHtml" />
+                                    <p v-else class="text-sm">Relacione cada item da esquerda com a opção correta</p>
+                                    <div v-for="(pair, index) in assessmentState.matchingPairs" :key="`match-${pair.leftId}`" class="sd-card p-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div class="text-sm font-medium">
+                                            {{ (episode.assessment_config?.leftItems || []).find((item) => String(item.id) === String(pair.leftId))?.label || pair.leftId }}
+                                        </div>
+                                        <label class="flex flex-col gap-2">
+                                            <span class="sd-label">Correspondência</span>
+                                            <select class="sd-input assessment-answer-select" v-model="pair.rightId">
+                                                <option value="" disabled>Selecione</option>
+                                                <option v-for="right in (episode.assessment_config?.rightItems || [])" :key="`right-opt-${right.id}`" :value="right.id">
+                                                    {{ right.label || right.id }}
+                                                </option>
+                                            </select>
                                         </label>
                                     </div>
                                 </div>
@@ -581,7 +628,10 @@ const assessmentState = ref({
     quizAnswers: [],
     openTextAnswer: '',
     orderingItems: [],
-    semverAnswer: { major: '', minor: '', patch: '' }
+    semverAnswer: { major: '', minor: '', patch: '' },
+    classificationPlacements: [],
+    fillBlankAnswers: [],
+    matchingPairs: []
 });
 const miniGamePoolItems = ref([]);
 const miniGameSlots = ref([]);
@@ -662,6 +712,26 @@ const assessmentAnswerProgress = computed(() => {
             pct: Math.round((filled / 3) * 100),
             label: `${filled}/3 componentes`
         };
+    }
+    if (mode === 'classification') {
+        const total = Array.isArray(assessmentState.value.classificationPlacements)
+            ? assessmentState.value.classificationPlacements.length
+            : 0;
+        if (!total) return { pct: 0, label: '0/0' };
+        const filled = assessmentState.value.classificationPlacements.filter((item) => String(item.groupId || '').trim()).length;
+        return { pct: Math.round((filled / total) * 100), label: `${filled}/${total} itens` };
+    }
+    if (mode === 'fill_blanks') {
+        const total = Array.isArray(assessmentState.value.fillBlankAnswers) ? assessmentState.value.fillBlankAnswers.length : 0;
+        if (!total) return { pct: 0, label: '0/0' };
+        const filled = assessmentState.value.fillBlankAnswers.filter((item) => String(item.value || '').trim()).length;
+        return { pct: Math.round((filled / total) * 100), label: `${filled}/${total} lacunas` };
+    }
+    if (mode === 'matching') {
+        const total = Array.isArray(assessmentState.value.matchingPairs) ? assessmentState.value.matchingPairs.length : 0;
+        if (!total) return { pct: 0, label: '0/0' };
+        const filled = assessmentState.value.matchingPairs.filter((item) => String(item.rightId || '').trim()).length;
+        return { pct: Math.round((filled / total) * 100), label: `${filled}/${total} pares` };
     }
     const text = String(assessmentState.value.openTextAnswer || '');
     const cfg = episode.value.assessment_config || {};
@@ -811,6 +881,9 @@ async function loadEpisode() {
             assessmentState.value.quizAnswers = new Array((data.assessment_config?.questions || []).length).fill(null);
             assessmentState.value.openTextAnswer = '';
             assessmentState.value.semverAnswer = { major: '', minor: '', patch: '' };
+            assessmentState.value.classificationPlacements = [];
+            assessmentState.value.fillBlankAnswers = [];
+            assessmentState.value.matchingPairs = [];
             assessmentState.value.showReviewModal = false;
             assessmentState.value.wrongAnswers = Array.isArray(data.assessment_wrong_answers)
                 ? data.assessment_wrong_answers
@@ -911,6 +984,26 @@ async function startAttempt() {
             resetMiniGameBoard(shuffled);
         } else if (mode === 'semver') {
             assessmentState.value.semverAnswer = { major: '', minor: '', patch: '' };
+        } else if (mode === 'classification') {
+            const items = Array.isArray(episode.value?.assessment_config?.items) ? episode.value.assessment_config.items : [];
+            assessmentState.value.classificationPlacements = items.map((item, index) => ({
+                itemId: String(item?.id || `c_${index + 1}`),
+                groupId: ''
+            }));
+        } else if (mode === 'fill_blanks') {
+            const blanks = Array.isArray(episode.value?.assessment_config?.blanks) ? episode.value.assessment_config.blanks : [];
+            assessmentState.value.fillBlankAnswers = blanks.map((blank, index) => ({
+                blankId: String(blank?.id || `b${index + 1}`),
+                value: ''
+            }));
+        } else if (mode === 'matching') {
+            const pairs = Array.isArray(episode.value?.assessment_config?.pairs) ? episode.value.assessment_config.pairs : [];
+            const leftItems = Array.isArray(episode.value?.assessment_config?.leftItems) ? episode.value.assessment_config.leftItems : [];
+            const source = pairs.length ? pairs : leftItems.map((item) => ({ leftId: item?.id }));
+            assessmentState.value.matchingPairs = source.map((pair, index) => ({
+                leftId: String(pair?.leftId || `l${index + 1}`),
+                rightId: ''
+            }));
         }
     } catch (e) {
         assessmentState.value.message = e?.response?.data?.message || 'Não foi possível iniciar a avaliação.';
@@ -959,6 +1052,15 @@ function buildAssessmentAnswers() {
             minor: Number(assessmentState.value.semverAnswer?.minor),
             patch: Number(assessmentState.value.semverAnswer?.patch)
         };
+    }
+    if (episode.value.assessment_mode === 'classification') {
+        return { placements: assessmentState.value.classificationPlacements || [] };
+    }
+    if (episode.value.assessment_mode === 'fill_blanks') {
+        return { blanks: assessmentState.value.fillBlankAnswers || [] };
+    }
+    if (episode.value.assessment_mode === 'matching') {
+        return { pairs: assessmentState.value.matchingPairs || [] };
     }
     return { text: assessmentState.value.openTextAnswer };
 }
@@ -1026,6 +1128,43 @@ function buildReviewFromFeedback(feedback = []) {
         }));
     }
 
+    if (episode.value?.assessment_mode === 'classification') {
+        const groups = Array.isArray(episode.value?.assessment_config?.groups) ? episode.value.assessment_config.groups : [];
+        const groupLabelById = new Map(groups.map((group) => [String(group.id), String(group.label || group.id)]));
+        const items = Array.isArray(episode.value?.assessment_config?.items) ? episode.value.assessment_config.items : [];
+        return (Array.isArray(feedback) ? feedback : []).map((item, index) => ({
+            questionId: String(item.itemId || `classification_${index + 1}`),
+            prompt: `Item: ${items[index]?.label || `Item ${index + 1}`}`,
+            submittedLabel: item.submittedGroupId ? (groupLabelById.get(String(item.submittedGroupId)) || String(item.submittedGroupId)) : 'Não classificado',
+            expectedLabel: item.expectedGroupId ? (groupLabelById.get(String(item.expectedGroupId)) || String(item.expectedGroupId)) : 'Sem gabarito',
+            status: Boolean(item.correct) ? 'ok' : 'needs_attention'
+        }));
+    }
+
+    if (episode.value?.assessment_mode === 'fill_blanks') {
+        return (Array.isArray(feedback) ? feedback : []).map((item, index) => ({
+            questionId: String(item.blankId || `blank_${index + 1}`),
+            prompt: `Lacuna ${index + 1}`,
+            submittedLabel: item.submitted ? String(item.submitted) : 'Não preenchida',
+            expectedLabel: Array.isArray(item.accepted) && item.accepted.length ? item.accepted.join(' | ') : 'Sem gabarito',
+            status: Boolean(item.correct) ? 'ok' : 'needs_attention'
+        }));
+    }
+
+    if (episode.value?.assessment_mode === 'matching') {
+        const leftItems = Array.isArray(episode.value?.assessment_config?.leftItems) ? episode.value.assessment_config.leftItems : [];
+        const rightItems = Array.isArray(episode.value?.assessment_config?.rightItems) ? episode.value.assessment_config.rightItems : [];
+        const leftLabelById = new Map(leftItems.map((item) => [String(item.id), String(item.label || item.id)]));
+        const rightLabelById = new Map(rightItems.map((item) => [String(item.id), String(item.label || item.id)]));
+        return (Array.isArray(feedback) ? feedback : []).map((item, index) => ({
+            questionId: `pair_${String(item.leftId || index)}`,
+            prompt: `Correspondência: ${leftLabelById.get(String(item.leftId || '')) || `Par ${index + 1}`}`,
+            submittedLabel: item.submittedRightId ? (rightLabelById.get(String(item.submittedRightId)) || String(item.submittedRightId)) : 'Não relacionado',
+            expectedLabel: item.expectedRightId ? (rightLabelById.get(String(item.expectedRightId)) || String(item.expectedRightId)) : 'Sem gabarito',
+            status: Boolean(item.correct) ? 'ok' : 'needs_attention'
+        }));
+    }
+
     const questions = episode.value?.assessment_config?.questions || [];
     const questionMap = new Map(questions.map((question, index) => [String(question.id || `q_${index}`), question]));
     return feedback
@@ -1064,6 +1203,27 @@ async function submitAttempt() {
         });
         if (hasInvalid) {
             assessmentState.value.message = 'Informe MAJOR, MINOR e PATCH com números inteiros maiores ou iguais a 0.';
+            return;
+        }
+    }
+    if (episode.value.assessment_mode === 'classification') {
+        const hasMissing = (assessmentState.value.classificationPlacements || []).some((item) => !String(item.groupId || '').trim());
+        if (hasMissing) {
+            assessmentState.value.message = 'Classifique todos os itens em um grupo antes de enviar.';
+            return;
+        }
+    }
+    if (episode.value.assessment_mode === 'fill_blanks') {
+        const hasMissing = (assessmentState.value.fillBlankAnswers || []).some((item) => !String(item.value || '').trim());
+        if (hasMissing) {
+            assessmentState.value.message = 'Preencha todas as lacunas antes de enviar.';
+            return;
+        }
+    }
+    if (episode.value.assessment_mode === 'matching') {
+        const hasMissing = (assessmentState.value.matchingPairs || []).some((item) => !String(item.rightId || '').trim());
+        if (hasMissing) {
+            assessmentState.value.message = 'Complete todas as correspondências antes de enviar.';
             return;
         }
     }
@@ -1717,6 +1877,32 @@ onBeforeUnmount(() => {
 .assessment-submit-btn {
     font-weight: 700;
     padding: 0.65rem 1.5rem;
+}
+
+.assessment-answer-input,
+.assessment-answer-select {
+    background: color-mix(in srgb, var(--surface) 94%, white 6%);
+    border-color: color-mix(in srgb, var(--border) 78%, var(--primary) 22%);
+    color: var(--text);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--text) 4%, transparent);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.assessment-answer-input::placeholder {
+    color: color-mix(in srgb, var(--text-muted) 80%, transparent);
+}
+
+.assessment-answer-input:hover,
+.assessment-answer-select:hover {
+    border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+    background: color-mix(in srgb, var(--surface) 88%, white 12%);
+}
+
+.assessment-answer-input:focus,
+.assessment-answer-select:focus {
+    border-color: color-mix(in srgb, var(--primary) 72%, var(--focus-ring));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
+    outline: none;
 }
 
 .assessment-result {

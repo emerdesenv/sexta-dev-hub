@@ -24,7 +24,7 @@ const episodeSchema = z.object({
     year_target: z.coerce.number().int().min(1).max(3),
     category: z.string().min(2),
     episode_type: z.enum(['study', 'assessment']).optional().default('study'),
-    assessment_mode: z.enum(['quiz', 'open_text', 'mini_game', 'semver']).optional().nullable(),
+    assessment_mode: z.enum(['quiz', 'open_text', 'mini_game', 'semver', 'classification', 'fill_blanks', 'matching']).optional().nullable(),
     assessment_config: z.union([z.string(), z.record(z.any()), z.array(z.any())]).optional().nullable(),
     max_attempts: z.coerce.number().int().min(1).max(10).optional().default(1),
     passing_score: z.coerce.number().int().min(0).max(100).optional().default(60),
@@ -73,17 +73,49 @@ function parseAssessmentConfig(input) {
     return input;
 }
 
-function sanitizeAssessmentConfig(config, includeAnswerKey = false) {
+function sanitizeAssessmentConfig(config, mode, includeAnswerKey = false) {
     if (!config || typeof config !== 'object') return null;
     if (includeAnswerKey) return config;
-    if (!Array.isArray(config.questions)) return config;
-    return {
-        ...config,
-        questions: config.questions.map((question) => {
-            const { correctOptionIndex, ...rest } = question || {};
-            return rest;
-        })
-    };
+    if (mode === 'quiz' && Array.isArray(config.questions)) {
+        return {
+            ...config,
+            questions: config.questions.map((question) => {
+                const { correctOptionIndex, ...rest } = question || {};
+                return rest;
+            })
+        };
+    }
+    if (mode === 'semver' && config.expected) {
+        const { expected, ...rest } = config;
+        return rest;
+    }
+    if (mode === 'classification' && Array.isArray(config.items)) {
+        return {
+            ...config,
+            items: config.items.map((item) => {
+                const { correctGroupId, ...rest } = item || {};
+                return rest;
+            })
+        };
+    }
+    if (mode === 'fill_blanks' && Array.isArray(config.blanks)) {
+        return {
+            ...config,
+            blanks: config.blanks.map((blank) => {
+                const { answers, ...rest } = blank || {};
+                return rest;
+            })
+        };
+    }
+    if (mode === 'matching' && Array.isArray(config.pairs)) {
+        return {
+            ...config,
+            pairs: config.pairs.map((pair) => ({
+                leftId: pair?.leftId || null
+            }))
+        };
+    }
+    return config;
 }
 
 function toEpisodeResponse(episode, { includeAnswerKey = false } = {}) {
@@ -91,7 +123,7 @@ function toEpisodeResponse(episode, { includeAnswerKey = false } = {}) {
 
     return {
         ...json,
-        assessment_config: sanitizeAssessmentConfig(json.assessment_config, includeAnswerKey),
+        assessment_config: sanitizeAssessmentConfig(json.assessment_config, json.assessment_mode, includeAnswerKey),
         cover_url: json.cover_path ? `/${json.cover_path.replace(/^\/+/, '')}` : null,
         image_url: json.image_path ? `/${json.image_path.replace(/^\/+/, '')}` : null,
         audio_url: json.audio_path ? `/${json.audio_path.replace(/^\/+/, '')}` : null,
@@ -181,6 +213,71 @@ function buildWrongAnswersReview(episode, attempt) {
                 submittedLabel,
                 expectedLabel,
                 status
+            };
+        });
+    }
+
+    if (episode.assessment_mode === 'classification') {
+        const items = Array.isArray(config.items) ? config.items : [];
+        const groups = Array.isArray(config.groups) ? config.groups : [];
+        const answers = Array.isArray(attempt?.answers?.placements) ? attempt.answers.placements : [];
+        const answerMap = new Map(answers.map((entry) => [String(entry.itemId), String(entry.groupId)]));
+        const groupLabelById = new Map(groups.map((group) => [String(group.id), String(group.label || group.id)]));
+        return items.map((item, index) => {
+            const expectedGroupId = String(item?.correctGroupId || '');
+            const submittedGroupId = answerMap.get(String(item?.id || `item_${index + 1}`)) || '';
+            const expectedLabel = groupLabelById.get(expectedGroupId) || 'Grupo não definido';
+            const submittedLabel = submittedGroupId
+                ? (groupLabelById.get(submittedGroupId) || 'Grupo desconhecido')
+                : 'Não classificado';
+            return {
+                questionId: String(item?.id || `item_${index + 1}`),
+                prompt: `Item: ${String(item?.label || `Item ${index + 1}`)}`,
+                submittedLabel,
+                expectedLabel,
+                status: expectedGroupId && submittedGroupId === expectedGroupId ? 'ok' : 'needs_attention'
+            };
+        });
+    }
+
+    if (episode.assessment_mode === 'fill_blanks') {
+        const blanks = Array.isArray(config.blanks) ? config.blanks : [];
+        const answers = Array.isArray(attempt?.answers?.blanks) ? attempt.answers.blanks : [];
+        const answerMap = new Map(answers.map((entry) => [String(entry.blankId), String(entry.value || '')]));
+        return blanks.map((blank, index) => {
+            const acceptedAnswers = Array.isArray(blank?.answers) ? blank.answers.map((item) => String(item || '')) : [];
+            const submitted = String(answerMap.get(String(blank?.id || `blank_${index + 1}`)) || '').trim();
+            const submittedNormalized = submitted.toLowerCase();
+            const expectedLabel = acceptedAnswers.join(' | ') || 'Sem gabarito';
+            const correct = acceptedAnswers.some((option) => option.trim().toLowerCase() === submittedNormalized);
+            return {
+                questionId: String(blank?.id || `blank_${index + 1}`),
+                prompt: `Lacuna ${index + 1}`,
+                submittedLabel: submitted || 'Não preenchida',
+                expectedLabel,
+                status: correct ? 'ok' : 'needs_attention'
+            };
+        });
+    }
+
+    if (episode.assessment_mode === 'matching') {
+        const pairs = Array.isArray(config.pairs) ? config.pairs : [];
+        const leftItems = Array.isArray(config.leftItems) ? config.leftItems : [];
+        const rightItems = Array.isArray(config.rightItems) ? config.rightItems : [];
+        const answers = Array.isArray(attempt?.answers?.pairs) ? attempt.answers.pairs : [];
+        const answerMap = new Map(answers.map((entry) => [String(entry.leftId), String(entry.rightId)]));
+        const leftLabelById = new Map(leftItems.map((item) => [String(item.id), String(item.label || item.id)]));
+        const rightLabelById = new Map(rightItems.map((item) => [String(item.id), String(item.label || item.id)]));
+        return pairs.map((pair, index) => {
+            const leftId = String(pair?.leftId || '');
+            const expectedRightId = String(pair?.rightId || '');
+            const submittedRightId = answerMap.get(leftId) || '';
+            return {
+                questionId: `pair_${leftId || index}`,
+                prompt: `Correspondência: ${leftLabelById.get(leftId) || `Item ${index + 1}`}`,
+                submittedLabel: submittedRightId ? (rightLabelById.get(submittedRightId) || 'Resposta desconhecida') : 'Não relacionada',
+                expectedLabel: rightLabelById.get(expectedRightId) || 'Sem gabarito',
+                status: expectedRightId && submittedRightId === expectedRightId ? 'ok' : 'needs_attention'
             };
         });
     }

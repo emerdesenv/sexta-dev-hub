@@ -3,7 +3,7 @@
 
 ALTER TABLE episode
     ADD COLUMN episode_type ENUM('study', 'assessment') NOT NULL DEFAULT 'study' AFTER category,
-    ADD COLUMN assessment_mode ENUM('quiz', 'open_text', 'mini_game', 'semver') NULL AFTER episode_type,
+    ADD COLUMN assessment_mode ENUM('quiz', 'open_text', 'mini_game', 'semver', 'classification', 'fill_blanks', 'matching') NULL AFTER episode_type,
     ADD COLUMN assessment_config JSON NULL AFTER assessment_mode,
     ADD COLUMN max_attempts INT NOT NULL DEFAULT 1 AFTER assessment_config,
     ADD COLUMN passing_score INT NOT NULL DEFAULT 60 AFTER max_attempts,
