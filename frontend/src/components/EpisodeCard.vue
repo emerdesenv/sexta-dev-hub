@@ -1,11 +1,22 @@
 <template>
     <Card class="overflow-hidden h-full flex flex-col episode-card">
-        <div class="w-full h-44 sm:h-48 bg-surface-2/40 border-b border-border/40 flex items-center justify-center">
+        <div
+            class="episode-cover-shell w-full aspect-[16/9] bg-surface-2/40 border-b border-border/40 flex items-center justify-center overflow-hidden"
+            :style="coverShellStyle"
+        >
             <img
                 v-if="episode.cover_url"
                 :src="episode.cover_url"
                 :alt="episode.title"
-                class="w-full h-full object-contain"
+                class="episode-cover-bg"
+                aria-hidden="true"
+            />
+            <img
+                v-if="episode.cover_url"
+                :src="episode.cover_url"
+                :alt="episode.title"
+                class="episode-cover-image"
+                @load="applyCoverTone"
             />
             <span v-else class="text-sm text-muted">Sem capa</span>
         </div>
@@ -141,6 +152,7 @@ const props = defineProps({ episode: Object });
 const auth = useAuthStore();
 const router = useRouter();
 const showLoginPrompt = ref(false);
+const coverTone = ref(null);
 const attemptsUsed = computed(() => Number(props.episode?.assessment_attempts_used || 0));
 const maxAttempts = computed(() => Number(props.episode?.assessment_max_attempts_effective || props.episode?.max_attempts || 1));
 const contextItems = computed(() => {
@@ -157,6 +169,9 @@ const contextItems = computed(() => {
 const CONTEXT_ITEMS_LIMIT = 3;
 const contextItemsVisible = computed(() => contextItems.value.slice(0, CONTEXT_ITEMS_LIMIT));
 const contextItemsOverflowCount = computed(() => Math.max(0, contextItems.value.length - CONTEXT_ITEMS_LIMIT));
+const coverShellStyle = computed(() => ({
+    backgroundColor: coverTone.value || 'color-mix(in srgb, var(--surface-2) 40%, transparent)'
+}));
 
 const TROPHY_LABELS = {
     bronze: 'Bronze',
@@ -186,6 +201,47 @@ function goToStudentAuth() {
     showLoginPrompt.value = false;
     router.push('/aluno');
 }
+
+function applyCoverTone(event) {
+    const img = event?.target;
+    if (!(img instanceof HTMLImageElement)) return;
+    if (img.naturalWidth < 2 || img.naturalHeight < 2) return;
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return;
+
+    const sampleSize = 24;
+    canvas.width = sampleSize;
+    canvas.height = sampleSize;
+
+    try {
+        ctx.drawImage(img, 0, 0, sampleSize, sampleSize);
+        const { data } = ctx.getImageData(0, 0, sampleSize, sampleSize);
+        let r = 0;
+        let g = 0;
+        let b = 0;
+        let count = 0;
+
+        for (let i = 0; i < data.length; i += 16) {
+            const alpha = data[i + 3];
+            if (alpha < 64) continue;
+            r += data[i];
+            g += data[i + 1];
+            b += data[i + 2];
+            count += 1;
+        }
+
+        if (!count) return;
+
+        const rr = Math.round(r / count);
+        const gg = Math.round(g / count);
+        const bb = Math.round(b / count);
+        coverTone.value = `rgb(${rr}, ${gg}, ${bb})`;
+    } catch {
+        // Ignora erro de CORS/canvas tainted e mantém fallback visual.
+    }
+}
 </script>
 
 <style scoped>
@@ -193,6 +249,32 @@ function goToStudentAuth() {
     transform: translateY(-3px);
     box-shadow: 0 16px 30px color-mix(in srgb, var(--bg) 62%, transparent);
     border-color: color-mix(in srgb, var(--primary) 38%, var(--border));
+}
+
+.episode-cover-shell {
+    position: relative;
+    isolation: isolate;
+}
+
+.episode-cover-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(10px) saturate(0.9);
+    transform: scale(1.05);
+    opacity: 0.48;
+}
+
+.episode-cover-image {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    image-rendering: auto;
 }
 
 .episode-card-context-row {

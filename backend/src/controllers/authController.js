@@ -5,6 +5,7 @@ import crypto from 'crypto';
 import { Op } from 'sequelize';
 import { User, UserCollectible, UserSession } from '../models/index.js';
 import { buildPurgeDate } from '../services/accountPurgeService.js';
+import { notifyNewStudentRegistration } from '../services/telegramNotifier.js';
 
 const schema = z.object({
     username: z.string().min(3),
@@ -329,6 +330,21 @@ export async function registerStudent(req, res) {
         requiresApproval: requireApproval,
         inviteProtected: Boolean(expectedInviteCode)
     });
+    try {
+        await notifyNewStudentRegistration({
+            username: user.username,
+            userId: user.id,
+            requiresApproval: requireApproval,
+            ip: req.ip,
+            createdAt: user.created_at
+        });
+    } catch (error) {
+        authAudit('student_register_telegram_notify_failed', {
+            userId: user.id,
+            username: user.username,
+            message: error?.message
+        });
+    }
 
     return res.status(201).json({
         message: requireApproval

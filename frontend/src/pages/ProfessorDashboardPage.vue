@@ -1102,7 +1102,7 @@ const assessmentStudentRows = computed(() => (
     (selectedAssessment.value?.students || []).map((student) => ({
         ...student,
         bestScore: `${student.bestScore}%`,
-        statusLabel: student.passed ? 'Aprovado' : 'Reprovado'
+        statusLabel: student.passed ? 'Aprovado' : 'Ainda não'
     }))
 ));
 

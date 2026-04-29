@@ -157,6 +157,15 @@ As variáveis do frontend seguem o padrão `VITE_*`:
 
 Defina no `.env` da raiz e, em produção, também no build do frontend via `docker-compose.prod.yml`.
 
+### Padrão de imagem de capa dos episódios
+
+Para manter consistência visual dos cards de episódio no frontend:
+
+- proporção da capa: **16:9**
+- dimensão recomendada: **1280 x 720 px**
+
+Outras dimensões funcionam, desde que mantenham a proporção `16:9`.
+
 ### Acessibilidade
 
 O frontend possui integração com o **VLibras** para ampliar acessibilidade em Libras.
@@ -333,7 +342,40 @@ Para reduzir abuso, contas falsas e conteúdo ofensivo no módulo de comunidade,
 
 - `STUDENT_REQUIRE_APPROVAL=true`: conta de aluno nasce inativa e só entra após aprovação de professor.
 - `STUDENT_INVITE_CODE=<codigo>`: quando definido, cadastro de aluno exige código de convite válido.
+- `TELEGRAM_NEW_STUDENT_NOTIFICATIONS=true`: habilita aviso no Telegram para novo aluno aguardando aprovação.
+- `TELEGRAM_BOT_TOKEN=<token_do_bot>`: token do bot do Telegram usado para enviar a notificação.
+- `TELEGRAM_CHAT_ID=<chat_id>`: destino da mensagem (chat privado, grupo ou canal).
 - fluxo recomendado para turmas fechadas: aprovação + código ativo.
+
+#### Como configurar notificação de novo aluno no Telegram
+
+1. Criar bot no Telegram (BotFather):
+   - abra o BotFather e execute `/newbot`;
+   - copie o token gerado e preencha `TELEGRAM_BOT_TOKEN`.
+
+2. Capturar o `chat_id`:
+   - envie uma mensagem para o bot (ou no grupo onde o bot foi adicionado);
+   - execute:
+
+```powershell
+Invoke-RestMethod "https://api.telegram.org/botSEU_TOKEN/getUpdates"
+```
+
+   - copie o valor em `result[0].message.chat.id` e preencha `TELEGRAM_CHAT_ID`.
+
+3. Validar envio manual:
+
+```powershell
+Invoke-RestMethod -Method Post -Uri "https://api.telegram.org/botSEU_TOKEN/sendMessage" -ContentType "application/json" -Body '{"chat_id":"SEU_CHAT_ID","text":"Teste notificação cadastro aluno"}'
+```
+
+4. Validar no fluxo real:
+   - faça um novo cadastro de aluno;
+   - com `STUDENT_REQUIRE_APPROVAL=true`, o sistema envia aviso de “aguardando aprovação” para o chat configurado.
+
+Observações:
+- se a API retornar `result: []` em `getUpdates`, envie primeiro uma mensagem para o bot e execute novamente;
+- por segurança, nunca versionar token em repositório e revogar/gerar novo token no BotFather se houver vazamento.
 
 ### 2) Moderação reativa e governança
 

@@ -16,15 +16,124 @@
                     class="sd-card p-6 md:p-8 episode-card-shell"
                 >
                     <div class="episode-layout" :class="episodeLayoutClasses">
-                        <div v-if="showEpisodeCover" class="episode-cover">
+                        <div v-if="showEpisodeCover && isAssessmentEpisode" class="episode-cover-strip">
+                            <button
+                                type="button"
+                                class="episode-cover"
+                                @click="openEpisodeCoverPreview"
+                            >
+                                <img
+                                    v-if="episode.cover_url"
+                                    :src="episode.cover_url"
+                                    :alt="episode.title"
+                                    class="episode-cover-image"
+                                />
+                                <span v-else class="text-sm text-muted">Sem capa</span>
+                            </button>
+
+                            <aside class="episode-side-panel">
+                                <p class="episode-side-kicker">Resumo rápido</p>
+                                <ul class="episode-side-list">
+                                    <li>
+                                        <svg aria-hidden="true" viewBox="0 0 20 20" class="episode-side-icon">
+                                            <path fill="currentColor" d="M10 2a8 8 0 1 0 8 8 1 1 0 0 0-2 0 6 6 0 1 1-6-6 1 1 0 1 0 0-2Z" />
+                                            <path fill="currentColor" d="M13.586 1.586a1 1 0 0 0 0 1.414L14.586 4 11 7.586 9.707 6.293a1 1 0 0 0-1.414 0l-2 2a1 1 0 1 0 1.414 1.414L9 8.414l1.293 1.293a1 1 0 0 0 1.414 0l4.293-4.293L17 6.414a1 1 0 1 0 1.414-1.414l-4-4a1 1 0 0 0-1.414 0Z" />
+                                        </svg>
+                                        <span>Nota mínima: {{ episode?.passing_score ?? 70 }}%</span>
+                                    </li>
+                                    <li>
+                                        <svg aria-hidden="true" viewBox="0 0 20 20" class="episode-side-icon">
+                                            <path fill="currentColor" d="M3 10a7 7 0 0 1 11.95-4.95l.34-.34a1 1 0 1 1 1.42 1.41l-2 2a1 1 0 0 1-1.42 0l-2-2a1 1 0 0 1 1.42-1.41l.57.57A5 5 0 1 0 15 10a1 1 0 1 1 2 0A7 7 0 1 1 3 10Z" />
+                                        </svg>
+                                        <span>Tentativas restantes: {{ attemptsRemaining }}</span>
+                                    </li>
+                                    <li>
+                                        <svg aria-hidden="true" viewBox="0 0 20 20" class="episode-side-icon">
+                                            <path fill="currentColor" d="M11.5 1a1 1 0 0 0-.91.59l-4 9A1 1 0 0 0 7.5 12H10v6a1 1 0 0 0 1.8.6l6-8A1 1 0 0 0 17 9h-2.38l1.83-6.4A1 1 0 0 0 15.5 1h-4Z" />
+                                        </svg>
+                                        <span>Recompensa: +{{ episode?.xp_reward || 40 }} XP</span>
+                                    </li>
+                                    <li>
+                                        <svg aria-hidden="true" viewBox="0 0 20 20" class="episode-side-icon">
+                                            <path fill="currentColor" d="M6 2a1 1 0 0 0-1 1v1H3a1 1 0 0 0-1 1v1a5 5 0 0 0 4 4.9A4.98 4.98 0 0 0 9 12.9V15H7a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.1A4.98 4.98 0 0 0 14 10.9 5 5 0 0 0 18 6V5a1 1 0 0 0-1-1h-2V3a1 1 0 0 0-1-1H6Zm-2 4V6h1v2.75A3.01 3.01 0 0 1 4 6Zm12 0a3.01 3.01 0 0 1-1 2.75V6h1Z" />
+                                        </svg>
+                                        <span>Troféu: {{ trophyTierMeta(episode?.trophy_tier).label }}</span>
+                                    </li>
+                                </ul>
+                            </aside>
+
+                            <aside class="episode-side-panel episode-side-panel-objective">
+                                <p class="episode-side-kicker">Objetivo da missão</p>
+                                <p class="episode-side-copy">{{ missionObjectiveText }}</p>
+                            </aside>
+                        </div>
+
+                        <div v-else-if="showEpisodeCover" class="episode-cover-strip episode-cover-strip-study">
+                            <button
+                                type="button"
+                                class="episode-cover"
+                                @click="openEpisodeCoverPreview"
+                            >
+                                <img
+                                    v-if="episode.cover_url"
+                                    :src="episode.cover_url"
+                                    :alt="episode.title"
+                                    class="episode-cover-image"
+                                />
+                                <span v-else class="text-sm text-muted">Sem capa</span>
+                            </button>
+
+                            <aside class="episode-side-panel">
+                                <p class="episode-side-kicker">Resumo rápido</p>
+                                <ul class="episode-side-list">
+                                    <li>
+                                        <svg aria-hidden="true" viewBox="0 0 20 20" class="episode-side-icon">
+                                            <path fill="currentColor" d="M10 2a8 8 0 1 0 8 8 1 1 0 0 0-2 0 6 6 0 1 1-6-6 1 1 0 1 0 0-2Z" />
+                                            <path fill="currentColor" d="M13.586 1.586a1 1 0 0 0 0 1.414L14.586 4 11 7.586 9.707 6.293a1 1 0 0 0-1.414 0l-2 2a1 1 0 1 0 1.414 1.414L9 8.414l1.293 1.293a1 1 0 0 0 1.414 0l4.293-4.293L17 6.414a1 1 0 1 0 1.414-1.414l-4-4a1 1 0 0 0-1.414 0Z" />
+                                        </svg>
+                                        <span>Duração: {{ episode?.duration_label || 'Não informada' }}</span>
+                                    </li>
+                                    <li>
+                                        <svg aria-hidden="true" viewBox="0 0 20 20" class="episode-side-icon">
+                                            <path fill="currentColor" d="M11.5 1a1 1 0 0 0-.91.59l-4 9A1 1 0 0 0 7.5 12H10v6a1 1 0 0 0 1.8.6l6-8A1 1 0 0 0 17 9h-2.38l1.83-6.4A1 1 0 0 0 15.5 1h-4Z" />
+                                        </svg>
+                                        <span>Recompensa: +{{ episode?.xp_reward || 40 }} XP</span>
+                                    </li>
+                                    <li>
+                                        <svg aria-hidden="true" viewBox="0 0 20 20" class="episode-side-icon">
+                                            <path fill="currentColor" d="M6 2a1 1 0 0 0-1 1v1H3a1 1 0 0 0-1 1v1a5 5 0 0 0 4 4.9A4.98 4.98 0 0 0 9 12.9V15H7a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.1A4.98 4.98 0 0 0 14 10.9 5 5 0 0 0 18 6V5a1 1 0 0 0-1-1h-2V3a1 1 0 0 0-1-1H6Zm-2 4V6h1v2.75A3.01 3.01 0 0 1 4 6Zm12 0a3.01 3.01 0 0 1-1 2.75V6h1Z" />
+                                        </svg>
+                                        <span>Troféu: {{ trophyTierMeta(episode?.trophy_tier).label }}</span>
+                                    </li>
+                                    <li>
+                                        <svg aria-hidden="true" viewBox="0 0 20 20" class="episode-side-icon">
+                                            <path fill="currentColor" d="M10 2a1 1 0 0 1 1 1v1.05a6 6 0 0 1 0 11.9V17a1 1 0 1 1-2 0v-1.05A6 6 0 0 1 9 4.05V3a1 1 0 0 1 1-1Zm-1 4.13v7.74a4 4 0 0 1 0-7.74Zm2 0v7.74a4 4 0 0 0 0-7.74Z" />
+                                        </svg>
+                                        <span>Áudio: {{ episode?.audio_url ? 'Disponível' : 'Não disponível' }}</span>
+                                    </li>
+                                </ul>
+                            </aside>
+
+                            <aside class="episode-side-panel episode-side-panel-objective">
+                                <p class="episode-side-kicker">Objetivo do estudo</p>
+                                <p class="episode-side-copy">{{ studyObjectiveText }}</p>
+                            </aside>
+                        </div>
+
+                        <button
+                            v-else-if="showEpisodeCover"
+                            type="button"
+                            class="episode-cover"
+                            @click="openEpisodeCoverPreview"
+                        >
                             <img
                                 v-if="episode.cover_url"
                                 :src="episode.cover_url"
                                 :alt="episode.title"
-                                class="w-full h-full object-contain"
+                                class="episode-cover-image"
                             />
                             <span v-else class="text-sm text-muted">Sem capa</span>
-                        </div>
+                        </button>
 
                         <div
                             class="episode-main mt-6 md:mt-0 flex flex-col gap-4"
@@ -44,52 +153,29 @@
 
                             <div
                                 class="flex flex-col gap-3"
-                                :class="{ 'episode-challenge-hero': isAssessmentEpisode }"
+                                :class="{
+                                    'episode-challenge-hero': isAssessmentEpisode,
+                                    'episode-study-hero': !isAssessmentEpisode
+                                }"
                             >
-                                <div class="flex flex-wrap gap-2" :class="{ 'justify-center': isAssessmentEpisode }">
-                                    <Badge v-if="episode.trophy_tier" tone="warning" class="!inline-flex !items-center !gap-2">
-                                        <span
-                                            class="trophy-pill-dot flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-extrabold text-slate-900 shadow-inner"
-                                            :class="trophyTierMeta(episode.trophy_tier).dotClass"
-                                            aria-hidden="true"
-                                        >
-                                            {{ trophyTierMeta(episode.trophy_tier).short }}
-                                        </span>
-                                        <span class="font-semibold">{{ trophyTierMeta(episode.trophy_tier).label }}</span>
+                                <div class="flex flex-wrap gap-2 justify-center">
+                                    <Badge
+                                        v-for="tag in episodeTagList"
+                                        :key="`episode-tag-${tag}`"
+                                        tone="neutral"
+                                    >
+                                        #{{ tag }}
                                     </Badge>
-                                    <Badge v-else tone="neutral" title="Este episódio não concede troféu na coleção">
-                                        Sem troféu
+                                    <Badge v-if="!episodeTagList.length" tone="neutral">
+                                        Sem tags
                                     </Badge>
-                                    <Badge tone="primary">+{{ episode.xp_reward || 40 }} XP</Badge>
-                                    <Badge>{{ episode.year_target }}º ano</Badge>
-                                    <Badge>{{ episode.category }}</Badge>
-                                </div>
-
-                                <div
-                                    class="episode-detail-meta flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted"
-                                    :class="{ 'justify-center': isAssessmentEpisode }"
-                                >
-                                    <span v-if="episode.duration_label" class="episode-detail-meta-item">
-                                        {{ episode.duration_label }}
-                                    </span>
-                                    <span v-if="episode.pdf_url" class="episode-detail-meta-item">PDF</span>
-                                    <span v-if="episode.audio_url" class="episode-detail-meta-item">Áudio</span>
                                 </div>
 
                                 <h1
-                                    class="text-3xl sm:text-4xl font-extrabold leading-tight"
-                                    :class="{ 'text-center': isAssessmentEpisode }"
+                                    class="text-3xl sm:text-4xl font-extrabold leading-tight text-center"
                                 >
                                     {{ episode.title }}
                                 </h1>
-                                <p
-                                    v-if="episode.trophy_tier"
-                                    class="text-sm text-muted max-w-2xl"
-                                    :class="{ 'text-center mx-auto': isAssessmentEpisode }"
-                                >
-                                    Troféu <strong>{{ trophyTierMeta(episode.trophy_tier).label }}</strong> na coleção ao concluir
-                                    com sucesso - não altera XP ou moedas além do que este episódio já oferece.
-                                </p>
                             </div>
 
                             <section
@@ -147,7 +233,7 @@
                                             <span>Tentativa {{ entry.attemptNumber }}</span>
                                             <span class="text-muted">Nota: {{ entry.score ?? '-' }}%</span>
                                             <span :class="entry.passed ? 'review-status-ok' : 'review-status-needs'">
-                                                {{ entry.passed ? 'Aprovado' : 'Reprovado' }}
+                                                {{ entry.passed ? 'Aprovado' : 'Ainda não' }}
                                             </span>
                                         </div>
                                     </div>
@@ -314,13 +400,29 @@
                                             >
                                                 <div class="mini-game-slot-label">{{ index + 1 }}ª posição</div>
                                                 <div v-if="slot" class="mini-game-slot-card">
-                                                    {{ slot.label }}
+                                                    <span>{{ slot.label }}</span>
+                                                    <button
+                                                        type="button"
+                                                        class="mini-game-slot-remove"
+                                                        @click="removeMiniGameSlotItem(index)"
+                                                    >
+                                                        Remover
+                                                    </button>
                                                 </div>
                                                 <div v-else class="mini-game-slot-empty">
                                                     Solte aqui
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
+                                    <div class="flex">
+                                        <button
+                                            type="button"
+                                            class="sd-button sd-button-secondary text-sm"
+                                            @click="resetMiniGameBoard(assessmentState.orderingItems)"
+                                        >
+                                            Limpar posições
+                                        </button>
                                     </div>
                                     <div v-if="assessmentState.orderingItems.length" class="text-xs text-muted">
                                         Itens posicionados: {{ assessmentState.orderingItems.length }}/{{ miniGameSlots.length }}
@@ -499,6 +601,30 @@
             </div>
 
             <div
+                v-if="coverPreviewOpen && episode?.cover_url"
+                class="episode-gate-overlay"
+                role="dialog"
+                aria-modal="true"
+                aria-label="Visualização da capa do episódio"
+                @click.self="closeEpisodeCoverPreview"
+            >
+                <div class="episode-image-preview-modal" @click.stop>
+                    <button
+                        type="button"
+                        class="sd-button sd-button-secondary px-3 py-2 text-sm self-end"
+                        @click="closeEpisodeCoverPreview"
+                    >
+                        Fechar
+                    </button>
+                    <img
+                        :src="episode.cover_url"
+                        alt="Capa do episódio ampliada"
+                        class="episode-image-preview-full"
+                    />
+                </div>
+            </div>
+
+            <div
                 v-if="assessmentState.showReviewModal"
                 class="episode-gate-overlay"
                 role="dialog"
@@ -605,6 +731,7 @@ const error = ref('');
 const enablePdfPreview = String(import.meta.env.VITE_ENABLE_PDF_PREVIEW || 'true').toLowerCase() === 'true';
 const showPdfPreview = ref(false);
 const supportImagePreviewOpen = ref(false);
+const coverPreviewOpen = ref(false);
 const pdfDownloadName = ref('episodio.pdf');
 const isDesktop = ref(false);
 const { showRewardToast } = useRewardToast();
@@ -668,13 +795,56 @@ const showEpisodeCover = computed(() => {
 });
 
 const episodeLayoutClasses = computed(() => (
-    isAssessmentEpisode.value ? { 'episode-layout-challenge': true } : {}
+    isAssessmentEpisode.value
+        ? { 'episode-layout-challenge': true }
+        : { 'episode-layout-study': true }
 ));
 
 const isAssessmentFocus = computed(() => {
     if (!auth.isAuthenticated) return false;
     if (!isAssessmentEpisode.value) return false;
     return Boolean(assessmentState.value.attemptId) || !assessmentState.value.completed;
+});
+
+const attemptsRemaining = computed(() => Math.max(
+    0,
+    Number(assessmentState.value.maxAttempts || 1) - Number(assessmentState.value.attemptsUsed || 0)
+));
+
+const missionObjectiveText = computed(() => {
+    if (!isAssessmentEpisode.value) return 'Concluir a atividade com atenção aos critérios de avaliação.';
+    const mode = String(episode.value?.assessment_mode || '');
+    if (mode === 'quiz') return 'Responder corretamente as perguntas e alcançar a nota mínima.';
+    if (mode === 'mini_game') return 'Organizar os itens na sequência correta e enviar a tentativa.';
+    if (mode === 'open_text') return 'Escrever uma resposta clara, objetiva e alinhada ao enunciado.';
+    if (mode === 'semver') return 'Preencher MAJOR, MINOR e PATCH conforme o cenário proposto.';
+    if (mode === 'classification') return 'Classificar todos os itens nos grupos corretos.';
+    if (mode === 'fill_blanks') return 'Completar todas as lacunas com os termos adequados.';
+    if (mode === 'matching') return 'Relacionar cada item da esquerda com a opção correta.';
+    return 'Concluir a atividade com atenção aos critérios de avaliação.';
+});
+
+const studyObjectiveText = computed(() => {
+    if (!episode.value) return 'Estudar o conteúdo principal deste episódio e registrar sua conclusão.';
+    const category = String(episode.value.category || '').trim();
+    if (category) {
+        return `Estudar os conceitos de ${category} e consolidar o aprendizado com os materiais deste episódio.`;
+    }
+    return 'Estudar o conteúdo principal deste episódio e consolidar o aprendizado com os materiais disponíveis.';
+});
+
+const episodeTagList = computed(() => {
+    const raw = episode.value?.tags;
+    const tags = Array.isArray(raw)
+        ? raw
+        : String(raw || '')
+            .split(',')
+            .map((item) => item.trim())
+            .filter(Boolean);
+    return tags
+        .map((tag) => String(tag).trim())
+        .filter(Boolean)
+        .slice(0, 6);
 });
 
 const assessmentAnswerProgress = computed(() => {
@@ -849,6 +1019,15 @@ function openSupportImagePreview() {
 
 function closeSupportImagePreview() {
     supportImagePreviewOpen.value = false;
+}
+
+function openEpisodeCoverPreview() {
+    if (!episode.value?.cover_url) return;
+    coverPreviewOpen.value = true;
+}
+
+function closeEpisodeCoverPreview() {
+    coverPreviewOpen.value = false;
 }
 
 function handleAttemptBeforeUnload(event) {
@@ -1338,6 +1517,15 @@ function dropMiniGameItem(index) {
         : '';
 }
 
+function removeMiniGameSlotItem(index) {
+    const item = miniGameSlots.value[index];
+    if (!item) return;
+    miniGameSlots.value[index] = null;
+    miniGamePoolItems.value = [...miniGamePoolItems.value, item];
+    assessmentState.value.orderingItems = miniGameSlots.value.filter(Boolean);
+    miniGameFeedback.value = 'Item removido da posição. Você pode reposicionar.';
+}
+
 function removeMiniGamePointerListeners() {
     window.removeEventListener('pointermove', handleMiniGamePointerMove);
     window.removeEventListener('pointerup', handleMiniGamePointerUp);
@@ -1374,9 +1562,17 @@ onBeforeUnmount(() => {
     gap: 1.5rem;
 }
 
+.episode-layout-study {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    width: 100%;
+}
+
 .episode-cover {
     width: 100%;
-    height: 18rem;
+    min-height: 9.5rem;
+    aspect-ratio: 16 / 9;
     border-radius: 1rem;
     background: color-mix(in srgb, var(--surface-2) 40%, transparent);
     border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
@@ -1384,6 +1580,21 @@ onBeforeUnmount(() => {
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    cursor: zoom-in;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.episode-cover:hover {
+    border-color: color-mix(in srgb, var(--primary) 36%, var(--border));
+    transform: translateY(-1px);
+}
+
+.episode-cover-image {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    object-position: center;
 }
 
 .episode-layout-challenge {
@@ -1394,9 +1605,89 @@ onBeforeUnmount(() => {
     width: 100%;
 }
 
+.episode-cover-strip {
+    width: 100%;
+    display: grid;
+    gap: 0.85rem;
+    grid-template-columns: 1fr;
+    align-items: center;
+}
+
+.episode-cover-strip-study .episode-cover {
+    width: min(18rem, 62vw);
+    height: 10.125rem;
+    aspect-ratio: auto;
+    max-width: 100%;
+    min-width: 0;
+    justify-self: start;
+}
+
+.episode-cover-strip-study .episode-cover-image {
+    object-fit: contain;
+    object-position: center;
+}
+
+@media (max-width: 767px) {
+    .episode-layout-challenge .episode-cover,
+    .episode-cover-strip-study .episode-cover {
+        justify-self: center;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+.episode-side-panel {
+    border: 1px solid color-mix(in srgb, var(--border) 58%, transparent);
+    border-radius: 0.8rem;
+    background: color-mix(in srgb, var(--surface-2) 28%, transparent);
+    padding: 0.75rem;
+    min-height: 100%;
+}
+
+.episode-side-kicker {
+    margin: 0 0 0.3rem;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--primary) 70%, var(--text));
+}
+
+.episode-side-copy {
+    margin: 0;
+    font-size: 0.84rem;
+    line-height: 1.4;
+    color: color-mix(in srgb, var(--text) 90%, var(--text-muted));
+}
+
+.episode-side-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.38rem;
+    font-size: 0.8rem;
+    color: color-mix(in srgb, var(--text) 92%, var(--text-muted));
+}
+
+.episode-side-list li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.episode-side-icon {
+    width: 0.95rem;
+    height: 0.95rem;
+    flex-shrink: 0;
+    color: color-mix(in srgb, var(--primary) 72%, var(--text));
+}
+
 .episode-layout-challenge .episode-cover {
-    width: 10.5rem;
-    height: 6.5rem;
+    width: min(18rem, 62vw);
+    height: 10.125rem;
+    aspect-ratio: auto;
     max-width: 100%;
     flex-shrink: 0;
     border-radius: 0.75rem;
@@ -1434,6 +1725,7 @@ onBeforeUnmount(() => {
     display: flex;
     justify-content: flex-start;
     align-items: center;
+    width: 100%;
     padding-bottom: 0.75rem;
     margin-bottom: 0.25rem;
     border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
@@ -1447,6 +1739,15 @@ onBeforeUnmount(() => {
 
 .episode-main-study {
     min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.episode-study-hero {
+    align-items: center;
+    text-align: center;
 }
 
 .episode-detail-meta-item:not(:last-child)::after {
@@ -1583,12 +1884,31 @@ onBeforeUnmount(() => {
     }
 
     .episode-layout:not(.episode-layout-challenge) .episode-cover {
-        height: 32rem;
+        min-height: 16rem;
     }
 
     .episode-layout-challenge .episode-cover {
-        width: 12rem;
-        height: 7.25rem;
+        width: min(20rem, 38vw);
+        height: 11.25rem;
+    }
+
+    .episode-cover-strip {
+        grid-template-columns: minmax(0, auto) minmax(0, 1fr) minmax(0, 1.45fr);
+        gap: 1rem;
+    }
+
+    .episode-cover-strip-study {
+        grid-template-columns: minmax(0, auto) minmax(220px, 0.9fr) minmax(320px, 1.4fr);
+        align-items: center;
+    }
+
+    .episode-cover-strip-study .episode-side-panel {
+        min-width: 0;
+    }
+
+    .episode-cover-strip-study .episode-cover {
+        width: min(20rem, 38vw);
+        height: 11.25rem;
     }
 }
 
@@ -1751,6 +2071,26 @@ onBeforeUnmount(() => {
     font-weight: 600;
     line-height: 1.35;
     color: var(--text);
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.mini-game-slot-remove {
+    align-self: flex-start;
+    border: 1px solid color-mix(in srgb, var(--border) 72%, var(--danger) 28%);
+    border-radius: 999px;
+    padding: 0.2rem 0.55rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    background: color-mix(in srgb, var(--surface) 88%, var(--danger) 12%);
+    color: color-mix(in srgb, var(--danger) 78%, var(--text));
+    cursor: pointer;
+}
+
+.mini-game-slot-remove:hover {
+    border-color: color-mix(in srgb, var(--danger) 55%, var(--border));
+    background: color-mix(in srgb, var(--danger) 16%, var(--surface));
 }
 
 .assessment-badge-live {

@@ -153,7 +153,7 @@
                             <span class="inline-flex items-center gap-2">
                                 <span class="text-xs text-muted">Nota {{ attempt.score ?? '-' }}%</span>
                                 <Badge :tone="attempt.passed ? 'success' : 'neutral'">
-                                    {{ attempt.passed ? 'Aprovado' : 'Reprovado' }}
+                                    {{ attempt.passed ? 'Aprovado' : 'Ainda não' }}
                                 </Badge>
                             </span>
                         </router-link>

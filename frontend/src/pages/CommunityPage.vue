@@ -12,7 +12,6 @@
                     <div class="mt-4 flex flex-wrap items-center gap-2 hero-safety-chips">
                         <Badge tone="success">Ambiente seguro</Badge>
                         <Badge tone="warning">Sem ofensas</Badge>
-                        <Badge tone="info">Autoagressão não é incentivada</Badge>
                     </div>
                 </div>
                 <div class="community-hero-visual hidden md:flex items-center justify-end">
