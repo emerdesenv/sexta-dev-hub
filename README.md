@@ -343,8 +343,10 @@ Para reduzir abuso, contas falsas e conteúdo ofensivo no módulo de comunidade,
 - `STUDENT_REQUIRE_APPROVAL=true`: conta de aluno nasce inativa e só entra após aprovação de professor.
 - `STUDENT_INVITE_CODE=<codigo>`: quando definido, cadastro de aluno exige código de convite válido.
 - `TELEGRAM_NEW_STUDENT_NOTIFICATIONS=true`: habilita aviso no Telegram para novo aluno aguardando aprovação.
+- `TELEGRAM_NOTIFY_ONLY_PRODUCTION=false`: quando `true`, envia notificação apenas em `NODE_ENV=production`.
 - `TELEGRAM_BOT_TOKEN=<token_do_bot>`: token do bot do Telegram usado para enviar a notificação.
 - `TELEGRAM_CHAT_ID=<chat_id>`: destino da mensagem (chat privado, grupo ou canal).
+- `TELEGRAM_APPROVAL_URL=<url>`: link direto para abrir o painel de aprovação (opcional).
 - fluxo recomendado para turmas fechadas: aprovação + código ativo.
 
 #### Como configurar notificação de novo aluno no Telegram
@@ -373,8 +375,12 @@ Invoke-RestMethod -Method Post -Uri "https://api.telegram.org/botSEU_TOKEN/sendM
    - faça um novo cadastro de aluno;
    - com `STUDENT_REQUIRE_APPROVAL=true`, o sistema envia aviso de “aguardando aprovação” para o chat configurado.
 
+5. Opcional (produção apenas):
+   - para silenciar ambiente local/homologação, use `TELEGRAM_NOTIFY_ONLY_PRODUCTION=true`.
+
 Observações:
 - se a API retornar `result: []` em `getUpdates`, envie primeiro uma mensagem para o bot e execute novamente;
+- se `TELEGRAM_APPROVAL_URL` não for definido, o backend tenta usar a primeira URL de `FRONTEND_URL` com sufixo `/professor`;
 - por segurança, nunca versionar token em repositório e revogar/gerar novo token no BotFather se houver vazamento.
 
 ### 2) Moderação reativa e governança
