@@ -1,6 +1,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import request from 'supertest';
+import { UniqueConstraintError } from 'sequelize';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../models/index.js', () => ({
@@ -70,6 +71,103 @@ describe('auth routes integration', () => {
             expect(response.status).not.toBe(429);
             expect(response.status).toBe(400);
         }
+    });
+
+    it('POST /auth/register-student retorna 429 apos 5 tentativas com mesmo usuario (mesmo IP)', async () => {
+        const app = createApp();
+        const body = {
+            username: 'limite.aluno',
+            password: '123',
+            confirmPassword: '123'
+        };
+        for (let i = 0; i < 5; i += 1) {
+            const response = await request(app).post('/auth/register-student').send(body);
+            expect(response.status).toBe(400);
+        }
+        const blocked = await request(app).post('/auth/register-student').send(body);
+        expect(blocked.status).toBe(429);
+        expect(blocked.body.message).toContain('Muitas tentativas de cadastro');
+    });
+
+    it('POST /auth/register-student retorna 409 quando usuario ja existe', async () => {
+        const app = createApp();
+        User.findOne.mockResolvedValueOnce({
+            id: 7,
+            username: 'dup.silva',
+            deleted_at: null
+        });
+
+        const response = await request(app)
+            .post('/auth/register-student')
+            .send({
+                username: 'dup.silva',
+                password: 'SenhaForte456',
+                confirmPassword: 'SenhaForte456'
+            });
+
+        expect(response.status).toBe(409);
+        expect(response.body).toEqual({ message: 'Nome de usuário já está em uso.' });
+        expect(User.create).not.toHaveBeenCalled();
+    });
+
+    it('POST /auth/register-student retorna 201 quando dados validos', async () => {
+        const app = createApp();
+        User.findOne.mockResolvedValueOnce(null);
+        User.create.mockResolvedValue({
+            id: 42,
+            username: 'novo.aluno',
+            role: 'student',
+            created_at: new Date('2026-01-15T12:00:00.000Z')
+        });
+
+        const response = await request(app)
+            .post('/auth/register-student')
+            .send({
+                username: 'novo.aluno',
+                password: 'SenhaForte456',
+                confirmPassword: 'SenhaForte456'
+            });
+
+        expect(response.status).toBe(201);
+        expect(response.body).toEqual(
+            expect.objectContaining({
+                requiresApproval: true,
+                user: { id: 42, username: 'novo.aluno', role: 'student' }
+            })
+        );
+        expect(response.body.message).toContain('aprovação');
+        expect(User.create).toHaveBeenCalled();
+    });
+
+    it('POST /auth/register-student retorna 409 quando create falha por unicidade', async () => {
+        const app = createApp();
+        User.findOne.mockResolvedValueOnce(null);
+        User.create.mockRejectedValueOnce(new UniqueConstraintError({ message: 'username' }));
+
+        const response = await request(app)
+            .post('/auth/register-student')
+            .send({
+                username: 'corrida.aluno',
+                password: 'SenhaForte456',
+                confirmPassword: 'SenhaForte456'
+            });
+
+        expect(response.status).toBe(409);
+        expect(response.body).toEqual({ message: 'Nome de usuário já está em uso.' });
+    });
+
+    it('POST /auth/login retorna 429 apos 10 tentativas com mesmo usuario (mesmo IP)', async () => {
+        const app = createApp();
+        User.findOne.mockResolvedValue(null);
+
+        const payload = { username: 'falha.login', password: 'QualquerCoisa123' };
+        for (let i = 0; i < 10; i += 1) {
+            const response = await request(app).post('/auth/login').send(payload);
+            expect(response.status).toBe(401);
+        }
+        const blocked = await request(app).post('/auth/login').send(payload);
+        expect(blocked.status).toBe(429);
+        expect(blocked.body.message).toContain('Muitas tentativas de login');
     });
 
     it('GET /auth/me sem token retorna 401', async () => {

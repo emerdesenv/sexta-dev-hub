@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { UniqueConstraintError } from 'sequelize';
 
 vi.mock('../../models/index.js', () => ({
     User: {
@@ -109,6 +110,129 @@ describe('authController', () => {
             requiresApproval: true,
             message: expect.stringContaining('aprovação do professor')
         }));
+    });
+
+    it('retorna 409 amigavel quando create falha por unicidade (corrida)', async () => {
+        User.findOne.mockResolvedValueOnce(null);
+        User.create.mockRejectedValueOnce(new UniqueConstraintError({ message: 'uniq' }));
+
+        const req = {
+            body: {
+                username: 'aluno.teste',
+                password: 'SenhaForte456',
+                confirmPassword: 'SenhaForte456'
+            },
+            ip: '127.0.0.1'
+        };
+        const res = createMockRes();
+
+        await registerStudent(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(409);
+        expect(res.json).toHaveBeenCalledWith({ message: 'Nome de usuário já está em uso.' });
+    });
+
+    it('retorna 409 quando usuario ja existe (findOne)', async () => {
+        User.findOne.mockResolvedValueOnce({
+            id: 3,
+            username: 'aluno.teste',
+            deleted_at: null
+        });
+
+        const req = {
+            body: {
+                username: 'aluno.teste',
+                password: 'SenhaForte456',
+                confirmPassword: 'SenhaForte456'
+            },
+            ip: '127.0.0.1'
+        };
+        const res = createMockRes();
+
+        await registerStudent(req, res);
+
+        expect(User.create).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(409);
+        expect(res.json).toHaveBeenCalledWith({ message: 'Nome de usuário já está em uso.' });
+    });
+
+    it('retorna 400 quando senha nao atende politica (sem numero)', async () => {
+        User.findOne.mockResolvedValueOnce(null);
+
+        const req = {
+            body: {
+                username: 'aluno.teste',
+                password: 'SoLetrasSo',
+                confirmPassword: 'SoLetrasSo'
+            },
+            ip: '127.0.0.1'
+        };
+        const res = createMockRes();
+
+        await registerStudent(req, res);
+
+        expect(User.create).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith(
+            expect.objectContaining({
+                message: expect.stringContaining('letra')
+            })
+        );
+    });
+
+    it('cria aluno ativo quando aprovacao nao e obrigatoria', async () => {
+        process.env.STUDENT_REQUIRE_APPROVAL = 'false';
+        User.findOne.mockResolvedValueOnce(null);
+        User.create.mockResolvedValue({
+            id: 11,
+            username: 'aluno.livre',
+            role: 'student',
+            created_at: new Date()
+        });
+
+        const req = {
+            body: {
+                username: 'aluno.livre',
+                password: 'SenhaForte456',
+                confirmPassword: 'SenhaForte456'
+            },
+            ip: '127.0.0.1'
+        };
+        const res = createMockRes();
+
+        await registerStudent(req, res);
+
+        expect(User.create).toHaveBeenCalledWith(
+            expect.objectContaining({
+                username: 'aluno.livre',
+                is_active: true
+            })
+        );
+        expect(res.status).toHaveBeenCalledWith(201);
+        expect(res.json).toHaveBeenCalledWith(
+            expect.objectContaining({
+                requiresApproval: false,
+                message: expect.stringContaining('sucesso')
+            })
+        );
+    });
+
+    it('propaga erro inesperado do create', async () => {
+        User.findOne.mockResolvedValueOnce(null);
+        User.create.mockRejectedValueOnce(new Error('db_indisponivel'));
+
+        const req = {
+            body: {
+                username: 'aluno.teste',
+                password: 'SenhaForte456',
+                confirmPassword: 'SenhaForte456'
+            },
+            ip: '127.0.0.1'
+        };
+        const res = createMockRes();
+
+        await expect(registerStudent(req, res)).rejects.toThrow('db_indisponivel');
+        expect(res.status).not.toHaveBeenCalled();
     });
 
     it('executa soft delete da conta do aluno', async () => {

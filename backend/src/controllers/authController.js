@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import { Op } from 'sequelize';
+import { Op, UniqueConstraintError } from 'sequelize';
 import { User, UserCollectible, UserSession } from '../models/index.js';
 import { buildPurgeDate } from '../services/accountPurgeService.js';
 import { notifyNewStudentRegistration } from '../services/telegramNotifier.js';
@@ -328,12 +328,20 @@ export async function registerStudent(req, res) {
     }
 
     const password_hash = await bcrypt.hash(data.password, 10);
-    const user = await User.create({
-        username: normalizedUsername,
-        password_hash,
-        role: 'student',
-        is_active: !requireApproval
-    });
+    let user;
+    try {
+        user = await User.create({
+            username: normalizedUsername,
+            password_hash,
+            role: 'student',
+            is_active: !requireApproval
+        });
+    } catch (err) {
+        if (err instanceof UniqueConstraintError) {
+            return res.status(409).json({ message: 'Nome de usuário já está em uso.' });
+        }
+        throw err;
+    }
     authAudit('student_registered', {
         userId: user.id,
         username: user.username,
