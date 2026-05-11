@@ -56,6 +56,22 @@ describe('auth routes integration', () => {
         expect(response.body.message).toContain('formato nome.sobrenome');
     });
 
+    it('POST /auth/register-student aplica limite por usuario (mesmo IP pode cadastrar varios alunos)', async () => {
+        const app = createApp();
+        for (let i = 0; i < 8; i += 1) {
+            const letter = String.fromCharCode(97 + i);
+            const response = await request(app)
+                .post('/auth/register-student')
+                .send({
+                    username: `turma.${letter}`,
+                    password: '123',
+                    confirmPassword: '123'
+                });
+            expect(response.status).not.toBe(429);
+            expect(response.status).toBe(400);
+        }
+    });
+
     it('GET /auth/me sem token retorna 401', async () => {
         const app = createApp();
 

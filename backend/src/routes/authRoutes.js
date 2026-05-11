@@ -16,12 +16,24 @@ import { authRequired, professorRequired } from '../middleware/auth.js';
 
 const router = Router();
 
+function normalizedAuthUsername(req) {
+    const raw = req.body?.username;
+    return typeof raw === 'string' ? raw.trim().toLowerCase() : '';
+}
+
+/** Conta por IP + usuário para não penalizar várias pessoas no mesmo WiFi (NAT). */
+function rateLimitKeyPerUser(req) {
+    const u = normalizedAuthUsername(req);
+    return u ? `${req.ip}:${u}` : req.ip;
+}
+
 const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 10,
     standardHeaders: true,
     legacyHeaders: false,
-    message: { message: 'Muitas tentativas de login. Tente novamente em alguns minutos.' }
+    message: { message: 'Muitas tentativas de login. Tente novamente em alguns minutos.' },
+    keyGenerator: rateLimitKeyPerUser
 });
 
 const registerLimiter = rateLimit({
@@ -29,7 +41,8 @@ const registerLimiter = rateLimit({
     max: 5,
     standardHeaders: true,
     legacyHeaders: false,
-    message: { message: 'Muitas tentativas de cadastro. Tente novamente em alguns minutos.' }
+    message: { message: 'Muitas tentativas de cadastro. Tente novamente em alguns minutos.' },
+    keyGenerator: rateLimitKeyPerUser
 });
 
 router.post('/login', loginLimiter, login);
