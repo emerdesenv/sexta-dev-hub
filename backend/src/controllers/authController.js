@@ -16,14 +16,25 @@ const registerStudentSchema = z.object({
     username: z
         .string()
         .trim()
-        .min(3)
-        .max(80)
+        .min(3, { message: 'O usuário deve ter pelo menos 3 caracteres.' })
+        .max(80, { message: 'O usuário pode ter no máximo 80 caracteres.' })
         .regex(/^[a-z]+(?:\.[a-z]+)+$/, {
             message: 'O usuário deve seguir o formato nome.sobrenome (ex.: emerson.amancio), usando apenas letras minúsculas e ponto.'
         }),
-    password: z.string().min(8).max(120),
-    confirmPassword: z.string().min(8).max(120),
-    inviteCode: z.string().trim().max(120).optional().default('')
+    password: z
+        .string()
+        .min(8, { message: 'A senha deve ter pelo menos 8 caracteres.' })
+        .max(120, { message: 'A senha pode ter no máximo 120 caracteres.' }),
+    confirmPassword: z
+        .string()
+        .min(8, { message: 'A confirmação de senha deve ter pelo menos 8 caracteres.' })
+        .max(120, { message: 'A confirmação de senha pode ter no máximo 120 caracteres.' }),
+    inviteCode: z
+        .string()
+        .trim()
+        .max(120, { message: 'O código de convite pode ter no máximo 120 caracteres.' })
+        .optional()
+        .default('')
 }).refine((value) => value.password === value.confirmPassword, {
     message: 'Senha e confirmação de senha devem ser iguais.',
     path: ['confirmPassword']
@@ -356,9 +367,17 @@ export async function registerStudent(req, res) {
 }
 
 const updatePasswordSchema = z.object({
-    currentPassword: z.string().min(8),
-    newPassword: z.string().min(8).max(120),
-    confirmPassword: z.string().min(8).max(120)
+    currentPassword: z
+        .string()
+        .min(8, { message: 'A senha atual deve ter pelo menos 8 caracteres.' }),
+    newPassword: z
+        .string()
+        .min(8, { message: 'A nova senha deve ter pelo menos 8 caracteres.' })
+        .max(120, { message: 'A nova senha pode ter no máximo 120 caracteres.' }),
+    confirmPassword: z
+        .string()
+        .min(8, { message: 'A confirmação de senha deve ter pelo menos 8 caracteres.' })
+        .max(120, { message: 'A confirmação de senha pode ter no máximo 120 caracteres.' })
 }).refine((value) => value.newPassword === value.confirmPassword, {
     message: 'Nova senha e confirmação devem ser iguais.',
     path: ['confirmPassword']
